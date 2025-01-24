@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+
+import os
+import re
+import fnmatch
+
+########################################
+# Utility Functions
+########################################
+
+def load_gitignore_patterns(gitignore_path=".gitignore"):
+    """
+    Loads patterns from the .gitignore file to know which files/folders to skip.
+    """
+    patterns = []
+    if os.path.exists(gitignore_path):
+        with open(gitignore_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    patterns.append(line)
+    return patterns
+
+def is_ignored(path, ignore_patterns):
+    """
+    Checks if the file/folder matches any .gitignore patterns.
+    """
+    for pattern in ignore_patterns:
+        if fnmatch.fnmatch(path, pattern):
+            return True
+    return False
+
+def ensure_dir_exists(path):
+    """
+    Makes sure the directory for the given path exists.
+    """
+    os.makedirs(path, exist_ok=True)
+
+def generate_file_overview(file_path, file_content):
+    """
+    Placeholder function to call an LLM API to get a short paragraph about the file.
+    Realistically you'd do something like:
+    return call_llm_api(prompt=f"Summarize the following file: {file_content}")
+    """
+    return f"This is a placeholder overview of the file {file_path}.\n"
+
+def generate_function_summary(file_path, function_name, function_content):
+    """
+    Placeholder for an LLM-generated summary of a function or method.
+    """
+    return f"This is a placeholder summary of {function_name} in {file_path}.\n"
+
+def parse_functions(file_content):
+    """
+    Naive or LLM-based approach to parse out function blocks from code.
+    For a real multi-language solution, you'd likely rely on a library
+    (e.g., tree-sitter) or an LLM prompt that returns structured offsets.
+    Here, we return a simple placeholder.
+    """
+    # Example: Return a list of (function_name, function_body)
+    # This is obviously not robust for all languages!
+    # Replace with your real logic or an LLM parser.
+    return [
+        ("exampleFunction", "function exampleFunction() {\n  // ...\n}"),
+        ("anotherFunction", "function anotherFunction() {\n  // ...\n}")
+    ]
+
+########################################
+# Core Logic
+########################################
+
+def process_file(root_dir, file_path, ignore_patterns):
+    """
+    Reads a single file, generates an overview, extracts functions, and writes
+    them all into the /llm/ mirrored folder.
+    """
+    # Skip if ignored
+    rel_path = os.path.relpath(file_path, start=root_dir).replace("\\", "/")
+    if is_ignored(rel_path, ignore_patterns):
+        return
+
+    # Read file content
+    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+        content = f.read()
+
+    # Prepare the output folder structure in /llm/
+    llm_root = os.path.join(root_dir, "llm")
+    mirrored_dir = os.path.join(llm_root, os.path.dirname(rel_path))
+    # Example: if file is /some/path/User.php => mirrored_dir = /llm/some/path
+    # Then we create a subfolder based on filename without extension
+    filename = os.path.splitext(os.path.basename(rel_path))[0]  # e.g. "User"
+    class_folder = os.path.join(mirrored_dir, filename)
+    ensure_dir_exists(class_folder)
+
+    # 1) Generate the overview markdown
+    overview_content = generate_file_overview(rel_path, content)
+    overview_file_path = os.path.join(class_folder, f"{filename}Overview.md")
+
+    # Format: per instructions
+    # # File: /some/path/User.php
+    # [overview paragraph]
+    # [full file content]
+    with open(overview_file_path, "w", encoding="utf-8") as out:
+        out.write(f"# File: /{rel_path}\n\n")
+        out.write(overview_content.strip() + "\n\n")
+        out.write("```\n")
+        out.write(content)
+        out.write("\n```\n")
+
+    # 2) Parse out functions
+    functions = parse_functions(content)
+
+    # For each function, create a separate markdown file in the same folder
+    for func_name, func_body in functions:
+        function_summary = generate_function_summary(rel_path, func_name, func_body)
+        # File name: e.g. createAndInvite -> "createAndInvite.md"
+        func_file_name = f"{func_name}.md"
+        func_file_path = os.path.join(class_folder, func_file_name)
+
+        with open(func_file_path, "w", encoding="utf-8") as out:
+            out.write(f"# File: /{rel_path}@{func_name}()\n\n")
+            out.write(function_summary.strip() + "\n\n")
+            out.write("```\n")
+            out.write(func_body)
+            out.write("\n```\n")
+
+def main():
+    root_dir = os.getcwd()  # assume script is placed in the repo root
+    ignore_patterns = load_gitignore_patterns(os.path.join(root_dir, ".gitignore"))
+
+    # Traverse all files under root_dir
+    for current_path, dirs, files in os.walk(root_dir):
+        # If the /llm/ folder already exists, skip traversing it
+        if "llm" in current_path.split(os.sep):
+            continue
+
+        # Filter out ignored directories on the fly
+        dirs[:] = [d for d in dirs if not is_ignored(os.path.join(current_path, d), ignore_patterns)]
+
+        for file_name in files:
+            file_path = os.path.join(current_path, file_name)
+            # Skip if it is the script itself or .gitignore
+            if file_name == os.path.basename(__file__):
+                continue
+            if file_name == ".gitignore":
+                continue
+
+            # Process each file
+            process_file(root_dir, file_path, ignore_patterns)
+
+
+if __name__ == "__main__":
+    main()
