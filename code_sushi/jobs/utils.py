@@ -8,6 +8,7 @@ PATH_WEIGHTS = {
     "services": 5,
     "routes": 4,
     "src": 3,
+    "module": 3,
     "tests": -3,
     "docs": -2,
     "node_modules": -5,
@@ -57,10 +58,10 @@ def calculate_priority(file: File) -> int:
 
     return score
 
-def prioritize_files(files: List[File]) -> List[tuple[File, int]]:
+def prioritize_files(files: List[File]) -> List[tuple[int, File]]:
     # Calculate priority for each file
-    prioritized_files = [(file, calculate_priority(file)) for file in files]
+    prioritized_files = [(calculate_priority(file), file) for file in files]
     # Sort files by priority score in descending order
-    prioritized_files.sort(key=lambda x: x[1], reverse=True)
+    prioritized_files.sort(key=lambda x: x[0], reverse=True)
 
     return prioritized_files

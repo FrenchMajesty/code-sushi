@@ -19,14 +19,25 @@ class JobQueue:
 
         self.prepare(files)
         print("Job queue initialized.")
+
+        # Peek at the highest-priority item
+        def peek(pq):
+            with pq.mutex:  # Lock the queue for thread safety
+                if pq.queue:
+                    return pq.queue.pop()  # The smallest element
+            return None
+
         print(self.queue)
     
     def prepare(self, files: List[File]):
-        for file, priority in prioritize_files(files):
-            self.push(priority, JobTask(file))
+        for priority, file in prioritize_files(files):
+            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+                print(f"Adding {file.absolute_path} to queue with priority {priority}")
+            self.push(priority, JobTask(self.context, file))
 
     def push(self, priority: int, job: JobTask):
         with self.lock:
+            self.capacity += 1
             self.queue.put((priority, job))
             self.state[job.name] = job.status
             self.save()
@@ -34,6 +45,7 @@ class JobQueue:
     def pop(self):
         with self.lock:
             if not self.queue.empty():
+                self.capacity -= 1
                 priority, job = self.queue.get()
                 self.state[job.name] = job.status
                 self.save()
@@ -51,7 +63,7 @@ class JobQueue:
             time.sleep(0.2)
             with self.lock:
                 # TODO: Implement the actual save logic here
-                # For example, saving the state to a file or database
+                # For example, saving the self.state to a file
                 # For fault tolerance and to pick up where we left off
                 # on long or interrupted processes
                 pass

@@ -40,7 +40,8 @@ def slice(repo_path: str, log_level: int):
     clean(repo_path)
     os.makedirs(f"{repo_path}/.llm", exist_ok=True)
 
-    pipeline = JobQueue(files)
+    pipeline = JobQueue(context, files)
+    print(f"Queue has {pipeline.capacity} items.")
     team = AgentTeam(10)
 
 def clean(repo_path: str):
