@@ -10,15 +10,21 @@ class Itamae:
     """
     The Itamae is the module responsible for precisely slicing the code into logical chunks.
     """
+
+    _instance = None
+
+    def __new__(self, *args, **kwargs):
+        if self._instance is None:
+            self._instance = super().__new__(self, *args, **kwargs)
+        return self._instance
     
-    def slice_chunks(context: Context, file: File) -> List[LogicalChunk]:
+    def slice_chunks(self, context: Context, file: File) -> List[LogicalChunk]:
         """Process the file to and extract every individual function."""
-        
-        parser = init_parser(file.extension)
+        parser = init_parser(context, file.ext)
         if not parser:
             return []
-        
-        code, syntax_tree = Itamae.parse_content(parser, file.absolute_path)
+
+        code, syntax_tree = self.parse_content(parser, file.absolute_path)
         functions = extract_functions(code, syntax_tree)
 
         # Parse each function into a logical chunk object
@@ -28,13 +34,13 @@ class Itamae:
             file_path = save_raw_function(func, output_dir)
 
             if context.log_level.value >= LogLevel.VERBOSE.value:
-                print(f"Saved: {file_path}")
+                print(f"Saved function: {file_path}")
 
-            chunks.append(LogicalChunk(file, func["name"], func["code"], file_path))
+            chunks.append(LogicalChunk(context, file, func["name"], func["code"], file_path))
 
         return chunks
 
-    def parse_content(parser: Parser, file_path: str) -> tuple[str, Tree]:
+    def parse_content(self, parser: Parser, file_path: str) -> tuple[str, Tree]:
         """Parse the content of the file and return the syntax tree."""
 
         code = open(file_path, "r", encoding="utf8").read()

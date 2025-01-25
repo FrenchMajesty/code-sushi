@@ -12,17 +12,20 @@ LANGUAGES = {
     # Add more languages here if needed
 }
 
-def init_parser(extension: str) -> Optional[Parser]:
+def init_parser(context: Context, extension: str) -> Optional[Parser]:
     """Initialize the parser for the given file extension. Return None if the extension is not supported."""
+    
+    try:
+        language = LANGUAGES.get(extension, None)
+        if not language:
+            if context.log_level.value >= LogLevel.DEBUG.value:
+                print(f"Itamae cannot slice unsupported file: {extension}. Skipping...")
+            return None
 
-    language = LANGUAGES.get(extension)
-    if not language:
-        print(f"Skipping unsupported file: {extension}")
+        return Parser(language)
+    except Exception as e:
+        print(f"Error initializing parser: {e}")
         return None
-
-    parser = Parser()
-    parser.set_language(language)
-    return parser
     
 def extract_functions(code: str, tree: Tree):
     """Extract all function/method definitions in the code."""

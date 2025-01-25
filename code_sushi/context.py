@@ -10,7 +10,6 @@ class LogLevel(Enum):
 
 class Context:
     def __init__(self, repo_path: Optional[str] = None, log_level: int = 1):
-        self.repo_language: Optional[str] = None
         self.repo_path: Optional[str] = repo_path
         self.log_level: LogLevel = LogLevel(log_level)
         self.output_dir: Optional[str] = None
