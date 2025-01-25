@@ -21,7 +21,7 @@ def scan_repo(context: Context) -> List[File]:
     # Convert to File objects
     files = [File(context.repo_path, file) for file in files]
 
-    if context.log_level.value >= LogLevel.INFO.value:
+    if context.log_level.value >= LogLevel.DEBUG.value:
         print_details(files)
     
     return files

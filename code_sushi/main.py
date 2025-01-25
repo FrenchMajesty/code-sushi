@@ -1,6 +1,6 @@
 
 import argparse
-from .core import scan_repo 
+from .core import scan_repo, get_code_insights
 from .context import Context, LogLevel
 
 def dry_run():
@@ -22,16 +22,21 @@ def slice(repo_path: str, log_level: int):
     context = Context(repo_path=repo_path, log_level=log_level)
 
     print("Scanning the repository...")
-    filepaths = scan_repo(context)
+    files = scan_repo(context)
 
     if context.log_level.value >= LogLevel.DEBUG.value:
-        print(f"{len(filepaths)} files found in that repository")
+        print(f"{len(files)} files found in that repository")
 
+    get_code_insights(files, True)
+    # Confirm with the user that the list looks good before proceeding
+    confirm = input("\n\nBased on this overview, do you want to proceed with slicing this repo? (y/n): ").strip().lower()
+    if confirm != 'y':
+        print("Aborting the slicing process.")
+        return
+    
     '''
     ------------------------------------------
     Steps:
-    1- Get the list of files in the repository.
-    2- Filter out the ones in .gitignore
     3- Confirm with user list looks good before proceeding
     4- Slice the list into chunks
     5- Create a queue of 10 AI agents that will parallel process the chunks and store the results

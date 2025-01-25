@@ -59,3 +59,44 @@ def filter_out_bad_files(context: Context, files: List[str]) -> List[str]:
     files = [file for file in files if is_code_file(file)]
 
     return files
+
+def get_code_insights(files: List[File], printing: bool = False) -> List[str]:
+    """
+    Get code insights from the files. Figure out the distribution of file types in terms of lines of code
+    and which folders have the most code.
+    """
+    insights = []
+    file_type_distribution = {}
+    folder_code_distribution = {}
+
+    for file in files:
+        file_extension = os.path.splitext(file.absolute_path)[1]
+        if file_extension not in file_type_distribution:
+            file_type_distribution[file_extension] = 0
+        file_type_distribution[file_extension] += file.line_count
+
+        folder_path = os.path.dirname(file.absolute_path)
+        if folder_path not in folder_code_distribution:
+            folder_code_distribution[folder_path] = 0
+        folder_code_distribution[folder_path] += file.line_count
+
+    if printing:
+        print("\n-- Folder Code Distribution:\n")
+    insights.append("Folder Code Distribution:")
+    for folder, line_count in folder_code_distribution.items():
+        insight = f"{folder}: {line_count:,} lines"
+        if printing:
+            print(insight)
+        insights.append(insight)
+
+    if printing:
+        print("\n-- File Extension Distribution:\n")
+    insights.append("File Extension Distribution:")
+    for file_type, line_count in file_type_distribution.items():
+        type = file_type if file_type else "?"
+        insight = f"{type}: {line_count:,} lines"
+        if printing:
+            print(insight)
+        insights.append(insight)
+
+    return insights
