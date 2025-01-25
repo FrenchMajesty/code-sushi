@@ -37,19 +37,22 @@ def slice(repo_path: str, log_level: int, agents: int):
         return
     
     # Prepare output directory
-    clean(repo_path)
-    os.makedirs(f"{repo_path}/.llm", exist_ok=True)
+    output_dir = os.path.abspath(f"{repo_path}/.llm")
+    clean(output_dir)
+    context.output_dir = output_dir
+    os.makedirs(output_dir, exist_ok=True)
 
+    # Get to work
     pipeline = JobQueue(context, files)
     team = AgentTeam(context, agent_count=agents)
     team.get_to_work(pipeline)
 
-def clean(repo_path: str):
+def clean(output_dir: str):
     """
     Clean up the local output directory after processing.
     """
     print("Cleaning up output directory...")
-    os.system(f"rm -rf {repo_path}/.llm")
+    os.system(f"rm -rf {output_dir}")
     print("Directory cleaned up.")
 
 def main():

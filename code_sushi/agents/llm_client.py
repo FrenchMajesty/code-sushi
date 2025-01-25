@@ -1,7 +1,6 @@
 from together import Together
 from dotenv import load_dotenv
 from code_sushi.context import Context, LogLevel
-import os
 from .prompt_guidance import (
     summarize_file_prompt
 )
@@ -17,7 +16,6 @@ making requests and processing responses. Implement API-specific logic here.
 client = Together()
 model = "meta-llama/Llama-3.3-70B-Instruct-Turbo"
 
-# Example: Placeholder function
 def summarize_file(context: Context, file_path: str, content: str):
     """
     Summarize the provided file using an LLM.

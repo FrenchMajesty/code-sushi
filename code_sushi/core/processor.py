@@ -1,4 +1,5 @@
 from typing import List
+import os
 from code_sushi.context import Context, LogLevel
 from .file import File
 from .utils import (
@@ -42,3 +43,22 @@ def scan_repo(context: Context) -> List[File]:
         print_details(files)
     
     return files
+
+def write_summary(context: Context, file: File, summary: str):
+    """
+    Store the summary of the file and the file content.
+    """
+
+    content = open(file.absolute_path).read()
+    template = f"""
+    # File: {file.clean_path}
+    ## Summary: {summary}
+    ----
+    {content}
+    """
+
+    # Write to destination
+    dest = os.path.join(context.output_dir, file.file_name + '.md')
+    with open(dest, 'w') as f:
+        f.write(template)
+    

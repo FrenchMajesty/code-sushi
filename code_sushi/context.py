@@ -13,3 +13,4 @@ class Context:
         self.repo_language: Optional[str] = None
         self.repo_path: Optional[str] = repo_path
         self.log_level: LogLevel = LogLevel(log_level)
+        self.output_dir: Optional[str] = None
