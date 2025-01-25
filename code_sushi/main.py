@@ -1,5 +1,7 @@
 
 import argparse
+from .core import scan_repo 
+from .context import Context
 
 def dry_run():
     """
@@ -13,11 +15,24 @@ def upload():
     """
     print("Uploading processed repository chunks to RAG system...")
 
-def slice():
+def slice(repo_path: str):
     """
     Slice the repository into chunks for processing.
     """
     print("Slicing the repository...")
+    context = Context(repo_path=repo_path)
+    filepaths = scan_repo(context)
+    print(len(filepaths), ' files found in that repository')
+
+    '''
+    ------------------------------------------
+    Steps:
+    1- Get the list of files in the repository.
+    2- Filter out the ones in .gitignore
+    3- Confirm with user list looks good before proceeding
+    4- Slice the list into chunks
+    5- Create a queue of 10 AI agents that will parallel process the chunks and store the results
+    '''
 
 def clean():
     """
@@ -39,6 +54,7 @@ def main():
 
     # Add 'slice' command
     slice_parser = subparsers.add_parser("slice", help="Slice the repo into chunks for processing.")
+    slice_parser.add_argument("--path", required=True, help="Path to the repository to process.")
     slice_parser.set_defaults(func=slice)
 
     # Add 'clean' command
@@ -47,7 +63,11 @@ def main():
     
     # Parse and execute the appropriate command
     args = parser.parse_args()
-    args.func()
+
+    if args.command == "slice":
+        args.func(args.path)
+    else:
+        args.func()
 
 if __name__ == "__main__":
     main()
