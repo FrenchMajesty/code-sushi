@@ -19,16 +19,10 @@ class JobQueue:
         self.state = {}
 
         self.prepare(files)
-        print("Job queue initialized.")
 
-        # Peek at the highest-priority item
-        def peek(pq):
-            with pq.mutex:  # Lock the queue for thread safety
-                if pq.queue:
-                    return pq.queue.pop()  # The smallest element
-            return None
-
-        print(self.queue)
+        if self.context.log_level.value >= LogLevel.DEBUG.value:
+            print("Job queue initialized.")
+            print("Top priority job:", peek(self.queue))
     
     def prepare(self, files: List[File]):
         for priority, file in prioritize_files(files):
@@ -40,7 +34,7 @@ class JobQueue:
         with self.lock:
             self.capacity += 1
             self.queue.put((priority, job))
-            self.state[job.name] = job.status
+            self.state[job.name] = TaskStatus.IN_PROGRESS
             self.save()
 
     def pop(self):
@@ -48,15 +42,21 @@ class JobQueue:
             if not self.queue.empty():
                 self.capacity -= 1
                 priority, job = self.queue.get()
-                self.state[job.name] = job.status
+                self.state[job.name] = TaskStatus.IN_PROGRESS
                 self.save()
+                if self.context.log_level.value >= LogLevel.VERBOSE.value:
+                    print(f"Popped {job.name} from queue to begin work.")
                 return priority, job
         
         return None, None
 
+    def empty(self):
+        with self.lock:
+            return self.queue.empty()
+
     def mark_complete(self, job: JobTask):
         with self.lock:
-            self.state[job.name] = job.status
+            self.state[job.name] = TaskStatus.COMPLETE
             self.save()
 
     def save(self):
@@ -70,3 +70,23 @@ class JobQueue:
                 pass
 
         threading.Thread(target=debounce_save).start()
+    
+    def print_status_update(self):
+        """
+        Print the current status of the job queue.
+        """
+        pending_count = sum(1 for status in self.state.values() if status == TaskStatus.IN_PROGRESS)
+        completed_count = sum(1 for status in self.state.values() if status == TaskStatus.COMPLETE)
+
+        print(f"Total jobs: \t{len(self.state)}")
+        print(f"Pending jobs: \t{pending_count}")
+        print(f"Completed jobs: \t{completed_count}")
+
+def peek(pq):
+    """
+    Peek at the highest-priority item in the queue.
+    """
+    with pq.mutex:  # Lock the queue for thread safety
+        if pq.queue:
+            return pq.queue[-1]  # The largest element
+    return None

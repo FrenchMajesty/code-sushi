@@ -18,7 +18,7 @@ def upload():
     """
     print("Uploading processed repository chunks to RAG system...")
 
-def slice(repo_path: str, log_level: int):
+def slice(repo_path: str, log_level: int, agents: int):
     """
     Slice the repository into chunks for processing.
     """
@@ -41,8 +41,8 @@ def slice(repo_path: str, log_level: int):
     os.makedirs(f"{repo_path}/.llm", exist_ok=True)
 
     pipeline = JobQueue(context, files)
-    print(f"Queue has {pipeline.capacity} items.")
-    team = AgentTeam(10)
+    team = AgentTeam(context, agent_count=agents)
+    team.get_to_work(pipeline)
 
 def clean(repo_path: str):
     """
@@ -68,6 +68,7 @@ def main():
     slice_parser = subparsers.add_parser("slice", help="Slice the repo into chunks for processing.")
     slice_parser.add_argument("--path", required=True, help="Path to the repository to process.")
     slice_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
+    slice_parser.add_argument("--agents", type=int, default=10, help="Number of agents to use for processing.")
 
     slice_parser.set_defaults(func=slice)
 
@@ -79,7 +80,7 @@ def main():
     args = parser.parse_args()
 
     if args.command == "slice":
-        args.func(args.path, args.log)
+        args.func(args.path, args.log, args.agents)
     else:
         args.func()
 

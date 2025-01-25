@@ -17,7 +17,7 @@ class JobTask:
     """
     def __init__(self, context: Context, file: File):
         self.file = file
-        self.name = file.absolute_path
+        self.name = file.clean_path
         self.status = TaskStatus.PENDING
         self.context = context
         self.busy = False
@@ -26,12 +26,12 @@ class JobTask:
         """
         Execute the task.
         """
-        self.busy = True
-        self.status = TaskStatus.IN_PROGRESS
-
         start_time = time.time()
         if self.context.log_level.value >= LogLevel.VERBOSE.value:
             print(f"Processing {self.name}...")
+
+        self.busy = True
+        self.status = TaskStatus.IN_PROGRESS
 
         time.sleep(2)
 
@@ -45,7 +45,7 @@ class JobTask:
 
         if self.context.log_level.value >= LogLevel.VERBOSE.value:
             runtime = time.time() - start_time
-            print(f"Completed {self.name} in {runtime:.2f} seconds.")
+            print(f"Completed {self.name} Job in {runtime:.2f} seconds.")
 
     def __lt__(self, other: "JobTask"):
         return self.name < other.name
