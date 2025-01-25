@@ -1,6 +1,6 @@
 from typing import List
 from code_sushi.context import Context, LogLevel
-from code_sushi.core.file import File
+from code_sushi.core import File
 from .utils import (
     print_details,
     get_files_from_folder,
@@ -12,7 +12,7 @@ from .utils import (
 """
 Processor module for Code Sushi.
 
-This module handles the core logic for reading files,parsing code into
+This module handles the core logic for reading files, parsing code into
 functions/classes, and organizing outputs for LLM consumption.
 """
 

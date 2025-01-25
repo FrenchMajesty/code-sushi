@@ -9,6 +9,7 @@ class File:
         self.absolute_path = os.path.abspath(path)
         self.clean_path = path.replace(repo_root, "", 1)
         self.file_name = os.path.basename(self.clean_path)
+        self.ext = os.path.splitext(self.clean_path)[1]
 
         # Get metadata about the file
         try:
