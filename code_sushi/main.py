@@ -2,6 +2,7 @@
 import argparse
 from .core import scan_repo, get_code_insights
 from .context import Context, LogLevel
+import os
 
 def dry_run():
     """
@@ -27,13 +28,17 @@ def slice(repo_path: str, log_level: int):
     if context.log_level.value >= LogLevel.DEBUG.value:
         print(f"{len(files)} files found in that repository")
 
+    # Confirm with user the files detected look good
     get_code_insights(files, True)
-    # Confirm with the user that the list looks good before proceeding
     confirm = input("\n\nBased on this overview, do you want to proceed with slicing this repo? (y/n): ").strip().lower()
     if confirm != 'y':
         print("Aborting the slicing process.")
         return
     
+    # Prepare output directory
+    clean()
+    os.makedirs(f"{repo_path}/.llm", exist_ok=True)
+
     '''
     ------------------------------------------
     Steps:

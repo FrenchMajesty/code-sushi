@@ -11,8 +11,12 @@ class File:
         self.file_name = os.path.basename(self.clean_path)
 
         # Get metadata about the file
-        self.line_count = sum(1 for _ in open(self.absolute_path))
-        self.file_size = os.path.getsize(self.absolute_path)
+        try:
+            self.line_count = sum(1 for _ in open(self.absolute_path))
+            self.file_size = os.path.getsize(self.absolute_path)
+        except Exception as e:
+            print(f"Error reading file: {self.absolute_path}. {e}")
+            exit(1)
 
     def __str__(self):
         return '\t'.join([
