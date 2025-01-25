@@ -5,6 +5,7 @@ from code_sushi.context import Context, LogLevel
 from code_sushi.core import write_summary
 from .llm_client import summarize_file
 from code_sushi.jobs import JobTask, TaskStatus
+from code_sushi.core import Itamae
 import time
 
 class Agent:
@@ -34,7 +35,8 @@ class Agent:
         summary = summarize_file(self.context, task.file.clean_path, content)
         write_summary(self.context, task.file, summary)
 
-        # TODO: Use LLM to extract functions or logical blocks
+        # 2- Extract logical chunks from the file
+        chunks = Itamae.slice_chunks(self.context, task.file)
         # TODO: Add to queue for further summarization of the chunk
 
         task.update_status(TaskStatus.COMPLETE)

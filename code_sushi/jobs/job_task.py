@@ -1,4 +1,5 @@
 from code_sushi.core import File
+from code_sushi.itamae import LogicalChunk
 from code_sushi.context import Context, LogLevel
 from typing import Optional
 from enum import Enum
@@ -18,25 +19,14 @@ class JobTask:
     """
     def __init__(self, 
                 context: Context, 
-                file: File, 
+                file: Optional[File] = None,
+                chunk: Optional[LogicalChunk] = None
                 ):
         self.file = file
         self.name = file.clean_path
         self.status = TaskStatus.PENDING
         self.context = context
         self.busy = False
-
-        # For logical chunking only
-        self.boundaries = None
-        self.parent_summary = None
-
-    def for_chunk(self, boundaries: tuple[int, int], parent_summary: str) -> "JobTask":
-        """
-        Update the task for a logical chunk with the given boundaries.
-        """
-        self.boundaries = boundaries
-        self.parent_summary = parent_summary
-        return self
 
     def update_status(self, status: TaskStatus):
         self.status = status
