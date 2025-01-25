@@ -1,7 +1,9 @@
 
 import argparse
 from .core import scan_repo, get_code_insights
-from .context import Context, LogLevel
+from .context import Context
+from .agents import AgentTeam
+from .jobs import JobQueue
 import os
 
 def dry_run():
@@ -38,21 +40,8 @@ def slice(repo_path: str, log_level: int):
     clean(repo_path)
     os.makedirs(f"{repo_path}/.llm", exist_ok=True)
 
-    '''
+    pipeline = JobQueue(files)
     team = AgentTeam(10)
-
-
-    '''
-
-    # Loop over the files
-    # 1- Summarize the file as a whole
-    # 2- Slice each file in logical chunks and summarize each chunk
-    # 3 - Store the results in the output directory
-    '''
-    ------------------------------------------
-    Steps:
-    5- Create a queue of 10 AI agents that will parallel process the chunks and store the results
-    '''
 
 def clean(repo_path: str):
     """
