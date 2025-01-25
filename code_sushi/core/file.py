@@ -13,7 +13,23 @@ class File:
         self.size = 0
         self.line_count = 0
 
-        # Get metadata about the file
+        if len(path) > len(repo_root):
+            self.sanitize_clean_path(repo_root)
+
+        self.load_metadata()
+
+    def sanitize_clean_path(self, repo_root: str):
+        """
+        Sanitize the clean path on potentially malformed files in root folder.
+        """
+        last_part = repo_root.split("/")[-1]
+        if last_part in self.clean_path:
+            self.clean_path = self.clean_path.split(last_part, 1)[1]
+
+    def load_metadata(self):
+        """
+        Load metadata for the file.
+        """
         try:
             self.line_count = sum(1 for _ in open(self.absolute_path))
             self.size = os.path.getsize(self.absolute_path)
