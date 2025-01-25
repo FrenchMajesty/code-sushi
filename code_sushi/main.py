@@ -25,8 +25,7 @@ def slice(repo_path: str, log_level: int):
     print("Scanning the repository...")
     files = scan_repo(context)
 
-    if context.log_level.value >= LogLevel.DEBUG.value:
-        print(f"{len(files)} files found in that repository")
+    print(f"\n--\nTotal files selected in repo: {len(files)}\n--\n")
 
     # Confirm with user the files detected look good
     get_code_insights(files, True)
@@ -36,22 +35,32 @@ def slice(repo_path: str, log_level: int):
         return
     
     # Prepare output directory
-    clean()
+    clean(repo_path)
     os.makedirs(f"{repo_path}/.llm", exist_ok=True)
 
     '''
+    team = AgentTeam(10)
+
+
+    '''
+
+    # Loop over the files
+    # 1- Summarize the file as a whole
+    # 2- Slice each file in logical chunks and summarize each chunk
+    # 3 - Store the results in the output directory
+    '''
     ------------------------------------------
     Steps:
-    3- Confirm with user list looks good before proceeding
-    4- Slice the list into chunks
     5- Create a queue of 10 AI agents that will parallel process the chunks and store the results
     '''
 
-def clean():
+def clean(repo_path: str):
     """
-    Clean up the repository after processing.
+    Clean up the local output directory after processing.
     """
-    print("Cleaning up the repository...")
+    print("Cleaning up output directory...")
+    os.system(f"rm -rf {repo_path}/.llm")
+    print("Directory cleaned up.")
 
 def main():
     parser = argparse.ArgumentParser(description="Code Sushi: Slice and organize your code repo for LLMs.")

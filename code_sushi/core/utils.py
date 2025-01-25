@@ -14,9 +14,32 @@ def print_details(files: List[File]):
     for file in files:
         print(file)
 
-def get_files_from_folder(folder_path: str) -> List[File]:
+def shallow_root_scan(context: Context) -> List[str]:
     """
-    Get the list of files in the repository.
+    Shallow scan the root of repository for directories to process while ignoring bad directories.
+    """
+    dirs = [d for d in os.listdir(context.repo_path) if os.path.isdir(os.path.join(context.repo_path, d))]
+    dirs = filter_out_bad_dirs(context, dirs)
+
+    dirs = [os.path.abspath(os.path.join(context.repo_path, d)) for d in dirs]
+
+    return dirs
+
+def get_root_files(context: Context) -> List[str]:
+    """
+    Get the root files in the repository.
+    """
+    files = [
+        os.path.abspath(os.path.join(context.repo_path, f))
+        for f in os.listdir(context.repo_path)
+        if os.path.isfile(os.path.join(context.repo_path, f))
+    ]
+    
+    return files
+
+def get_files_from_folder(folder_path: str) -> List[str]:
+    """
+    Get the list of files in the given directory.
     """
     files = []
     for root, _, filenames in os.walk(folder_path):
@@ -40,10 +63,43 @@ def load_ignore_patterns(context: Context, name: str) -> Optional[PathSpec]:
     except FileNotFoundError:
         spec = None
 
-    if context.log_level.value >= LogLevel.DEBUG.value:
+    if context.log_level.value >= LogLevel.VERBOSE.value:
         print(f"Found {name} file? {found}")
     
     return spec
+
+def filter_out_bad_dirs(context: Context, dirs: List[str]) -> List[str]:
+    """
+    Filter out the directories that are not useful or desirable for processing.
+    """
+    show_debug = context.log_level.value >= LogLevel.DEBUG.value
+
+    if show_debug:
+        print(f"\n--> Filtering out bad directories. Starting at {len(dirs)}")
+
+    # Filter out paths that match regex lines in .gitignore
+    gitignore = load_ignore_patterns(context, ".gitignore")
+    if gitignore:
+        dirs = [dir for dir in dirs if not gitignore.match_file(dir + '/')]
+
+        if show_debug:
+            print(f"After .gitignore: {len(dirs)}")
+
+    # Use .sushiignore to filter out directories
+    sushiignore = load_ignore_patterns(context, ".sushiignore")
+    if sushiignore:
+        dirs = [dir for dir in dirs if not sushiignore.match_file(dir + '/')]
+
+        if show_debug:
+            print(f"After .sushiignore: {len(dirs)}")
+
+    # Ignore content in .git/ directory
+    dirs = [dir for dir in dirs if dir != ".git"]
+
+    if show_debug:
+        print(f"Final dirs count: {len(dirs)}")
+
+    return dirs
 
 def filter_out_bad_files(context: Context, files: List[str]) -> List[str]:
     """
@@ -52,37 +108,31 @@ def filter_out_bad_files(context: Context, files: List[str]) -> List[str]:
     show_debug = context.log_level.value >= LogLevel.DEBUG.value
 
     if show_debug:
-        print(f"Filtering out bad files. Starting at {len(files)}")
+        print(f"\n --> Filtering out bad files. Starting at {len(files)}")
 
-    # Filter out paths that match regex lines in .gitignore
+    # Filter out files that match regex lines in .gitignore
     gitignore = load_ignore_patterns(context, ".gitignore")
     if gitignore:
-        files = [file for file in files if not gitignore.match_file(file)]
+        files = list(gitignore.match_files(files, negate=True))
 
         if show_debug:
-            print(f"Files after .gitignore: {len(files)}")
+            print(f"After .gitignore: {len(files)}")
 
-    #    exit(1)
+    # Use .sushiignore to filter out files
     sushiignore = load_ignore_patterns(context, ".sushiignore")
     if sushiignore:
-        files = [file for file in files if not sushiignore.match_file(file)]
+        files = list(sushiignore.match_files(files, negate=True))
 
         if show_debug:
-            print(f"Files after .sushiignore: {len(files)}")
-    
-    # Ignore all files under .git/ directory
-    files = [file for file in files if ".git" not in file.split(os.path.sep)]
-
-    if show_debug:
-        print(f"Files after .git: {len(files)}")
+            print(f"After .sushiignore: {len(files)}")
     
     files = [file for file in files if is_code_file(file)]
     if show_debug:
-        print(f"Files after code-file check: {len(files)}")
+        print(f"After file extension check: {len(files)}")
 
     return files
 
-  
+
 def get_code_insights(files: List[File], printing: bool = False) -> List[str]:
     """
     Get code insights from the files. Figure out the distribution of file types in terms of lines of code
@@ -98,12 +148,15 @@ def get_code_insights(files: List[File], printing: bool = False) -> List[str]:
             file_type_distribution[file_extension] = 0
         file_type_distribution[file_extension] += file.line_count
 
+    # Sort the file types by line count before printing
+    file_type_distribution = dict(sorted(file_type_distribution.items(), key=lambda item: item[1], reverse=True))
+    
     if printing:
         print("\n-- File Extension Distribution:\n")
     insights.append("File Extension Distribution:")
     for file_type, line_count in file_type_distribution.items():
         type = file_type if file_type else "?"
-        insight = f"{type}: {line_count:,} lines"
+        insight = f"{type}:\t {line_count:,} lines"
         total_lines += line_count
         if printing:
             print(insight)
