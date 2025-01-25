@@ -1,6 +1,6 @@
 from typing import List
 from code_sushi.context import Context, LogLevel
-from code_sushi.core import File
+from .file import File
 from .utils import (
     print_details,
     get_files_from_folder,
