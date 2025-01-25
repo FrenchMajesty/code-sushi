@@ -26,6 +26,9 @@ class JobQueue:
     
     def prepare(self, files: List[File]):
         for priority, file in prioritize_files(files):
+            if file.size == 0:
+                continue
+
             if self.context.log_level.value >= LogLevel.VERBOSE.value:
                 print(f"Adding {file.absolute_path} to queue with priority {priority}")
             self.push(priority, JobTask(self.context, file))
