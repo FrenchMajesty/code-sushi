@@ -30,13 +30,7 @@ class Itamae:
             if context.log_level.value >= LogLevel.VERBOSE.value:
                 print(f"Saved: {file_path}")
 
-            chunks.append(
-                LogicalChunk(
-                    func["name"],
-                    func["code"],
-                    file_path
-                )
-            )
+            chunks.append(LogicalChunk(file, func["name"], func["code"], file_path))
 
         return chunks
 

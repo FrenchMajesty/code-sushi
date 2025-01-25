@@ -44,7 +44,7 @@ def scan_repo(context: Context) -> List[File]:
     
     return files
 
-def write_summary(context: Context, file: File, summary: str):
+def write_summary_to_file(context: Context, file: File, summary: str):
     """
     Store the summary of the file and the file content.
     """
