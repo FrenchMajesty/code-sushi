@@ -36,7 +36,7 @@ class JobQueue:
     def push(self, priority: int, job: JobTask):
         with self.lock:
             self.capacity += 1
-            self.queue.put((priority, job))
+            self.queue.put((-priority, job))
             self.state[job.name] = TaskStatus.IN_PROGRESS
             self.save()
 
