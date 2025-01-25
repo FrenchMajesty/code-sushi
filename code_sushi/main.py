@@ -1,7 +1,7 @@
 
 import argparse
 from .core import scan_repo 
-from .context import Context
+from .context import Context, LogLevel
 
 def dry_run():
     """
@@ -15,14 +15,17 @@ def upload():
     """
     print("Uploading processed repository chunks to RAG system...")
 
-def slice(repo_path: str):
+def slice(repo_path: str, log_level: int):
     """
     Slice the repository into chunks for processing.
     """
-    print("Slicing the repository...")
-    context = Context(repo_path=repo_path)
+    context = Context(repo_path=repo_path, log_level=log_level)
+
+    print("Scanning the repository...")
     filepaths = scan_repo(context)
-    print(len(filepaths), ' files found in that repository')
+
+    if context.log_level.value >= LogLevel.DEBUG.value:
+        print(f"{len(filepaths)} files found in that repository")
 
     '''
     ------------------------------------------
@@ -55,6 +58,8 @@ def main():
     # Add 'slice' command
     slice_parser = subparsers.add_parser("slice", help="Slice the repo into chunks for processing.")
     slice_parser.add_argument("--path", required=True, help="Path to the repository to process.")
+    slice_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
+
     slice_parser.set_defaults(func=slice)
 
     # Add 'clean' command
@@ -65,7 +70,7 @@ def main():
     args = parser.parse_args()
 
     if args.command == "slice":
-        args.func(args.path)
+        args.func(args.path, args.log)
     else:
         args.func()
 

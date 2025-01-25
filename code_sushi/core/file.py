@@ -1,6 +1,10 @@
 import os
 
 class File:
+    """
+    Represents a file in the repository.
+    """
+
     def __init__(self, repo_root: str, path: str):
         self.absolute_path = os.path.abspath(path)
         self.clean_path = path.replace(repo_root, "", 1)
