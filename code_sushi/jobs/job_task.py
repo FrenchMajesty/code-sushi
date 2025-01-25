@@ -22,30 +22,8 @@ class JobTask:
         self.context = context
         self.busy = False
 
-    def execute(self):
-        """
-        Execute the task.
-        """
-        start_time = time.time()
-        if self.context.log_level.value >= LogLevel.VERBOSE.value:
-            print(f"Processing {self.name}...")
-
-        self.busy = True
-        self.status = TaskStatus.IN_PROGRESS
-
-        time.sleep(2)
-
-        # TODO: Read the file
-        # Process the file
-        # Store the results
-        # Return the results
-
-        self.status = TaskStatus.COMPLETE
-        self.busy = False
-
-        if self.context.log_level.value >= LogLevel.VERBOSE.value:
-            runtime = time.time() - start_time
-            print(f"Completed {self.name} Job in {runtime:.2f} seconds.")
+    def update_status(self, status: TaskStatus):
+        self.status = status
 
     def __lt__(self, other: "JobTask"):
         return self.name < other.name

@@ -2,6 +2,7 @@ from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor
 from code_sushi.jobs import JobQueue, JobTask
 from code_sushi.context import Context, LogLevel
+from .agent import Agent
 import time
 
 class AgentTeam:
@@ -17,11 +18,17 @@ class AgentTeam:
             print(f"Starting Agent Team with {self.count} agents...")
 
         # Worker thread function
-        def worker(queue: JobQueue):
+        def init_agent_worker(context: Context, queue: JobQueue, id: int):
+            agent = Agent(context, id)
             while not queue.empty():
                 _, job = queue.pop()
                 if job:
-                    job.execute()
+                    agent.perform(job)
+                    #chunk_tasks = agent.perform()
+
+                    #for task in chunk_tasks:
+                    #    queue.push(0, task)
+
                     queue.mark_complete(job)
                 else:
                     break
@@ -35,7 +42,8 @@ class AgentTeam:
         # Manage workers using ThreadPoolExecutor
         workers = self.count // 2
         with ThreadPoolExecutor(max_workers=workers + 1) as executor:
-            executor.submit(monitor_queue, pipeline)
+            for i in range(workers):
+                executor.submit(init_agent_worker, self.context, pipeline, i)
 
-            for _ in range(workers):
-                executor.submit(worker, pipeline)
+            # Monitor the queue
+            executor.submit(monitor_queue, pipeline)

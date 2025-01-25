@@ -1,0 +1,32 @@
+summarize_file_prompt = [
+    {
+        "role": "system",
+        "content": "You are an expert software engineer. Your task is to summarize what the provided file does in a couple sentences."
+    },
+    {
+        "role": "user",
+        "content": """
+            path: code_sushi/context.py
+            --
+            from typing import Optional
+            from enum import Enum
+
+            class LogLevel(Enum):
+                NONE = 0
+                INFO = 1
+                DEBUG = 2
+                VERBOSE = 3
+
+
+            class Context:
+                def __init__(self, repo_path: Optional[str] = None, log_level: int = 1):
+                    self.repo_language: Optional[str] = None
+                    self.repo_path: Optional[str] = repo_path
+                    self.log_level: LogLevel = LogLevel(log_level)
+        """
+    },
+    {
+        "role": "system",
+        "content": "This file defines an enumeration LogLevel with four levels of logging (NONE, INFO, DEBUG, VERBOSE) and a Context class that initializes a context object with a repository path and log level. The Context class is designed to store information about a repository, including its path, language, and logging level."
+    }
+]
