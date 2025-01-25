@@ -25,13 +25,11 @@ class AgentTeam:
         # Initialize queue and push tasks
         # Simulate file processing
         def process_job(job: JobTask, queue: JobQueue):
-            print(f"Processing {job.name}...")
             job.execute()
             queue.mark_complete(job)
 
         # Worker thread function
         def worker(queue: JobQueue):
-            print("Worker.", queue.capacity, queue.empty())
             while not queue.empty():
                 _, job = queue.pop()
                 if job:
@@ -52,5 +50,4 @@ class AgentTeam:
             executor.submit(monitor_queue, pipeline)
 
             for _ in range(workers):
-                print("Executor Submit")
                 executor.submit(worker, pipeline)

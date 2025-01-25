@@ -73,14 +73,32 @@ class JobQueue:
     
     def print_status_update(self):
         """
-        Print the current status of the job queue.
+        Print the current status of the job queue with a more visually pleasing format.
         """
         pending_count = sum(1 for status in self.state.values() if status == TaskStatus.IN_PROGRESS)
         completed_count = sum(1 for status in self.state.values() if status == TaskStatus.COMPLETE)
+        total_count = len(self.state)
 
-        print(f"Total jobs: \t{len(self.state)}")
-        print(f"Pending jobs: \t{pending_count}")
-        print(f"Completed jobs: \t{completed_count}")
+        # Calculate percentages
+        completed_percent = (completed_count / total_count) * 100 if total_count else 0
+        pending_percent = (pending_count / total_count) * 100 if total_count else 0
+
+        # Generate progress bar
+        bar_width = 30
+        completed_blocks = int((completed_count / total_count) * bar_width) if total_count else 0
+        pending_blocks = int((pending_count / total_count) * bar_width) if total_count else 0
+
+        progress_bar = "[" + "#" * completed_blocks + "-" * (bar_width - completed_blocks) + "]"
+
+        # Print the status
+        print("\n" + "=" * 40)
+        print("            Job Queue Status")
+        print("=" * 40)
+        print(f"Total Jobs:         {total_count}")
+        print(f"Completed:          {completed_count} ({completed_percent:.1f}%)")
+        print(f"Pending:            {pending_count} ({pending_percent:.1f}%)")
+        print(f"Progress:           {progress_bar}")
+        print("=" * 40)
 
 def peek(pq):
     """
