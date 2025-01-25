@@ -1,5 +1,6 @@
 from together import Together
 from dotenv import load_dotenv
+from code_sushi.context import Context, LogLevel
 import os
 from .prompt_guidance import (
     summarize_file_prompt
@@ -17,7 +18,7 @@ client = Together()
 model = "meta-llama/Llama-3.3-70B-Instruct-Turbo"
 
 # Example: Placeholder function
-def summarize_file(file_path: str, content: str):
+def summarize_file(context: Context, file_path: str, content: str):
     """
     Summarize the provided file using an LLM.
 
@@ -28,21 +29,27 @@ def summarize_file(file_path: str, content: str):
     Returns:
         str: LLM-generated summary.
     """
-    pass
 
-    completion = client.chat.completions.create(
-    model=model,
-    messages= list(summarize_file_prompt).extend[
-        {
-            "role": "user", 
-            "content": f"""
-            path: {file_path}
-            --
-            {content}
-            """
-            }
-        ],
-    )
+    if context.log_level.value >= LogLevel.DEBUG.value:
+        print(f"Sending req to LLM: {file_path}")
+
+    try:
+        completion = client.chat.completions.create(
+        model=model,
+        messages= list(summarize_file_prompt) + [
+            {
+                "role": "user", 
+                "content": f"""
+                path: {file_path}
+                --
+                {content}
+                """
+                }
+            ],
+        )
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
 
     print(completion)
     return completion.choices[0].message.content
