@@ -6,51 +6,115 @@ from .core import (
     embed_and_upload_the_summaries,
 )
 from .multi_task import start_background_loop, stop_background_loop
-from .context import Context
+from .context import Context, LogLevel
 from .agents import AgentTeam
 from .jobs import JobQueue
 from typing import Optional
 from .storage import GoogleCloudStorage
 import atexit
 import os
+import json
 
-def dry_run():
+def init(log_level: int):
     """
-    Perform a dry run to show what would be processed without making changes.
+    Initialize the Code Sushi environment.
     """
-    print("Performing a dry run...")
+    # Create a .sushiignore and sushi-config.json file in the root of the repository
+    repo_root = os.path.abspath(os.getcwd())
+    sushiignore_path = os.path.join(repo_root, ".sushiignore")
+    config_template_path = os.path.join(repo_root, "sushi-config.json.template")
+    config_path = os.path.join(repo_root, "sushi-config.json")
 
-def upload(repo_path: str, log_level: int, workers: int):
+    # Copy .sushiignore from package to repo root
+    package_sushiignore_path = os.path.join(os.path.dirname(__file__), ".sushiignore")
+    if not os.path.exists(sushiignore_path):
+        with open(package_sushiignore_path, 'r') as src, open(sushiignore_path, 'w') as dst:
+            dst.write(src.read())
+        
+        if log_level >= LogLevel.DEBUG.value:
+            print(f"Created .sushiignore at {sushiignore_path}")        
+
+    # Copy sushi-config.json.template from package to repo root and rename it
+    package_config_template_path = os.path.join(os.path.dirname(__file__), "sushi-config.json.template")
+    if not os.path.exists(config_path):
+        with open(package_config_template_path, 'r') as src, open(config_template_path, 'w') as dst:
+            dst.write(src.read())
+        os.rename(config_template_path, config_path)
+
+        if log_level >= LogLevel.DEBUG.value:
+            print(f"Created sushi-config.json at {config_path}")
+
+    print("Code Sushi environment ready.")
+
+def read_config_into_context(args: argparse.Namespace) -> Context:
+    """
+    Read the configuration from the sushi-config.json file into the context.
+    """
+    curr_dir = os.path.abspath(os.getcwd())
+    config_path = os.path.join(os.path.abspath(os.getcwd()), "sushi-config.json")
+
+    if not os.path.exists(config_path) and not args.path:
+        raise FileNotFoundError(f"Configuration file not found at {config_path}. Please run 'sushi init' to create it.")
+
+    with open(config_path, 'r') as config_file:
+        config_data = json.load(config_file)
+
+    context = Context(curr_dir)
+    context.vector_db_concurrent_limit = config_data.get("vector_db.max_concurrent_requests", 25)
+    context.blob_storage_concurrent_limit = config_data.get("blob_storage.max_concurrent_requests", 25)
+    context.max_agents = config_data.get("max_agents", 10)
+    context.embedding_model_chunk_size = config_data.get("embedding.max_chunk_size", 128)
+    
+    # Handle user-provided arguments
+    if args.log:
+        context.log_level = LogLevel(args.log)
+    
+    if args.path:
+        context.repo_path = args.path
+    
+    if args.agents:
+        context.max_agents = args.agents
+
+    if args.blob_workers:
+        context.blob_storage_concurrent_limit = args.blob_workers
+
+    if args.vector_workers:
+        context.vector_db_concurrent_limit = args.vector_workers
+    
+    if args.embed_chunks:
+        context.embedding_model_chunk_size = args.embed_chunks
+    
+    output_dir = os.path.abspath(f"{context.repo_path}/.llm")
+    context.output_dir = output_dir
+
+    return context
+    
+def run(context: Context):
+    """
+    Process the repository and upload the results.
+    """
+
+def upload(context: Context):
     """
     Upload results of the processed repository to a blog storage and vector database.
     """
-    context = Context(repo_path=repo_path, log_level=log_level)
     print("Uploading processed repository chunks to Blob Storage...")
-
-    # 1- Upload to GCP
-    storage = GoogleCloudStorage(context, concurrent_threads=workers)
-    context.output_dir = os.path.abspath(f"{repo_path}/.llm")
+    storage = GoogleCloudStorage(context)
     destination_dir = f"{context.project_name}/.llm/"
     storage.bulk_upload(context.output_dir, destination_dir)
 
-def vectorize(repo_path: str, log_level: int):
+def vectorize(context: Context):
     """
     Embed the summaries and vectorize them for every file and chunk in disk.
     """
-
-    context = Context(repo_path=repo_path, log_level=log_level)
-    context.output_dir = os.path.abspath(f"{repo_path}/.llm")
-    
     start_background_loop()
     embed_and_upload_the_summaries(context)
     atexit.register(stop_background_loop)
 
-def slice(repo_path: str, log_level: int, agents: int, limit: Optional[int] = None):
+def slice(context: Context, limit: Optional[int] = None):
     """
     Slice the repository into chunks for processing.
     """
-    context = Context(repo_path=repo_path, log_level=log_level)
-
     print("Scanning the repository...")
     files = scan_repo(context)
 
@@ -67,51 +131,57 @@ def slice(repo_path: str, log_level: int, agents: int, limit: Optional[int] = No
         print("Aborting the slicing process.")
         return
     
-    # Prepare output directory
-    output_dir = os.path.abspath(f"{repo_path}/.llm")
-    clean(output_dir)
-    context.output_dir = output_dir
-    os.makedirs(output_dir, exist_ok=True)
-
     # Get to work
-    pipeline = JobQueue(context, files)
-    team = AgentTeam(context, agent_count=agents)
-    team.get_to_work(pipeline)
+    os.makedirs(context.output_dir, exist_ok=True)
+    queue = JobQueue(context, files)
+    team = AgentTeam(context)
+    team.get_to_work(queue)
 
-def clean(output_dir: str):
+def clean(context: Context):
     """
     Clean up the local output directory after processing.
     """
     print("Cleaning up output directory...")
-    os.system(f"rm -rf {output_dir}")
+    os.system(f"rm -rf {context.output_dir}")
     print("Directory cleaned up.")
+    # TODO: Prompt to ask if we should delete cloud-based resources as well
 
 def main():
     parser = argparse.ArgumentParser(description="Code Sushi: Slice and organize your code repo for LLMs.")
     subparsers = parser.add_subparsers(dest="command",required=True)
 
-    # Add 'dry-run' command
-    dry_run_parser = subparsers.add_parser("dry-run", help="Simulate the slicing process without modifying the repo.")
-    dry_run_parser.set_defaults(func=dry_run)
+    # Add 'init' command
+    init_parser = subparsers.add_parser("init", help="Initialize the Code Sushi environment.")
+    init_parser.set_defaults(func=init)
+
+    # Add 'run' command
+    run_parser = subparsers.add_parser("run", help="Process the repo and upload the results.")
+    run_parser.add_argument("--path", help="Path to the repository to process.")
+    run_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
+    run_parser.add_argument("--blob-workers", type=int, default=20, help="Number of thread workers to use for parallel uploading.")
+    run_parser.add_argument("--agents", type=int, default=5, help="Number of AI agents to use for summarizing files.")
+    run_parser.add_argument("--vector-workers", type=int, default=20, help="Number of thread workers to use for parallel vectorizing.")
+    run_parser.add_argument("--embed-chunks", type=int, default=128, help="Number of files to group together for batch embedding.")
+    run_parser.set_defaults(func=run)
 
     # Add 'upload' command
     upload_parser = subparsers.add_parser("upload", help="Process the repo and upload the results.")
-    upload_parser.add_argument("--path", required=True, help="Path to the repository to process.")
+    upload_parser.add_argument("--path", help="Path to the repository to process.")
     upload_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
-    upload_parser.add_argument("--workers", type=int, default=20, help="Number of thread workers to use for parallel uploading.")
+    upload_parser.add_argument("--blob-workers", type=int, default=20, help="Number of thread workers to use for parallel uploading.")
     upload_parser.set_defaults(func=upload)
 
     # Add 'slice' command
     slice_parser = subparsers.add_parser("slice", help="Slice the repo into chunks for processing.")
-    slice_parser.add_argument("--path", required=True, help="Path to the repository to process.")
+    slice_parser.add_argument("--path", help="Path to the repository to process.")
     slice_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
-    slice_parser.add_argument("--agents", type=int, default=5, help="Number of agents to use for processing.")
+    slice_parser.add_argument("--agents", type=int, default=5, help="Number of AI agents to use for summarizing files.")
     slice_parser.add_argument("--limit", help="Sets a limit to the number of files to process for testing purposes.")
     slice_parser.set_defaults(func=slice)
 
     # Add 'vectorize' command
     vectorize_parser = subparsers.add_parser("vectorize", help="Embed the summaries and vectorize them for every file and chunk in disk.")
-    vectorize_parser.add_argument("--path", required=True, help="Path to the repository to process.")
+    vectorize_parser.add_argument("--path", help="Path to the repository to process.")
     vectorize_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
     vectorize_parser.set_defaults(func=vectorize)
 
@@ -122,14 +192,16 @@ def main():
     # Parse and execute the appropriate command
     args = parser.parse_args()
 
+    context = None
+    if args.command != "init":
+        context = read_config_into_context(args)
+
+    if args.command == "init":
+        args.func(args.log)
     if args.command == "slice":
-        args.func(args.path, args.log, args.agents, args.limit)
-    elif args.command == "upload":
-        args.func(args.path, args.log, args.workers)
-    elif args.command == "vectorize":
-        args.func(args.path, args.log)
+        args.func(context, args.limit)
     else:
-        args.func()
+        args.func(context)
 
 if __name__ == "__main__":
     main()

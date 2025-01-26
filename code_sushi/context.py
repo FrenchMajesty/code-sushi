@@ -16,6 +16,11 @@ class Context:
         self.output_dir: Optional[str] = None
         self.project_name: str = os.path.basename(repo_path)
 
+        self.max_agents: int = 10
+        self.blob_storage_concurrent_limit: int = 25
+        self.vector_db_concurrent_limit: int = 25
+        self.embedding_model_chunk_size: int = 128
+
     def get_files_in_output_dir(self):
         """
         Get all the files in the output directory.

@@ -6,12 +6,12 @@ from code_sushi.context import Context, LogLevel
 import time
 
 class GoogleCloudStorage:
-    def __init__(self, context: Context, bucket_name: Optional[str] = None, concurrent_threads: int = 20):
+    def __init__(self, context: Context, bucket_name: Optional[str] = None):
         self.client = storage.Client(
             project=os.getenv('GCP_PROJECT_ID'),
         )
         self.context = context
-        self.max_workers = concurrent_threads
+        self.max_workers = context.blob_storage_concurrent_limit
 
         if not bucket_name:
             bucket_name = os.getenv('GCP_BUCKET_NAME')

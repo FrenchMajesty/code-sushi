@@ -6,9 +6,9 @@ from .agent import Agent
 import time
 
 class AgentTeam:
-    def __init__(self, context: Context, agent_count: int):
+    def __init__(self, context: Context):
         self.context = context
-        self.count = agent_count
+        self.count = context.max_agents
 
     def get_to_work(self, pipeline: JobQueue):
         """
