@@ -113,11 +113,11 @@ class JobQueue:
 
         # Print the status
         print("\n" + "=" * 40)
-        print("            Job Queue Status")
+        print("            Code Sushi - Status")
         print("=" * 40)
         print(f"Total Jobs:         {total_count}")
-        print(f"Completed:          {completed_count} ({completed_percent:.1f}%)")
         print(f"Pending:            {pending_count} ({pending_percent:.1f}%)")
+        print(f"Completed:          {completed_count} ({completed_percent:.1f}%)")
         print(f"Progress:           {progress_bar}")
 
         if self.duration:
