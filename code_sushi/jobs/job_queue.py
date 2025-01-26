@@ -109,5 +109,5 @@ def peek(pq):
     """
     with pq.mutex:  # Lock the queue for thread safety
         if pq.queue:
-            return pq.queue[-1]  # The largest element
+            return pq.queue[0]  # The largest element (max-heap with negated priorities)
     return None

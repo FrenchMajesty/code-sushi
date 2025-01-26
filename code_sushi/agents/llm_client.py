@@ -47,8 +47,9 @@ def summarize_file(context: Context, file_path: str, content: str, file_summary:
 
         if context.log_level.value >= LogLevel.DEBUG.value:
             print(f"Received response from LLM", completion.created)
+
+        return completion.choices[0].message.content
     except Exception as e:
         print(f"Error: {e}")
         return None
     
-    return completion.choices[0].message.content
