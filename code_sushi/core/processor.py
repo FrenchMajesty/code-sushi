@@ -139,7 +139,8 @@ def convert_files_to_vector_records(context: Context, files: List[str]) -> List[
         
         # Prepare unique key for the vector DB
         # TODO: Add unique user identifier
-        key = context.project_name + file_meta['file']
+        key = context.project_name + '/' + file_meta['file']
+        key = key.replace('//', '/')
         vector_metadata = {
             "summary": file_meta['summary'],
             "original_location": file_meta['file'],
