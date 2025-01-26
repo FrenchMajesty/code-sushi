@@ -180,9 +180,9 @@ def main():
     run_parser = subparsers.add_parser("run", help="Process the repo and upload the results.")
     run_parser.add_argument("--path", default="./", help="Path to the repository to process.")
     run_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
-    run_parser.add_argument("--blob-workers", type=int, default=20, help="Number of thread workers to use for parallel uploading.")
-    run_parser.add_argument("--agents", type=int, default=5, help="Number of AI agents to use for summarizing files.")
-    run_parser.add_argument("--vector-workers", type=int, default=20, help="Number of thread workers to use for parallel vectorizing.")
+    run_parser.add_argument("--blob-workers", type=int, default=25, help="Number of thread workers to use for parallel uploading.")
+    run_parser.add_argument("--agents", type=int, default=10, help="Number of AI agents to use for summarizing files.")
+    run_parser.add_argument("--vector-workers", type=int, default=25, help="Number of thread workers to use for parallel vectorizing.")
     run_parser.add_argument("--embed-chunks", type=int, default=128, help="Number of files to group together for batch embedding.")
     run_parser.set_defaults(func=run)
 
@@ -190,14 +190,14 @@ def main():
     upload_parser = subparsers.add_parser("upload", help="Process the repo and upload the results.")
     upload_parser.add_argument("--path", help="Path to the repository to process.")
     upload_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
-    upload_parser.add_argument("--blob-workers", type=int, default=20, help="Number of thread workers to use for parallel uploading.")
+    upload_parser.add_argument("--blob-workers", type=int, default=25, help="Number of thread workers to use for parallel uploading.")
     upload_parser.set_defaults(func=upload)
 
     # Add 'slice' command
     slice_parser = subparsers.add_parser("slice", help="Slice the repo into chunks for processing.")
     slice_parser.add_argument("--path", help="Path to the repository to process.")
     slice_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
-    slice_parser.add_argument("--agents", type=int, default=5, help="Number of AI agents to use for summarizing files.")
+    slice_parser.add_argument("--agents", type=int, default=10, help="Number of AI agents to use for summarizing files.")
     slice_parser.add_argument("--limit", help="Sets a limit to the number of files to process for testing purposes.")
     slice_parser.set_defaults(func=slice)
 
