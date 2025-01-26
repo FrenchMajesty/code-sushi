@@ -50,15 +50,15 @@ def write_summary_to_file(context: Context, file: File, summary: str):
     """
 
     content = open(file.absolute_path).read()
-    template = f"""
-    # File: {file.clean_path}
-    ## Summary: {summary}
-    ----
-    {content}
-    """
+    template = '\n'.join([
+        f"# File: {file.clean_path}",
+        f"# Summary: {summary}",
+        "----",
+        content
+    ])
 
     # Write to destination
-    dest = os.path.join(context.output_dir, file.file_name + '.md')
+    dest = os.path.join(context.output_dir, file.clean_path + '.md')
     with open(dest, 'w') as f:
         f.write(template)
     
