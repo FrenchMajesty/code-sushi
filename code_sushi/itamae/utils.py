@@ -15,7 +15,7 @@ LANGUAGES = {
     ".tsx": Language(tstypescript.language_tsx()),
     ".js": Language(tsjavascript.language()),
     ".py": Language(tspython.language()),
-    ".php": Language(tsphp.language()),
+    ".php": Language(tsphp.language_php()),
     # Add more languages here if needed
 }
 
