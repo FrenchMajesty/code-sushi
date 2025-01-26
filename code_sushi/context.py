@@ -15,3 +15,9 @@ class Context:
         self.log_level: LogLevel = LogLevel(log_level)
         self.output_dir: Optional[str] = None
         self.project_name: str = os.path.basename(repo_path)
+
+    def get_files_in_output_dir(self):
+        """
+        Get all the files in the output directory.
+        """
+        return [os.path.join(dp, f) for dp, dn, filenames in os.walk(self.output_dir) for f in filenames]

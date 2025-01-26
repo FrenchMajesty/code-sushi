@@ -1,12 +1,17 @@
 
 import argparse
-from .core import scan_repo, get_code_insights, embed_and_upload_the_summaries
+from .core import (
+    scan_repo, 
+    get_code_insights, 
+    embed_and_upload_the_summaries,
+    stop_background_loop
+)
 from .context import Context
 from .agents import AgentTeam
 from .jobs import JobQueue
 from typing import Optional
 from .storage import GoogleCloudStorage
-from .vector import VoyageEmbed
+import atexit
 import os
 
 def dry_run():
@@ -37,6 +42,7 @@ def vectorize(repo_path: str, log_level: int):
     context.output_dir = os.path.abspath(f"{repo_path}/.llm")
     
     embed_and_upload_the_summaries(context)
+    atexit.register(stop_background_loop)
 
 def slice(repo_path: str, log_level: int, agents: int, limit: Optional[int] = None):
     """

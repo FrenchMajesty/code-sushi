@@ -13,10 +13,10 @@ class Itamae:
 
     _instance = None
 
-    def __new__(self, *args, **kwargs):
-        if self._instance is None:
-            self._instance = super().__new__(self, *args, **kwargs)
-        return self._instance
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        return cls._instance
     
     def slice_chunks(self, context: Context, file: File) -> List[LogicalChunk]:
         """Process the file to and extract every individual function."""

@@ -1,8 +1,12 @@
 from typing import List
 import os
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from code_sushi.context import Context, LogLevel
 from .file import File
-from code_sushi.vector import VoyageEmbed, SVector
+import math
+from threading import Thread, Event
+from code_sushi.vector import VoyageEmbed, SVector, VectorRecord
 import time
 from datetime import datetime, timezone
 from .utils import (
@@ -13,6 +17,8 @@ from .utils import (
     get_root_files,
     extract_metadata_from_output_file
 )
+
+background_executor = ThreadPoolExecutor()
 
 """
 Processor module for Code Sushi.
@@ -25,7 +31,6 @@ def scan_repo(context: Context) -> List[File]:
     """
     Scan the repository for files to process.
     """
-    
     # Shallow pass: list content at root level
     dirs = shallow_root_scan(context)
     files = get_root_files(context)
@@ -52,7 +57,6 @@ def write_summary_to_file(context: Context, file: File, summary: str):
     """
     Store the summary of the file and the file content.
     """
-    
     name = file.clean_path
 
     if ".functions/" in name:
@@ -87,48 +91,85 @@ def embed_and_upload_the_summaries(context: Context):
     """
     Parses the summaries for every file and chunk written to disk to vectorize them.
     """
-
     voyage_embed = VoyageEmbed()
-    vector_db = SVector()
+    vector_db = SVector(context)
+    files = context.get_files_in_output_dir()
 
-    # Get all the files in the output directory
-    files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(context.output_dir) for f in filenames]
+    if context.log_level.value >= LogLevel.INFO.value:
+        print(f"Preparing to embed {len(files)} files...")
 
-    chunk_size = 200
+    chunk_size = 128
+    chunk_idx = 0
+    total_chunks = math.ceil(len(files) // chunk_size)
     for i in range(0, len(files), chunk_size):
+        chunk_idx += 1
         chunk = files[i:i + chunk_size]
-        entries = []
+        
+        if context.log_level.value >= LogLevel.INFO.value:
+            print(f"Processing chunk {chunk_idx} of {total_chunks}")
 
-        for i, file_path in enumerate(chunk):
-            metadata = extract_metadata_from_output_file(file_path)
-            
-            # Prepare unique key for the vector DB
-            # TODO: Add unique user identifier
-            key = context.project_name + metadata['file']
-
-            entry = {
-                "text": metadata['summary'],
-                "key": key,
-                "metadata": {
-                    "summary": metadata['summary'],
-                    "original_location": metadata['file'],
-                    "last_updated": datetime.now(timezone.utc).isoformat() + 'Z',
-                },
-            }
-            entries.append(entry)
+        entries = convert_files_to_vector_records(context, chunk)
 
         # Mass-embed the text from the entries
-        raw_contents = [entry['text'] for entry in entries]
+        raw_contents = [entry.text for entry in entries]
         embeddings = voyage_embed.embed(raw_contents)
         
         if len(embeddings) != len(entries):
             print(f"Error: Embeddings length {len(embeddings)} does not match entries length {len(entries)}")
-            return
-
+            continue
+        
+        # Assign the embeddings to the linked entries
         for i in range(len(entries)):
-            entries[i]['embedding'] = embeddings[i]
+            entries[i].embedding = embeddings[i]
 
         # Upload to vector DB
         for entry in entries:
-            vector_db.write(entry['key'], entry['embedding'], entry['metadata']) 
+            vector_db.write_async(entry) 
 
+def convert_files_to_vector_records(context: Context, files: List[str]) -> List[VectorRecord]:
+    """
+    Parse the files into partial vector records.
+    """
+    entries = []
+    for i, file_path in enumerate(files):
+        file_meta = extract_metadata_from_output_file(file_path)
+        
+        # Prepare unique key for the vector DB
+        # TODO: Add unique user identifier
+        key = context.project_name + file_meta['file']
+        vector_metadata = {
+            "summary": file_meta['summary'],
+            "original_location": file_meta['file'],
+            "last_updated": datetime.now(timezone.utc).isoformat() + 'Z',
+        }
+        entry = VectorRecord(key, file_meta['summary'], vector_metadata)
+        entries.append(entry)
+    
+    return entries
+
+# Start the background loop
+loop = asyncio.new_event_loop()
+shutdown_event = Event()
+def background_loop():
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_forever()
+    except Exception as e:
+        print(f"Error in background loop: {e}")
+    finally:
+        loop.close()
+
+thread = Thread(target=background_loop, daemon=True)
+thread.start()
+
+# Ensure the loop shuts down properly
+def stop_background_loop():
+    shutdown_event.set()
+    loop.call_soon_threadsafe(loop.stop)
+
+def run_async_in_background(coro_func, *args, **kwargs):
+    """
+    Run an async function in the background without awaiting it.
+    Suitable for fire-and-forget tasks from synchronous code.
+    """
+    loop.call_soon_threadsafe(asyncio.create_task, coro_func(*args, **kwargs))

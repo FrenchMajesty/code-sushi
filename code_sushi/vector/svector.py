@@ -11,7 +11,7 @@ from smithy_http.aio.identity.apikey import ApiKeyIdentity, ApiKeyIdentityResolv
 from dotenv import load_dotenv
 from typing import List
 from .vector_record import VectorRecord
-from code_sushi.core import run_async_in_background
+from code_sushi.core import run_async_in_background, AsyncThrottler
 
 load_dotenv()
 
@@ -23,6 +23,13 @@ class SVector:
     """
     SVector class for interacting with the Vector Database.
     """
+    _instance = None
+
+    def __new__(self, *args, **kwargs):
+        if self._instance is None:
+            self._instance = super().__new__(self, *args, **kwargs)
+        return self._instance
+
     def __init__(self, context: Context) -> None:
         self.context = context
         self.client = DatabaseService(Config(
@@ -30,7 +37,7 @@ class SVector:
             api_key_identity_resolver=ApiKeyIdentityResolver(api_key=ApiKeyIdentity(api_key=apiKey)),
             retry_strategy=SimpleRetryStrategy(max_attempts=1)
         ))
-
+        self.throttler = AsyncThrottler(max_concurrent=25)
 
     def write(self, record: VectorRecord) -> None:
         """
@@ -53,7 +60,7 @@ class SVector:
             if self.context.log_level.value >= LogLevel.DEBUG.value:
                 print(f"Writing to Vector DB: {record.key}")
             
-            return task
+            await self.throttler.run_with_throttle(task)
         except Exception as e:
             print(f"Error writing to Vector DB: {e}")
     
