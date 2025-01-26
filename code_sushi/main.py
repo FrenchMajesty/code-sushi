@@ -20,7 +20,7 @@ def upload(repo_path: str, log_level: int, workers: int):
     Upload results of the processed repository to a blog storage and vector database.
     """
     context = Context(repo_path=repo_path, log_level=log_level)
-    print("Uploading processed repository chunks to Blob Storage & Vector DB...")
+    print("Uploading processed repository chunks to Blob Storage...")
 
     # 1- Upload to GCP
     storage = GoogleCloudStorage(context, concurrent_threads=workers)
@@ -28,9 +28,15 @@ def upload(repo_path: str, log_level: int, workers: int):
     destination_dir = f"{context.project_name}/.llm/"
     storage.bulk_upload(context.output_dir, destination_dir)
 
-    # 2- Embed content & upload to Vector DB
-    embed_and_upload_the_summaries(context)
+def vectorize(repo_path: str, log_level: int):
+    """
+    Embed the summaries and vectorize them for every file and chunk in disk.
+    """
 
+    context = Context(repo_path=repo_path, log_level=log_level)
+    context.output_dir = os.path.abspath(f"{repo_path}/.llm")
+    
+    embed_and_upload_the_summaries(context)
 
 def slice(repo_path: str, log_level: int, agents: int, limit: Optional[int] = None):
     """
@@ -94,8 +100,13 @@ def main():
     slice_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
     slice_parser.add_argument("--agents", type=int, default=5, help="Number of agents to use for processing.")
     slice_parser.add_argument("--limit", help="Sets a limit to the number of files to process for testing purposes.")
-
     slice_parser.set_defaults(func=slice)
+
+    # Add 'vectorize' command
+    vectorize_parser = subparsers.add_parser("vectorize", help="Embed the summaries and vectorize them for every file and chunk in disk.")
+    vectorize_parser.add_argument("--path", required=True, help="Path to the repository to process.")
+    vectorize_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
+    vectorize_parser.set_defaults(func=vectorize)
 
     # Add 'clean' command
     clean_parser = subparsers.add_parser("clean", help="Clean up the repo after processing.")
@@ -108,6 +119,8 @@ def main():
         args.func(args.path, args.log, args.agents, args.limit)
     elif args.command == "upload":
         args.func(args.path, args.log, args.workers)
+    elif args.command == "vectorize":
+        args.func(args.path, args.log)
     else:
         args.func()
 
