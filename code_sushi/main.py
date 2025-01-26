@@ -5,6 +5,7 @@ from .context import Context
 from .agents import AgentTeam
 from .jobs import JobQueue
 from typing import Optional
+from .storage import GoogleCloudStorage
 import os
 
 def dry_run():
@@ -13,11 +14,19 @@ def dry_run():
     """
     print("Performing a dry run...")
 
-def upload():
+def upload(repo_path: str, log_level: int, workers: int):
     """
-    Process the repository and upload results to the destination.
+    Upload results of the processed repository to a blog storage and vector database.
     """
+    context = Context(repo_path=repo_path, log_level=log_level)
     print("Uploading processed repository chunks to RAG system...")
+
+    # Upload to GCP
+    storage = GoogleCloudStorage(context, concurrent_threads=workers)
+    project_name = os.path.basename(repo_path)
+    source_dir = os.path.abspath(f"{repo_path}/.llm")
+    destination_dir = f"{project_name}/.llm/"
+    storage.bulk_upload(source_dir, destination_dir)
 
 def slice(repo_path: str, log_level: int, agents: int, limit: Optional[int] = None):
     """
@@ -70,6 +79,9 @@ def main():
 
     # Add 'upload' command
     upload_parser = subparsers.add_parser("upload", help="Process the repo and upload the results.")
+    upload_parser.add_argument("--path", required=True, help="Path to the repository to process.")
+    upload_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
+    upload_parser.add_argument("--workers", type=int, default=20, help="Number of thread workers to use for parallel uploading.")
     upload_parser.set_defaults(func=upload)
 
     # Add 'slice' command
@@ -90,6 +102,8 @@ def main():
 
     if args.command == "slice":
         args.func(args.path, args.log, args.agents, args.limit)
+    elif args.command == "upload":
+        args.func(args.path, args.log, args.workers)
     else:
         args.func()
 
