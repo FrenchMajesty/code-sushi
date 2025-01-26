@@ -22,7 +22,7 @@ class Itamae:
         """Process the file to and extract every individual function."""
         try:
             if context.log_level.value >= LogLevel.VERBOSE.value:
-                print(f"Slicing chunks for file: {file.clean_path}")
+                print(f"Slicing chunks for file: {file.relative_path}")
 
             parser = init_parser(context, file.ext)
             if not parser:
@@ -34,7 +34,8 @@ class Itamae:
             # Parse each function into a logical chunk object
             chunks = []
             for func in functions:
-                output_dir = context.output_dir + file.clean_path + ".functions/"
+                output_dir = context.output_dir + "/" + file.relative_path + ".functions/"
+                output_dir = output_dir.replace("//", "/")
                 file_path = save_raw_function(func, output_dir, file.ext)
 
                 if context.log_level.value >= LogLevel.VERBOSE.value:

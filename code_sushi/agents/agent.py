@@ -78,7 +78,7 @@ class Agent:
         for chunk in chunks:
             temp_file = File(self.context.repo_path, chunk.absolute_path)
             temp_file.absolute_path = chunk.absolute_path
-            temp_file.clean_path = chunk.relative_path
+            temp_file.relative_path = chunk.relative_path
             chunk.parent_summary = summary
 
             task = JobTask(self.context, chunk=chunk, file=temp_file)
