@@ -23,11 +23,10 @@ class AgentTeam:
             while not queue.empty():
                 _, job = queue.pop()
                 if job:
-                    agent.perform(job)
-                    #chunk_tasks = agent.perform()
+                    chunk_tasks = agent.perform(job)
 
-                    #for task in chunk_tasks:
-                    #    queue.push(0, task)
+                    for task in chunk_tasks:
+                        queue.push(5, task)
 
                     queue.mark_complete(job)
                 else:
@@ -36,7 +35,7 @@ class AgentTeam:
         def monitor_queue(queue: JobQueue):
             while not queue.empty():
                 queue.print_status_update()
-                time.sleep(5)
+                time.sleep(3)
             print("Queue is empty. Monitoring stopped.")
 
         # Manage workers using ThreadPoolExecutor
