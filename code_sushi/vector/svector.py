@@ -40,27 +40,25 @@ class SVector:
     def write(self, record: VectorRecord) -> None:
         """
         """
-        run_async_in_background(self.write_async, record)
+        run_async_in_background(self.__write_async, record)
 
-    async def write_async(self, record: VectorRecord):
+    async def __write_async(self, record: VectorRecord):
         """
         Fire off async request to write embeddings to the Vector Database.
         """
         retries = 3
         for attempt in range(retries):
             try:
-                task = self.client.set_item(SetItemInput(
+                if self.context.log_level.value >= LogLevel.DEBUG.value:
+                    print(f"Writing to Vector DB: {record.key}")
+                
+                await self.throttler.run_with_throttle(self.client.set_item, SetItemInput(
                     database_id=databaseId,
                     key=record.key,
                     value=record.text.encode('utf-8'),
                     vector=record.embedding,
                     metadata=self.hashmap_to_metadata(record.metadata)
                 ))
-
-                if self.context.log_level.value >= LogLevel.DEBUG.value:
-                    print(f"Writing to Vector DB: {record.key}")
-                
-                await self.throttler.run_with_throttle(task)
                 return  # Success, exit the loop
 
             except Exception as e:

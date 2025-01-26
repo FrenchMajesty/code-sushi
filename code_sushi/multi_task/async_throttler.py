@@ -13,4 +13,8 @@ class AsyncThrottler:
         Run the coroutine with throttling when we hit the max concurrent limit.
         """
         async with self.semaphore:
-            return await coro(*args, **kwargs)
+            try:
+                return await coro(*args, **kwargs)
+            except Exception as e:
+                print(f"Error in throttled task: {e}")
+                raise

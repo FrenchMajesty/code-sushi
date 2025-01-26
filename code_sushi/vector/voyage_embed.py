@@ -25,7 +25,7 @@ class VoyageEmbed:
                 model="voyage-code-3", 
                 input_type=input_type,
             )
-
+            
             return result.embeddings
         except Exception as e:
             print(f"Error embedding texts: {e}")

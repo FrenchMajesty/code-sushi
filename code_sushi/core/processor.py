@@ -114,6 +114,9 @@ def embed_and_upload_the_summaries(context: Context):
         raw_contents = [entry.text for entry in entries]
         embeddings = voyage_embed.embed(raw_contents)
         
+        if context.log_level.value >= LogLevel.VERBOSE.value:
+            print(f"Received {len(embeddings)} embeddings")
+
         if len(embeddings) != len(entries):
             print(f"Error: Embeddings length {len(embeddings)} does not match entries length {len(entries)}")
             continue
@@ -124,7 +127,7 @@ def embed_and_upload_the_summaries(context: Context):
 
         # Upload to vector DB
         for entry in entries:
-            vector_db.write_async(entry) 
+            vector_db.write(entry) 
 
 def convert_files_to_vector_records(context: Context, files: List[str]) -> List[VectorRecord]:
     """
