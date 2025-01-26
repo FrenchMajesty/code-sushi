@@ -1,7 +1,6 @@
-import asyncio
-import random
 import os
 
+from asyncio import sleep
 from code_sushi.context import Context, LogLevel
 from svectordb.client import DatabaseService
 from svectordb.config import Config
@@ -48,22 +47,29 @@ class SVector:
         """
         Fire off async request to write embeddings to the Vector Database.
         """
-        try:
-            task = self.client.set_item(SetItemInput(
-                database_id=databaseId,
-                key=record.key,
-                value=record.text.encode('utf-8'),
-                vector=record.embedding,
-                metadata=self.hashmap_to_metadata(record.metadata)
-            ))
+        retries = 3
+        for attempt in range(retries):
+            try:
+                task = self.client.set_item(SetItemInput(
+                    database_id=databaseId,
+                    key=record.key,
+                    value=record.text.encode('utf-8'),
+                    vector=record.embedding,
+                    metadata=self.hashmap_to_metadata(record.metadata)
+                ))
 
-            if self.context.log_level.value >= LogLevel.DEBUG.value:
-                print(f"Writing to Vector DB: {record.key}")
-            
-            await self.throttler.run_with_throttle(task)
-        except Exception as e:
-            print(f"Error writing to Vector DB: {e}")
-    
+                if self.context.log_level.value >= LogLevel.DEBUG.value:
+                    print(f"Writing to Vector DB: {record.key}")
+                
+                await self.throttler.run_with_throttle(task)
+                return  # Success, exit the loop
+
+            except Exception as e:
+                print(f"Attempt {attempt + 1} failed: {e}")
+                if attempt + 1 < retries:
+                    await sleep(2 ** attempt)  # Exponential backoff
+                else:
+                    print(f"Failed to write to Vector DB after {retries} attempts.")
 
     def hashmap_to_metadata(self, hashmap: dict) -> dict:
         """
