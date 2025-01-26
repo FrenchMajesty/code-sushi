@@ -6,7 +6,7 @@ from .agents import AgentTeam
 from .jobs import JobQueue
 from typing import Optional
 from .storage import GoogleCloudStorage
-from .vector import Voyage
+from .vector import VoyageEmbed
 import os
 
 def dry_run():
@@ -30,7 +30,7 @@ def upload(repo_path: str, log_level: int, workers: int):
     storage.bulk_upload(context.output_dir, destination_dir)
 
     # Upload to Vector DB
-    vector_db = Voyage()
+    vector_db = VoyageEmbed()
 
 
 
