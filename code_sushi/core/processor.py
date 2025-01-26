@@ -1,13 +1,10 @@
 from typing import List
 import os
-import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from code_sushi.context import Context, LogLevel
 from .file import File
 import math
-from threading import Thread, Event
-from code_sushi.vector import VoyageEmbed, SVector, VectorRecord
-import time
+from code_sushi.vector import VoyageEmbed, VectorRecord, Pinecone
 from datetime import datetime, timezone
 from .utils import (
     print_details,
@@ -92,7 +89,7 @@ def embed_and_upload_the_summaries(context: Context):
     Parses the summaries for every file and chunk written to disk to vectorize them.
     """
     voyage_embed = VoyageEmbed()
-    vector_db = SVector(context)
+    vector_db = Pinecone()
     files = context.get_files_in_output_dir()
 
     if context.log_level.value >= LogLevel.INFO.value:
@@ -130,8 +127,7 @@ def embed_and_upload_the_summaries(context: Context):
             entries[i].embedding = embeddings[i]
 
         # Upload to vector DB
-        for entry in entries:
-            vector_db.write(entry) 
+        vector_db.write_many(entries)
 
 def convert_files_to_vector_records(context: Context, files: List[str]) -> List[VectorRecord]:
     """

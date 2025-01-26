@@ -38,9 +38,6 @@ class SVector:
         self.throttler = AsyncThrottler(max_concurrent=25)
 
     def write(self, record: VectorRecord) -> None:
-        """
-        """
-        print("write", record.key)
         run_async_in_background(self.__write_async, record)
 
     async def __write_async(self, record: VectorRecord):
