@@ -172,4 +172,6 @@ def run_async_in_background(coro_func, *args, **kwargs):
     Run an async function in the background without awaiting it.
     Suitable for fire-and-forget tasks from synchronous code.
     """
+    if not loop.is_running():
+        raise RuntimeError("Background event loop is not running.")
     loop.call_soon_threadsafe(asyncio.create_task, coro_func(*args, **kwargs))
