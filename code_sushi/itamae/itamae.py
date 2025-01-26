@@ -20,29 +20,40 @@ class Itamae:
     
     def slice_chunks(self, context: Context, file: File) -> List[LogicalChunk]:
         """Process the file to and extract every individual function."""
-        parser = init_parser(context, file.ext)
-        if not parser:
-            return []
-
-        code, syntax_tree = self.parse_content(parser, file.absolute_path)
-        functions = extract_functions(code, syntax_tree)
-
-        # Parse each function into a logical chunk object
-        chunks = []
-        for func in functions:
-            output_dir = context.output_dir + file.clean_path + ".functions/"
-            file_path = save_raw_function(func, output_dir, file.ext)
-
+        try:
             if context.log_level.value >= LogLevel.VERBOSE.value:
-                print(f"Saved function: {file_path}")
+                print(f"Slicing chunks for file: {file.clean_path}")
 
-            chunks.append(LogicalChunk(context, file, func["name"], func["code"], file_path))
+            parser = init_parser(context, file.ext)
+            if not parser:
+                return []
 
-        return chunks
+            code, syntax_tree = self.parse_content(parser, file.absolute_path)
+            functions = extract_functions(code, syntax_tree)
+
+            # Parse each function into a logical chunk object
+            chunks = []
+            for func in functions:
+                output_dir = context.output_dir + file.clean_path + ".functions/"
+                file_path = save_raw_function(func, output_dir, file.ext)
+
+                if context.log_level.value >= LogLevel.VERBOSE.value:
+                    print(f"Saved function: {file_path}")
+
+                chunks.append(LogicalChunk(context, file, func["name"], func["code"], file_path))
+
+            return chunks
+        except Exception as e:
+            print(f"Error slicing chunks: {e}")
+            return []
 
     def parse_content(self, parser: Parser, file_path: str) -> tuple[str, Tree]:
         """Parse the content of the file and return the syntax tree."""
 
-        code = open(file_path, "r", encoding="utf8").read()
-        tree = parser.parse(bytes(code, "utf8"))
-        return code, tree
+        try:
+            code = open(file_path, "r", encoding="utf8").read()
+            tree = parser.parse(bytes(code, "utf8"))
+            return code, tree
+        except Exception as e:
+            print(f"Error parsing content: {e}")
+            raise e

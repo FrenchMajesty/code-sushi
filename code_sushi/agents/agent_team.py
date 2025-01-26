@@ -39,8 +39,9 @@ class AgentTeam:
             print("Queue is empty. Monitoring stopped.")
 
         # Manage workers using ThreadPoolExecutor
-        with ThreadPoolExecutor(max_workers=self.count + 1) as executor:
-            for i in range(self.count):
+        workers = self.count
+        with ThreadPoolExecutor(max_workers=workers + 1) as executor:
+            for i in range(workers):
                 executor.submit(init_agent_worker, self.context, pipeline, i)
 
             # Monitor the queue

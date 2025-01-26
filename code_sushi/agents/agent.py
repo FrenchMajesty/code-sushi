@@ -22,7 +22,7 @@ class Agent:
         start_time = time.time()
 
         if self.context.log_level.value >= LogLevel.DEBUG.value:
-            print(f"Processing {task.name}...")
+            print(f"Performing task {task.name}...")
 
         try:
             tasks = []
@@ -30,7 +30,6 @@ class Agent:
             task.update_status(TaskStatus.IN_PROGRESS)
 
             summary = self.summarize_content(task)
-
             if task.is_file():
                 # 2- Extract logical chunks from the file
                 chunks = Itamae().slice_chunks(self.context, task.file)
@@ -55,19 +54,26 @@ class Agent:
         """
         Summarize the content of a file using LLM.
         """
-        origin_file = task.absolute_path()
-        content = open(origin_file).read()
-        parent_summary = task.chunk.parent_summary if task.chunk else ""
+        try:
+            origin_file = task.absolute_path()
+            content = open(origin_file).read()
+            parent_summary = task.chunk.parent_summary if task.chunk else ""
 
-        summary = summarize_file(self.context, task.relative_path(), content, parent_summary)
-        write_summary_to_file(self.context, task.file, summary)
+            summary = summarize_file(self.context, task.relative_path(), content, parent_summary)
+            write_summary_to_file(self.context, task.file, summary)
 
-        return summary
+            return summary
+        except Exception as e:
+            print(f"Error summarizing content: {e}")
+            return ""
 
     def chunks_to_tasks(self, chunks: List[LogicalChunk], summary: str) -> List[JobTask]:
         """
         Convert a list of logical chunks into a list of JobTasks.
         """
+        if self.context.log_level.value >= LogLevel.VERBOSE.value:
+            print(f"Converting {len(chunks)} chunks into tasks...")
+
         tasks = []
         for chunk in chunks:
             temp_file = File(self.context.repo_path, chunk.absolute_path)

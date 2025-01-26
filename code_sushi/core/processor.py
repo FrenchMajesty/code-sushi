@@ -56,7 +56,7 @@ def write_summary_to_file(context: Context, file: File, summary: str):
 
     content = open(file.absolute_path).read()
     template = '\n'.join([
-        f"# File: {file.name}",
+        f"# File: {name}",
         f"## Summary: {summary}",
         "----",
         content
