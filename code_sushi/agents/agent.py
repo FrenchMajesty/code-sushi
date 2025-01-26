@@ -2,7 +2,7 @@ from typing import List
 from code_sushi.context import Context, LogLevel
 from code_sushi.core import write_summary_to_file, File
 from code_sushi.jobs import JobTask, TaskStatus
-from code_sushi.itamae import Itamae
+from code_sushi.itamae import Itamae, LogicalChunk
 from .llm_client import summarize_file
 import time
 
@@ -27,29 +27,18 @@ class Agent:
         try:
             tasks = []
             self.busy = True
-            self.tasks_completed += 1
             task.update_status(TaskStatus.IN_PROGRESS)
 
-            # 1- Summarize the file content using LLM
-            origin_file = task.absolute_path()
-            content = open(origin_file).read()
-            summary = summarize_file(self.context, task.relative_path(), content)
-            write_summary_to_file(self.context, task.file, summary)
+            summary = self.summarize_content(task)
 
             if task.is_file():
                 # 2- Extract logical chunks from the file
                 chunks = Itamae().slice_chunks(self.context, task.file)
-                for chunk in chunks:
-                    # Create a new task for each chunk
-                    temp_file = File(self.context.repo_path, chunk.absolute_path)
-                    temp_file.absolute_path = chunk.absolute_path
-                    temp_file.clean_path = chunk.relative_path
-
-                    task = JobTask(self.context, chunk=chunk, file=temp_file)
-                    tasks.append(task)
+                tasks = self.chunks_to_tasks(chunks, summary)
 
             task.update_status(TaskStatus.COMPLETE)
             self.busy = False
+            self.tasks_completed += 1
 
             if self.context.log_level.value >= LogLevel.DEBUG.value:
                 runtime = time.time() - start_time
@@ -61,3 +50,32 @@ class Agent:
             self.busy = False
             print(f"Agent [{self.id}] Failed Job {task.name}. Error: {e}")
             return []
+    
+    def summarize_content(self, task: JobTask) -> str:
+        """
+        Summarize the content of a file using LLM.
+        """
+        origin_file = task.absolute_path()
+        content = open(origin_file).read()
+        parent_summary = task.chunk.parent_summary if task.chunk else ""
+
+        summary = summarize_file(self.context, task.relative_path(), content, parent_summary)
+        write_summary_to_file(self.context, task.file, summary)
+
+        return summary
+
+    def chunks_to_tasks(self, chunks: List[LogicalChunk], summary: str) -> List[JobTask]:
+        """
+        Convert a list of logical chunks into a list of JobTasks.
+        """
+        tasks = []
+        for chunk in chunks:
+            temp_file = File(self.context.repo_path, chunk.absolute_path)
+            temp_file.absolute_path = chunk.absolute_path
+            temp_file.clean_path = chunk.relative_path
+            chunk.parent_summary = summary
+
+            task = JobTask(self.context, chunk=chunk, file=temp_file)
+            tasks.append(task)
+
+        return tasks
