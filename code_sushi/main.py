@@ -4,6 +4,7 @@ from .core import scan_repo, get_code_insights
 from .context import Context
 from .agents import AgentTeam
 from .jobs import JobQueue
+from typing import Optional
 import os
 
 def dry_run():
@@ -18,7 +19,7 @@ def upload():
     """
     print("Uploading processed repository chunks to RAG system...")
 
-def slice(repo_path: str, log_level: int, agents: int):
+def slice(repo_path: str, log_level: int, agents: int, limit: Optional[int] = None):
     """
     Slice the repository into chunks for processing.
     """
@@ -26,6 +27,10 @@ def slice(repo_path: str, log_level: int, agents: int):
 
     print("Scanning the repository...")
     files = scan_repo(context)
+
+    if limit:
+        files = files[-int(limit):]
+        print(f"Keeping only the first {limit} files for testing purposes.")
 
     print(f"\n--\nTotal files selected in repo: {len(files)}\n--\n")
 
@@ -72,6 +77,7 @@ def main():
     slice_parser.add_argument("--path", required=True, help="Path to the repository to process.")
     slice_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
     slice_parser.add_argument("--agents", type=int, default=10, help="Number of agents to use for processing.")
+    slice_parser.add_argument("--limit", help="Sets a limit to the number of files to process for testing purposes.")
 
     slice_parser.set_defaults(func=slice)
 
@@ -83,7 +89,7 @@ def main():
     args = parser.parse_args()
 
     if args.command == "slice":
-        args.func(args.path, args.log, args.agents)
+        args.func(args.path, args.log, args.agents, args.limit)
     else:
         args.func()
 
