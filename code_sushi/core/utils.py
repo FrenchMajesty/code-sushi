@@ -96,6 +96,9 @@ def filter_out_bad_dirs(context: Context, dirs: List[str]) -> List[str]:
     # Ignore content in .git/ directory
     dirs = [dir for dir in dirs if dir != ".git"]
 
+    # Ignore content in .llm/ directory
+    dirs = [dir for dir in dirs if dir != ".llm"]
+
     if show_debug:
         print(f"Final dirs count: {len(dirs)}")
 

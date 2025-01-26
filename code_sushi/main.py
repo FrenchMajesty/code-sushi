@@ -58,8 +58,8 @@ def read_config_into_context(args: argparse.Namespace) -> Context:
 
     config_path = os.path.join(os.path.abspath(os.getcwd()), "sushi-config.json")
 
-    if not os.path.exists(config_path) and not args.path:
-        raise FileNotFoundError(f"Configuration file not found at {config_path} and no path provided. Please run 'sushi init' to create it or add --path argument.")
+    if not os.path.exists(config_path) and "path" not in args and args.command != "init":
+        raise FileNotFoundError(f"Configuration file not found at {config_path} and no --path arg provided. Please run 'sushi init' or add --path argument.")
 
     config_data = defaultdict()
     try:

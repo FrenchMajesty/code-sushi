@@ -3,7 +3,10 @@ import os
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
 from code_sushi.context import Context, LogLevel
+from dotenv import load_dotenv
 import time
+
+load_dotenv()
 
 class GoogleCloudStorage:
     def __init__(self, context: Context, bucket_name: Optional[str] = None):
