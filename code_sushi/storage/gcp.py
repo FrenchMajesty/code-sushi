@@ -17,6 +17,9 @@ class GoogleCloudStorage:
             bucket_name = os.getenv('GCP_BUCKET_NAME')
         self.bucket = self.client.bucket(bucket_name)
 
+        self.success_count = 0
+        self.failure_count = 0
+
     def upload_file(self, source_path: str, destination_path: str):
         """
         Uploads a file to the bucket.
@@ -25,10 +28,11 @@ class GoogleCloudStorage:
         try:
             blob = self.bucket.blob(destination_path)
             blob.upload_from_filename(source_path)
-
+            self.success_count += 1
             if self.context.log_level.value >= LogLevel.VERBOSE.value:
                 print(f"File {source_path} uploaded to {destination_path}.")
         except Exception as e:
+            self.failure_count += 1
             print(f"Error uploading file: {e}")
             raise e
     
@@ -38,7 +42,7 @@ class GoogleCloudStorage:
         """
         start = time.time()
         if self.context.log_level.value >= LogLevel.DEBUG.value:
-            print(f"Uploading files from {source_dir} with {self.max_workers} threads.")
+            print(f"Uploading files from {source_dir} with {self.max_workers} threads to GCP.")
 
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             for root, _, files in os.walk(source_dir):
@@ -53,6 +57,8 @@ class GoogleCloudStorage:
         if self.context.log_level.value >= LogLevel.DEBUG.value:
             runtime = time.time() - start
             print(f"All files uploaded in {runtime:.2f} seconds.")
+        
+        print(f"Success: {self.success_count}. Failed: {self.failure_count}")
 
     def download_file(self, source_path: str, destination: str):
         """

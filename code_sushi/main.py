@@ -19,7 +19,7 @@ def upload(repo_path: str, log_level: int, workers: int):
     Upload results of the processed repository to a blog storage and vector database.
     """
     context = Context(repo_path=repo_path, log_level=log_level)
-    print("Uploading processed repository chunks to RAG system...")
+    print("Uploading processed repository chunks to Blob Storage & Vector DB...")
 
     # Upload to GCP
     storage = GoogleCloudStorage(context, concurrent_threads=workers)
