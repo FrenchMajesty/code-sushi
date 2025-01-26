@@ -21,14 +21,13 @@ def summarize_file(context: Context, file_path: str, content: str, file_summary:
     """
     Summarize the provided file using an LLM.
     """
-
-    if ".functions/" in file_path:
-        file_path = file_path.replace(".functions/", "@").rsplit('.', 1)[0]
-
-    if context.log_level.value >= LogLevel.DEBUG.value:
-        print(f"Sending req to LLM: {file_path}")
-
     try:
+        if ".functions/" in file_path:
+            file_path = file_path.replace(".functions/", "@").rsplit('.', 1)[0]
+
+        if context.log_level.value >= LogLevel.DEBUG.value:
+            print(f"Sending req to LLM: {file_path}")
+
         msg_parts = [
             f"# Path: {file_path}",
             f"## Parent File Summary: {file_summary}" if file_summary else "",
@@ -50,6 +49,6 @@ def summarize_file(context: Context, file_path: str, content: str, file_summary:
 
         return completion.choices[0].message.content
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error in LLM client summarize_file(): {e}")
         return None
     

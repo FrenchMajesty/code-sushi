@@ -57,31 +57,31 @@ def write_summary_to_file(context: Context, file: File, summary: str):
     """
     Store the summary of the file and the file content.
     """
-    name = file.clean_path
-
-    if ".functions/" in name:
-        name = name.replace(".functions/", "@").rsplit('.', 1)[0]
-
-    content = open(file.absolute_path).read()
-    template = '\n'.join([
-        f"# File: {name}",
-        f"## Summary: {summary}",
-        "----",
-        content
-    ])
-
-    # Write to destination
-    dest = os.path.join(context.output_dir + file.clean_path)
-    if not dest.endswith('.md'):
-        dest += '.md'
-
-    if context.log_level.value >= LogLevel.VERBOSE.value:
-        print(f"Writing {len(template)} chars to {dest}")
-
-    # Create the directory if it doesn't exist
-    os.makedirs(os.path.dirname(dest), exist_ok=True)
-
     try:
+        name = file.relative_path
+
+        if ".functions/" in name:
+            name = name.replace(".functions/", "@").rsplit('.', 1)[0]
+
+        content = open(file.absolute_path).read()
+        template = '\n'.join([
+            f"# File: {name}",
+            f"## Summary: {summary}",
+            "----",
+            content
+        ])
+
+        # Write to destination
+        relative_base = os.path.relpath(file.relative_path, "/")
+        dest = os.path.join(context.output_dir, relative_base)
+        if not dest.endswith('.md'):
+            dest += '.md'
+
+        if context.log_level.value >= LogLevel.VERBOSE.value:
+            print(f"Writing {len(template)} chars to {dest}")
+
+        # Create the directory if it doesn't exist
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
         with open(dest, 'w') as f:
             f.write(template)
     except Exception as e:
