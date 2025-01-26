@@ -6,6 +6,7 @@ from .agents import AgentTeam
 from .jobs import JobQueue
 from typing import Optional
 from .storage import GoogleCloudStorage
+from .vector import Voyage
 import os
 
 def dry_run():
@@ -24,9 +25,14 @@ def upload(repo_path: str, log_level: int, workers: int):
     # Upload to GCP
     storage = GoogleCloudStorage(context, concurrent_threads=workers)
     project_name = os.path.basename(repo_path)
-    source_dir = os.path.abspath(f"{repo_path}/.llm")
+    context.output_dir = os.path.abspath(f"{repo_path}/.llm")
     destination_dir = f"{project_name}/.llm/"
-    storage.bulk_upload(source_dir, destination_dir)
+    storage.bulk_upload(context.output_dir, destination_dir)
+
+    # Upload to Vector DB
+    vector_db = Voyage()
+
+
 
 def slice(repo_path: str, log_level: int, agents: int, limit: Optional[int] = None):
     """

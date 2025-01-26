@@ -2,6 +2,7 @@ from typing import List
 import os
 from code_sushi.context import Context, LogLevel
 from .file import File
+from code_sushi.vector import VoyageEmbed
 from .utils import (
     print_details,
     get_files_from_folder,
@@ -78,3 +79,21 @@ def write_summary_to_file(context: Context, file: File, summary: str):
             f.write(template)
     except Exception as e:
         print(f"Error writing to file: {e}")
+
+def embed_the_summaries(context: Context):
+    """
+    Parses the summaries for every file and chunk written to disk to vectorize them.
+    """
+
+    """
+    - Read all the files in context.output_dir
+    - For each file, read the content and extract the metadata (from start to first '----')
+    The format of the heading is this:
+    # File: <filename>
+    ## Summary: <summary>
+    .
+    - We extract both the filename and the summary
+    - We vectorize the summary text using Voyage
+    - We store and upload it to the vector DB
+
+    """
