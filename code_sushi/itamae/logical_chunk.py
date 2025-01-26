@@ -12,6 +12,7 @@ class LogicalChunk:
         self.name = name
         self.code = code
         self.absolute_path = absolute_path
+        self.parent_summary = None
 
         common = os.path.commonprefix([context.output_dir, absolute_path])
         self.relative_path = absolute_path.replace(common, "", 1)
