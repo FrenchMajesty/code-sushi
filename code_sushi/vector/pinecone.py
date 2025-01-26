@@ -32,7 +32,7 @@ class Pinecone:
         with self.index as index:
             # Send chunked requests in parallel
             async_results = [
-                index.upsert(vectors=ids_vectors_chunk, async_req=True)
+                index.upsert(vectors=ids_vectors_chunk, async_req=True, namespace="beta")
                 for ids_vectors_chunk in chunks(items, chunk_size)
             ]
 
