@@ -8,13 +8,13 @@ import time
 class GoogleCloudStorage:
     def __init__(self, context: Context, bucket_name: Optional[str] = None):
         self.client = storage.Client(
-            project=os.getenv('GCP_PROJECT_ID'),
+            project=os.getenv('SUSHI_GCP_PROJECT_ID'),
         )
         self.context = context
         self.max_workers = context.blob_storage_concurrent_limit
 
         if not bucket_name:
-            bucket_name = os.getenv('GCP_BUCKET_NAME')
+            bucket_name = os.getenv('SUSHI_GCP_BUCKET_NAME')
         self.bucket = self.client.bucket(bucket_name)
 
         self.success_count = 0

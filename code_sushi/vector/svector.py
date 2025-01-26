@@ -13,9 +13,9 @@ from code_sushi.multi_task import AsyncThrottler, run_async_in_background
 
 load_dotenv()
 
-region = os.getenv('SVECTOR_REGION')
-apiKey = os.getenv('SVECTOR_API_KEY')
-databaseId = os.getenv('SVECTOR_DATABASE_ID')
+region = os.getenv('SUSHI_SVECTOR_REGION')
+apiKey = os.getenv('SUSHI_SVECTOR_API_KEY')
+databaseId = os.getenv('SUSHI_SVECTOR_DATABASE_ID')
 
 class SVector:
     """

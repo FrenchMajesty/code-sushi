@@ -1,5 +1,6 @@
 
 import argparse
+from collections import defaultdict
 from .core import (
     scan_repo, 
     get_code_insights, 
@@ -14,6 +15,9 @@ from .storage import GoogleCloudStorage
 import atexit
 import os
 import json
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def init(log_level: int):
     """
@@ -51,41 +55,50 @@ def read_config_into_context(args: argparse.Namespace) -> Context:
     Read the configuration from the sushi-config.json file into the context.
     """
     curr_dir = os.path.abspath(os.getcwd())
+
     config_path = os.path.join(os.path.abspath(os.getcwd()), "sushi-config.json")
 
     if not os.path.exists(config_path) and not args.path:
-        raise FileNotFoundError(f"Configuration file not found at {config_path}. Please run 'sushi init' to create it.")
+        raise FileNotFoundError(f"Configuration file not found at {config_path} and no path provided. Please run 'sushi init' to create it or add --path argument.")
 
-    with open(config_path, 'r') as config_file:
-        config_data = json.load(config_file)
+    config_data = defaultdict()
+    try:
+        with open(config_path, 'r') as config_file:
+            config_data = json.load(config_file)
+    except Exception as e:
+        if args.log >= LogLevel.DEBUG.value:
+            print(f"Error reading config file: {e}")
 
     context = Context(curr_dir)
-    context.vector_db_concurrent_limit = config_data.get("vector_db.max_concurrent_requests", 25)
-    context.blob_storage_concurrent_limit = config_data.get("blob_storage.max_concurrent_requests", 25)
+    context.vector_db_concurrent_limit = config_data.get("vector_db_max_concurrent_requests", 25)
+    context.blob_storage_concurrent_limit = config_data.get("blob_storage_max_concurrent_requests", 25)
     context.max_agents = config_data.get("max_agents", 10)
-    context.embedding_model_chunk_size = config_data.get("embedding.max_chunk_size", 128)
+    context.embedding_model_chunk_size = config_data.get("embedding_max_chunk_size", 128)
     
     # Handle user-provided arguments
-    if args.log:
+    if "log" in args and args.log:
         context.log_level = LogLevel(args.log)
     
-    if args.path:
-        context.repo_path = args.path
+    if "path" in args and args.path:
+        context.repo_path = os.path.abspath(args.path)
     
-    if args.agents:
+    if "agents" in args and args.agents:
         context.max_agents = args.agents
 
-    if args.blob_workers:
+    if "blob_workers" in args and args.blob_workers:
         context.blob_storage_concurrent_limit = args.blob_workers
 
-    if args.vector_workers:
+    if "vector_workers" in args and args.vector_workers:
         context.vector_db_concurrent_limit = args.vector_workers
     
-    if args.embed_chunks:
+    if "embed_chunks" in args and args.embed_chunks:
         context.embedding_model_chunk_size = args.embed_chunks
     
-    output_dir = os.path.abspath(f"{context.repo_path}/.llm")
+    output_dir = os.path.abspath(f"{context.repo_path}/.llm/")
     context.output_dir = output_dir
+    
+    if context.log_level.value >= LogLevel.DEBUG.value:
+        print(f"Context ready: {context.__dict__}")   
 
     return context
     
@@ -93,6 +106,12 @@ def run(context: Context):
     """
     Process the repository and upload the results.
     """
+    should_continue = slice(context)
+    if not should_continue:
+        return
+
+    vectorize(context)
+    upload(context)
 
 def upload(context: Context):
     """
@@ -111,7 +130,7 @@ def vectorize(context: Context):
     embed_and_upload_the_summaries(context)
     atexit.register(stop_background_loop)
 
-def slice(context: Context, limit: Optional[int] = None):
+def slice(context: Context, limit: Optional[int] = None) -> bool:
     """
     Slice the repository into chunks for processing.
     """
@@ -129,13 +148,15 @@ def slice(context: Context, limit: Optional[int] = None):
     confirm = input("\n\nBased on this overview, do you want to proceed with slicing this repo? (y/n): ").strip().lower()
     if confirm != 'y':
         print("Aborting the slicing process.")
-        return
+        return False
     
     # Get to work
     os.makedirs(context.output_dir, exist_ok=True)
     queue = JobQueue(context, files)
     team = AgentTeam(context)
     team.get_to_work(queue)
+
+    return True
 
 def clean(context: Context):
     """
@@ -152,11 +173,12 @@ def main():
 
     # Add 'init' command
     init_parser = subparsers.add_parser("init", help="Initialize the Code Sushi environment.")
+    init_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
     init_parser.set_defaults(func=init)
 
     # Add 'run' command
     run_parser = subparsers.add_parser("run", help="Process the repo and upload the results.")
-    run_parser.add_argument("--path", help="Path to the repository to process.")
+    run_parser.add_argument("--path", default="./", help="Path to the repository to process.")
     run_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
     run_parser.add_argument("--blob-workers", type=int, default=20, help="Number of thread workers to use for parallel uploading.")
     run_parser.add_argument("--agents", type=int, default=5, help="Number of AI agents to use for summarizing files.")
@@ -192,13 +214,11 @@ def main():
     # Parse and execute the appropriate command
     args = parser.parse_args()
 
-    context = None
-    if args.command != "init":
-        context = read_config_into_context(args)
+    context = read_config_into_context(args)
 
     if args.command == "init":
         args.func(args.log)
-    if args.command == "slice":
+    elif args.command == "slice":
         args.func(context, args.limit)
     else:
         args.func(context)

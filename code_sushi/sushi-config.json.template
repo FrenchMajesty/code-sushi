@@ -1,12 +1,6 @@
 {
     "max_agents": 10,
-    "blog_storage": {
-        "max_concurrent_requests": 25
-    },
-    "embedding": {
-        "max_chunk_size": 128
-    },
-    "vector_db": {
-        "max_concurrent_requests": 25
-    }
+    "blog_storage_max_concurrent_requests": 25,
+    "embedding_max_chunk_size": 128,
+    "vector_db_max_concurrent_requests": 25
 }
