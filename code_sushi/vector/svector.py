@@ -8,9 +8,8 @@ from svectordb.models import *
 from smithy_core.retries import SimpleRetryStrategy
 from smithy_http.aio.identity.apikey import ApiKeyIdentity, ApiKeyIdentityResolver
 from dotenv import load_dotenv
-from typing import List
 from .vector_record import VectorRecord
-from code_sushi.core import run_async_in_background, AsyncThrottler
+from code_sushi.multi_task import AsyncThrottler, run_async_in_background
 
 load_dotenv()
 
@@ -26,7 +25,7 @@ class SVector:
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
-            cls._instance = super().__new__(cls, *args, **kwargs)
+            cls._instance = super().__new__(cls)
         return cls._instance
 
     def __init__(self, context: Context) -> None:

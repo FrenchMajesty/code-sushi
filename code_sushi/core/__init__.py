@@ -9,10 +9,8 @@ from .processor import (
     scan_repo, 
     write_summary_to_file, 
     embed_and_upload_the_summaries, 
-    run_async_in_background,
-    stop_background_loop
 )
-from .async_throttler import AsyncThrottler
+from ..multi_task.async_throttler import AsyncThrottler
 from .utils import get_code_insights
 from .file import File
 
@@ -23,6 +21,4 @@ __all__ = [
     "File",
     "write_summary_to_file",
     "embed_and_upload_the_summaries",
-    "run_async_in_background",
-    "AsyncThrottler"
 ]

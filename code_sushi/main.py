@@ -4,8 +4,8 @@ from .core import (
     scan_repo, 
     get_code_insights, 
     embed_and_upload_the_summaries,
-    stop_background_loop
 )
+from .multi_task import start_background_loop, stop_background_loop
 from .context import Context
 from .agents import AgentTeam
 from .jobs import JobQueue
@@ -41,6 +41,7 @@ def vectorize(repo_path: str, log_level: int):
     context = Context(repo_path=repo_path, log_level=log_level)
     context.output_dir = os.path.abspath(f"{repo_path}/.llm")
     
+    start_background_loop()
     embed_and_upload_the_summaries(context)
     atexit.register(stop_background_loop)
 
