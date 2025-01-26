@@ -65,14 +65,15 @@ def save_functions(context: Context, functions, output_dir: str):
         if context.log_level.value >= LogLevel.DEBUG.value:
             print(f"Saved: {file_path}")
 
-def save_raw_function(func, output_dir):
+def save_raw_function(func, output_dir, ext):
     """Save an individual function into a file."""
 
     os.makedirs(output_dir, exist_ok=True)
 
     # Use function name or generate a unique name for anonymous functions
     random_hash = hashlib.sha256(func["code"].encode()).hexdigest()[:6]
-    file_name = f"{func['name']}.ts" if func["name"] != "anonymous" else f"anonymous_{random_hash}.ts"
+    file_name = f"{func['name']}{ext}" if func["name"] != "anonymous" else f"anonymous_{random_hash}{ext}"
+    file_name += ".md"
     file_path = os.path.join(output_dir, file_name)
 
     with open(file_path, "w") as f:

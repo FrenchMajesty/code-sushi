@@ -52,13 +52,19 @@ def write_summary_to_file(context: Context, file: File, summary: str):
     content = open(file.absolute_path).read()
     template = '\n'.join([
         f"# File: {file.clean_path}",
-        f"# Summary: {summary}",
+        f"## Summary: {summary}",
         "----",
         content
     ])
 
     # Write to destination
-    dest = os.path.join(context.output_dir, file.clean_path + '.md')
-    with open(dest, 'w') as f:
-        f.write(template)
-    
+    dest = os.path.join(context.output_dir + file.clean_path + '.md')
+
+    if context.log_level.value >= LogLevel.VERBOSE.value:
+        print(f"Writing {len(template)} chars to {dest}")
+
+    try:
+        with open(dest, 'w') as f:
+            f.write(template)
+    except Exception as e:
+        print(f"Error writing to file: {e}")

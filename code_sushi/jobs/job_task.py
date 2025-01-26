@@ -24,15 +24,18 @@ class JobTask:
         self.context = context
         self.busy = False
 
-        if file:
-            self.name = file.clean_path
-        elif chunk:
+        if chunk:
             self.name = chunk.name
+        elif file:
+            self.name = file.clean_path
         else:
             raise ValueError("A JobTask must have a file or a chunk.")
 
     def relative_path(self):
-        return self.file.clean_path if self.file else self.chunk.relative_path
+        return self.chunk.relative_path if self.chunk else self.file.clean_path
+
+    def absolute_path(self):
+        return self.chunk.absolute_path if self.chunk else self.file.absolute_path
 
     def update_status(self, status: TaskStatus):
         self.status = status

@@ -21,25 +21,29 @@ def summarize_file(context: Context, file_path: str, content: str):
     Summarize the provided file using an LLM.
     """
 
+    if ".functions/" in file_path:
+        file_path = file_path.replace(".functions/", "@").rsplit('.', 1)[0]
+
     if context.log_level.value >= LogLevel.DEBUG.value:
         print(f"Sending req to LLM: {file_path}")
 
     try:
         completion = client.chat.completions.create(
         model=model,
-        messages= list(summarize_file_prompt) + [
-            {
+        messages= list(summarize_file_prompt) + [{
                 "role": "user", 
-                "content": f"""
-                path: {file_path}
-                --
-                {content}
-                """
-                }
-            ],
+                "content": '\n'.join([
+                    f"path: {file_path}",
+                    "--",
+                    content
+                ])
+            }],
         )
+
+        if context.log_level.value >= LogLevel.DEBUG.value:
+            print(f"Received response from LLM", completion.created)
     except Exception as e:
         print(f"Error: {e}")
         return None
-
+    
     return completion.choices[0].message.content

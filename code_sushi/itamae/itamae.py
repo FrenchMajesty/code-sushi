@@ -31,7 +31,7 @@ class Itamae:
         chunks = []
         for func in functions:
             output_dir = context.output_dir + file.clean_path + ".functions/"
-            file_path = save_raw_function(func, output_dir)
+            file_path = save_raw_function(func, output_dir, file.ext)
 
             if context.log_level.value >= LogLevel.VERBOSE.value:
                 print(f"Saved function: {file_path}")
