@@ -33,9 +33,14 @@ class AgentTeam:
                     break
 
         def monitor_queue(queue: JobQueue):
+            queue.track_start()
+
             while not queue.empty():
                 queue.print_status_update()
                 time.sleep(3)
+            
+            queue.track_end()
+            queue.print_status_update()
             print("Queue is empty. Monitoring stopped.")
 
         # Manage workers using ThreadPoolExecutor

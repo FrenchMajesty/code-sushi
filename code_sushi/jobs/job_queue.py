@@ -18,12 +18,30 @@ class JobQueue:
         self.capacity = 0
         self.state = {}
 
+        # Track run time
+        self.start_time = None
+        self.end_time = None
+        self.duration = None
+
         self.prepare(files)
 
         if self.context.log_level.value >= LogLevel.DEBUG.value:
             print("Job queue initialized.")
             print("Top priority job:", peek(self.queue))
     
+    def track_start(self):
+        """
+        Track the start time of the job queue.
+        """
+        self.start_time = time.time()
+
+    def track_end(self):
+        """
+        Track the end time of the job queue.
+        """
+        self.end_time = time.time()
+        self.duration = self.end_time - self.start_time
+
     def prepare(self, files: List[File]):
         for priority, file in prioritize_files(files):
             if file.size == 0:
@@ -101,6 +119,10 @@ class JobQueue:
         print(f"Completed:          {completed_count} ({completed_percent:.1f}%)")
         print(f"Pending:            {pending_count} ({pending_percent:.1f}%)")
         print(f"Progress:           {progress_bar}")
+
+        if self.duration:
+            print(f"Duration:           {self.duration:.2f} seconds")
+
         print("=" * 40)
 
 def peek(pq):
