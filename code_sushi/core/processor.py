@@ -100,7 +100,7 @@ def embed_and_upload_the_summaries(context: Context):
 
     chunk_size = 128
     chunk_idx = 0
-    total_chunks = math.ceil(len(files) // chunk_size)
+    total_chunks = math.ceil(len(files) / chunk_size)
     for i in range(0, len(files), chunk_size):
         chunk_idx += 1
         chunk = files[i:i + chunk_size]
@@ -112,10 +112,14 @@ def embed_and_upload_the_summaries(context: Context):
 
         # Mass-embed the text from the entries
         raw_contents = [entry.text for entry in entries]
+
+        if context.log_level.value >= LogLevel.VERBOSE.value:
+            print(f"Send req. to embed {len(raw_contents)} text sections")
+
         embeddings = voyage_embed.embed(raw_contents)
         
         if context.log_level.value >= LogLevel.VERBOSE.value:
-            print(f"Received {len(embeddings)} embeddings")
+            print(f"Received {len(embeddings)} embeddings back")
 
         if len(embeddings) != len(entries):
             print(f"Error: Embeddings length {len(embeddings)} does not match entries length {len(entries)}")
@@ -144,6 +148,7 @@ def convert_files_to_vector_records(context: Context, files: List[str]) -> List[
             "summary": file_meta['summary'],
             "original_location": file_meta['file'],
             "last_updated": datetime.now(timezone.utc).isoformat() + 'Z',
+            "type": "function" if "@" in file_meta['file'] else "file"
         }
         entry = VectorRecord(key, file_meta['summary'], vector_metadata)
         entries.append(entry)

@@ -40,6 +40,7 @@ class SVector:
     def write(self, record: VectorRecord) -> None:
         """
         """
+        print("write", record.key)
         run_async_in_background(self.__write_async, record)
 
     async def __write_async(self, record: VectorRecord):
@@ -59,8 +60,6 @@ class SVector:
                     vector=record.embedding,
                     metadata=self.hashmap_to_metadata(record.metadata)
                 ))
-                return  # Success, exit the loop
-
             except Exception as e:
                 print(f"Attempt {attempt + 1} failed: {e}")
                 if attempt + 1 < retries:

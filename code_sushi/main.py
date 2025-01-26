@@ -110,8 +110,8 @@ def run(context: Context):
     if not should_continue:
         return
 
-    vectorize(context)
     upload(context)
+    vectorize(context)
 
 def upload(context: Context):
     """
@@ -126,6 +126,7 @@ def vectorize(context: Context):
     """
     Embed the summaries and vectorize them for every file and chunk in disk.
     """
+    print("Start vectorization process...")
     start_background_loop()
     embed_and_upload_the_summaries(context)
     atexit.register(stop_background_loop)
@@ -183,7 +184,7 @@ def main():
     run_parser.add_argument("--blob-workers", type=int, default=25, help="Number of thread workers to use for parallel uploading.")
     run_parser.add_argument("--agents", type=int, default=10, help="Number of AI agents to use for summarizing files.")
     run_parser.add_argument("--vector-workers", type=int, default=25, help="Number of thread workers to use for parallel vectorizing.")
-    run_parser.add_argument("--embed-chunks", type=int, default=128, help="Number of files to group together for batch embedding.")
+    run_parser.add_argument("--embed-chunks", type=int, default=128, help="Number of items per batch for embedding requests.")
     run_parser.set_defaults(func=run)
 
     # Add 'upload' command
@@ -204,6 +205,7 @@ def main():
     # Add 'vectorize' command
     vectorize_parser = subparsers.add_parser("vectorize", help="Embed the summaries and vectorize them for every file and chunk in disk.")
     vectorize_parser.add_argument("--path", help="Path to the repository to process.")
+    vectorize_parser.add_argument("--vector-workers", type=int, default=25, help="Number of thread workers to use for parallel vectorizing.")
     vectorize_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
     vectorize_parser.set_defaults(func=vectorize)
 
