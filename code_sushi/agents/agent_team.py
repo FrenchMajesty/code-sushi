@@ -6,7 +6,7 @@ from .agent import Agent
 import time
 
 class AgentTeam:
-    def __init__(self, context: Context, agent_count: int = 10):
+    def __init__(self, context: Context, agent_count: int):
         self.context = context
         self.count = agent_count
 
@@ -39,9 +39,8 @@ class AgentTeam:
             print("Queue is empty. Monitoring stopped.")
 
         # Manage workers using ThreadPoolExecutor
-        workers = self.count // 2
-        with ThreadPoolExecutor(max_workers=workers + 1) as executor:
-            for i in range(workers):
+        with ThreadPoolExecutor(max_workers=self.count + 1) as executor:
+            for i in range(self.count):
                 executor.submit(init_agent_worker, self.context, pipeline, i)
 
             # Monitor the queue

@@ -76,7 +76,7 @@ def main():
     slice_parser = subparsers.add_parser("slice", help="Slice the repo into chunks for processing.")
     slice_parser.add_argument("--path", required=True, help="Path to the repository to process.")
     slice_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
-    slice_parser.add_argument("--agents", type=int, default=10, help="Number of agents to use for processing.")
+    slice_parser.add_argument("--agents", type=int, default=5, help="Number of agents to use for processing.")
     slice_parser.add_argument("--limit", help="Sets a limit to the number of files to process for testing purposes.")
 
     slice_parser.set_defaults(func=slice)
