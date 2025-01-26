@@ -10,10 +10,10 @@ class VoyageEmbed:
     def __init__(self):
         self.vo = voyageai.Client()
 
-    def __new__(self, *args, **kwargs):
-        if self._instance is None:
-            self._instance = super().__new__(self, *args, **kwargs)
-        return self._instance
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        return cls._instance
 
     def embed(self, texts: List[str], input_type: str = "document") -> List[List[float]]:
         """
