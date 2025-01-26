@@ -1,5 +1,8 @@
 from tree_sitter import Language, Parser, Tree
 import tree_sitter_typescript as tstypescript
+import tree_sitter_javascript as tsjavascript
+import tree_sitter_php as tsphp
+import tree_sitter_python as tspython
 from code_sushi.core import File
 from code_sushi.context import Context, LogLevel
 from typing import List, Optional
@@ -9,6 +12,10 @@ import hashlib
 # Load supported languages
 LANGUAGES = {
     ".ts": Language(tstypescript.language_typescript()),
+    ".tsx": Language(tstypescript.language_tsx()),
+    ".js": Language(tsjavascript.language()),
+    ".py": Language(tspython.language()),
+    ".php": Language(tsphp.language()),
     # Add more languages here if needed
 }
 
