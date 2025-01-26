@@ -24,11 +24,9 @@ class VoyageEmbed:
                 texts=texts, 
                 model="voyage-code-3", 
                 input_type=input_type,
-                output_dimension=1024,
-                output_dtype="float"
             )
 
-            return result["embeddings"]
+            return result.embeddings
         except Exception as e:
             print(f"Error embedding texts: {e}")
             return []

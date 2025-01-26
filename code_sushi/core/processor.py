@@ -2,13 +2,16 @@ from typing import List
 import os
 from code_sushi.context import Context, LogLevel
 from .file import File
-from code_sushi.vector import VoyageEmbed
+from code_sushi.vector import VoyageEmbed, SVector
+import time
+from datetime import datetime, timezone
 from .utils import (
     print_details,
     get_files_from_folder,
     filter_out_bad_files,
     shallow_root_scan,
     get_root_files,
+    extract_metadata_from_output_file
 )
 
 """
@@ -80,20 +83,52 @@ def write_summary_to_file(context: Context, file: File, summary: str):
     except Exception as e:
         print(f"Error writing to file: {e}")
 
-def embed_the_summaries(context: Context):
+def embed_and_upload_the_summaries(context: Context):
     """
     Parses the summaries for every file and chunk written to disk to vectorize them.
     """
 
-    """
-    - Read all the files in context.output_dir
-    - For each file, read the content and extract the metadata (from start to first '----')
-    The format of the heading is this:
-    # File: <filename>
-    ## Summary: <summary>
-    .
-    - We extract both the filename and the summary
-    - We vectorize the summary text using Voyage
-    - We store and upload it to the vector DB
+    voyage_embed = VoyageEmbed()
+    vector_db = SVector()
 
-    """
+    # Get all the files in the output directory
+    files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(context.output_dir) for f in filenames]
+
+    chunk_size = 200
+    for i in range(0, len(files), chunk_size):
+        chunk = files[i:i + chunk_size]
+        entries = []
+
+        for i, file_path in enumerate(chunk):
+            metadata = extract_metadata_from_output_file(file_path)
+            
+            # Prepare unique key for the vector DB
+            # TODO: Add unique user identifier
+            key = context.project_name + metadata['file']
+
+            entry = {
+                "text": metadata['summary'],
+                "key": key,
+                "metadata": {
+                    "summary": metadata['summary'],
+                    "original_location": metadata['file'],
+                    "last_updated": datetime.now(timezone.utc).isoformat() + 'Z',
+                },
+            }
+            entries.append(entry)
+
+        # Mass-embed the text from the entries
+        raw_contents = [entry['text'] for entry in entries]
+        embeddings = voyage_embed.embed(raw_contents)
+        
+        if len(embeddings) != len(entries):
+            print(f"Error: Embeddings length {len(embeddings)} does not match entries length {len(entries)}")
+            return
+
+        for i in range(len(entries)):
+            entries[i]['embedding'] = embeddings[i]
+
+        # Upload to vector DB
+        for entry in entries:
+            vector_db.write(entry['key'], entry['embedding'], entry['metadata']) 
+

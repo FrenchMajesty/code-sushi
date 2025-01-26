@@ -1,5 +1,6 @@
 from typing import Optional
 from enum import Enum
+import os
 
 class LogLevel(Enum):
     NONE = 0
@@ -13,3 +14,4 @@ class Context:
         self.repo_path: Optional[str] = repo_path
         self.log_level: LogLevel = LogLevel(log_level)
         self.output_dir: Optional[str] = None
+        self.project_name: str = os.path.basename(repo_path)

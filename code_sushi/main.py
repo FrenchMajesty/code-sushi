@@ -1,6 +1,6 @@
 
 import argparse
-from .core import scan_repo, get_code_insights
+from .core import scan_repo, get_code_insights, embed_and_upload_the_summaries
 from .context import Context
 from .agents import AgentTeam
 from .jobs import JobQueue
@@ -22,16 +22,14 @@ def upload(repo_path: str, log_level: int, workers: int):
     context = Context(repo_path=repo_path, log_level=log_level)
     print("Uploading processed repository chunks to Blob Storage & Vector DB...")
 
-    # Upload to GCP
+    # 1- Upload to GCP
     storage = GoogleCloudStorage(context, concurrent_threads=workers)
-    project_name = os.path.basename(repo_path)
     context.output_dir = os.path.abspath(f"{repo_path}/.llm")
-    destination_dir = f"{project_name}/.llm/"
+    destination_dir = f"{context.project_name}/.llm/"
     storage.bulk_upload(context.output_dir, destination_dir)
 
-    # Upload to Vector DB
-    vector_db = VoyageEmbed()
-
+    # 2- Embed content & upload to Vector DB
+    embed_and_upload_the_summaries(context)
 
 
 def slice(repo_path: str, log_level: int, agents: int, limit: Optional[int] = None):

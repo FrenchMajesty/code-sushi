@@ -167,3 +167,24 @@ def get_code_insights(files: List[File], printing: bool = False) -> List[str]:
     insights.append(f"Total lines of code: {total_lines:,}")    
 
     return insights
+
+def extract_metadata_from_output_file(file: str) -> dict:
+    """
+    Extract metadata from a file which has already been through LLM summarization.
+    """
+    metadata = {}
+
+    try:
+        with open(file, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                if line.startswith('----'):
+                    break
+                if line.startswith('# File:'):
+                    metadata['file'] = line.split(':', 1)[1].strip()
+                elif line.startswith('## Summary:'):
+                    metadata['summary'] = line.split(':', 1)[1].strip()
+    except Exception as e:
+        print(f"Error extracting metadata from file: {e}")
+
+    return metadata
