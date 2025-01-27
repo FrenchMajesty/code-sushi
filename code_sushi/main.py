@@ -168,6 +168,13 @@ def clean(context: Context):
     print("Directory cleaned up.")
     # TODO: Prompt to ask if we should delete cloud-based resources as well
 
+def chat(context: Context):
+    """
+    Start the chatbot interface for Code Sushi.
+    """
+    print("Starting Code Sushi chatbot interface...")
+    
+
 def main():
     parser = argparse.ArgumentParser(description="Code Sushi: Slice and organize your code repo for LLMs.")
     subparsers = parser.add_subparsers(dest="command",required=True)
