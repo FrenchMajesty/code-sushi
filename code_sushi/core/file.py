@@ -9,7 +9,7 @@ class File:
         self.absolute_path = os.path.abspath(path)
         self.relative_path = ''
         self.file_name = os.path.basename(self.relative_path)
-        self.ext = os.path.splitext(self.relative_path)[1]
+        self.ext = os.path.splitext(path)[1]
         self.size = 0
         self.line_count = 0
 
