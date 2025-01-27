@@ -22,7 +22,7 @@ class Agent:
         start_time = time.time()
 
         if self.context.log_level.value >= LogLevel.DEBUG.value:
-            print(f"Performing task {task.name}...")
+            print(f"Performing task {task.name}...", task.file.relative_path)
 
         try:
             tasks = []
@@ -79,6 +79,11 @@ class Agent:
             temp_file = File(self.context.repo_path, chunk.absolute_path)
             temp_file.absolute_path = chunk.absolute_path
             temp_file.relative_path = chunk.relative_path
+
+            if ".llm/Users" in temp_file.relative_path:
+                print('BAD PATH! in chunks_to_tasks()')
+                exit(1)
+
             chunk.parent_summary = summary
 
             task = JobTask(self.context, chunk=chunk, file=temp_file)

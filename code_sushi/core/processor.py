@@ -69,8 +69,7 @@ def write_summary_to_file(context: Context, file: File, summary: str):
         ])
 
         # Write to destination
-        relative_base = os.path.relpath(file.relative_path, "/")
-        dest = os.path.join(context.output_dir, relative_base)
+        dest = os.path.join(context.output_dir, file.relative_path)
         if not dest.endswith('.md'):
             dest += '.md'
 
