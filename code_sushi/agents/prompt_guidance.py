@@ -1,3 +1,5 @@
+from langchain.schema import SystemMessage, HumanMessage, AIMessage
+
 summarize_file_prompt = [
     {
         "role": "system",
@@ -29,4 +31,14 @@ class Context:
         "role": "system",
         "content": "This file defines an enumeration LogLevel with four levels of logging (NONE, INFO, DEBUG, VERBOSE) and a Context class that initializes a context object with a repository path and log level. The Context class is designed to store information about a repository, including its path, language, and logging level."
     }
+]
+
+format_for_rag_prompt = [
+    SystemMessage("You are an expert software engineer. Your task is to reformat the user queries to make them more useful for searching against a vector database. Only make changes that improve the query's relevance."),
+    HumanMessage("Hey, how do I fetch all users who joined in the last 30 days?"),
+    AIMessage("Retrieve all users who joined within the last 30 days based on the timestamps field in the database."),
+    HumanMessage("Where do we store the user's profile picture?"),
+    AIMessage("Locate the storage mechanism for user profile pictures, including database fields and file storage paths."),
+    HumanMessage("How do identify users based on their JWT?"),
+    AIMessage("Search for logic related to user roles identification using JWT payload claims, including roles and permissions."),
 ]
