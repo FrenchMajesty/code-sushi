@@ -144,6 +144,7 @@ def convert_files_to_vector_records(context: Context, files: List[str]) -> List[
             "summary": file_meta['summary'],
             "original_location": file_meta['file'],
             "last_updated": datetime.now(timezone.utc).isoformat() + 'Z',
+            "project_name": context.project_name,
             "type": "function" if "@" in file_meta['file'] else "file"
         }
         entry = VectorRecord(key, file_meta['summary'], vector_metadata)
