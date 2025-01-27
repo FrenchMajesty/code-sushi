@@ -17,7 +17,7 @@ class Pinecone:
         
         self.index = self.client.Index(index_name, pool_threads=pool_threads)
     
-    def write_many(self, records: List[VectorRecord], chunk_size: int = 400):
+    def write_many(self, records: List[VectorRecord], chunk_size: int = 400, namespace: str ="anonymous"):
         """
         Write many records at once to the Pinecone index.
         """
@@ -32,7 +32,7 @@ class Pinecone:
         with self.index as index:
             # Send chunked requests in parallel
             async_results = [
-                index.upsert(vectors=ids_vectors_chunk, async_req=True, namespace="beta")
+                index.upsert(vectors=ids_vectors_chunk, async_req=True, namespace=namespace)
                 for ids_vectors_chunk in chunks(items, chunk_size)
             ]
 
