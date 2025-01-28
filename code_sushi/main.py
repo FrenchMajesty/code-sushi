@@ -9,7 +9,7 @@ from .core import (
 from .multi_task import start_background_loop, stop_background_loop
 from .context import Context, LogLevel
 from .agents import AgentTeam, format_query_for_rag
-from .chat import start_chat_session
+from .chat import Chat
 from .jobs import JobQueue
 from .vector import VoyageEmbed
 from typing import Optional
@@ -182,8 +182,8 @@ def chat(context: Context):
     """
     Start the chatbot interface for Code Sushi.
     """
-    start_chat_session(context)
-
+    chat = Chat(context)
+    chat.start_session()
 
 def main():
     parser = argparse.ArgumentParser(description="Code Sushi: Slice and organize your code repo for LLMs.")
