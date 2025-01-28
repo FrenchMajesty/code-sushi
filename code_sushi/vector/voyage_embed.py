@@ -36,6 +36,9 @@ class VoyageEmbed:
         Re-rank the search results to pick the most relevant context snippets for the query.
         """
         try:
+            if not texts:
+                return []
+
             res = self.vo.rerank(query, texts, "rerank-2-lite", top_k=5)
             outcome = [text for text in res["reranked_texts"]]
             return outcome

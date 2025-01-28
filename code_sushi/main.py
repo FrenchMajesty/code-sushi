@@ -11,6 +11,7 @@ from .context import Context, LogLevel
 from .agents import AgentTeam, format_query_for_rag
 from .chat import start_chat_session
 from .jobs import JobQueue
+from .vector import VoyageEmbed
 from typing import Optional
 from .storage import GoogleCloudStorage
 import atexit
@@ -123,6 +124,14 @@ def upload(context: Context):
     destination_dir = f"{context.project_name}/.llm/"
     storage.bulk_upload(context.output_dir, destination_dir)
 
+def embed(text: str):
+    """
+    Embed the provided text using the Voyage AI API.
+    """
+    voyage = VoyageEmbed()
+    res = voyage.embed(["Merchant category"])[0]
+    print(res)
+
 def vectorize(context: Context):
     """
     Embed the summaries and vectorize them for every file and chunk in disk.
@@ -227,9 +236,18 @@ def main():
     chat_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
     chat_parser.set_defaults(func=chat)
     
+    # Add 'embed' command
+    embed_parser = subparsers.add_parser("embed", help="Embed the provided text using the Voyage AI API.")
+    embed_parser.add_argument("text", help="Text to embed.")
+    embed_parser.set_defaults(func=embed)
+
     # Parse and execute the appropriate command
     args = parser.parse_args()
 
+    if args.command == "embed":
+        args.func(args.text)
+        return
+    
     context = read_config_into_context(args)
 
     if args.command == "init":
