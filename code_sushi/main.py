@@ -8,7 +8,8 @@ from .core import (
 )
 from .multi_task import start_background_loop, stop_background_loop
 from .context import Context, LogLevel
-from .agents import AgentTeam
+from .agents import AgentTeam, format_query_for_rag
+from .chat import start_chat_session
 from .jobs import JobQueue
 from typing import Optional
 from .storage import GoogleCloudStorage
@@ -172,8 +173,8 @@ def chat(context: Context):
     """
     Start the chatbot interface for Code Sushi.
     """
-    print("Starting Code Sushi chatbot interface...")
-    
+    start_chat_session(context)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Code Sushi: Slice and organize your code repo for LLMs.")
@@ -222,7 +223,9 @@ def main():
 
     # Add 'chat' command
     chat_parser = subparsers.add_parser("chat", help="Start the chatbot interface for Code Sushi.")
+    chat_parser.add_argument("--path", help="Path to the repository to process.")
     chat_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
+    chat_parser.set_defaults(func=chat)
     
     # Parse and execute the appropriate command
     args = parser.parse_args()
