@@ -219,6 +219,10 @@ def main():
     # Add 'clean' command
     clean_parser = subparsers.add_parser("clean", help="Clean up the repo after processing.")
     clean_parser.set_defaults(func=clean)
+
+    # Add 'chat' command
+    chat_parser = subparsers.add_parser("chat", help="Start the chatbot interface for Code Sushi.")
+    chat_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
     
     # Parse and execute the appropriate command
     args = parser.parse_args()

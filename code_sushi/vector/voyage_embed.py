@@ -30,3 +30,15 @@ class VoyageEmbed:
         except Exception as e:
             print(f"Error embedding texts: {e}")
             return []
+    
+    def rerank(self, query: str, texts: List[str]) -> List[str]:
+        """
+        Re-rank the search results to pick the most relevant context snippets for the query.
+        """
+        try:
+            res = self.vo.rerank(query, texts, "rerank-2-lite", top_k=5)
+            outcome = [text for text in res["reranked_texts"]]
+            return outcome
+        except Exception as e:
+            print(f"Error reranking texts: {e}")
+            raise
