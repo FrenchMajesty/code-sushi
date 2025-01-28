@@ -6,7 +6,7 @@ from langchain_together import ChatTogether
 from langchain.schema import HumanMessage
 from .prompt_guidance import (
     summarize_file_prompt,
-    format_for_rag_prompt
+    format_for_rag_search_prompt
 )
 import time
 
@@ -68,7 +68,7 @@ def format_query_for_rag(context: Context, query: str) -> str:
             print(f"Sending req to LLM: {query}")
 
         llm = ChatTogether(model=small_model)
-        request = list(format_for_rag_prompt) + [HumanMessage(query)]
+        request = list(format_for_rag_search_prompt) + [HumanMessage(query)]
         response = llm.invoke(request)
 
         if context.log_level.value >= LogLevel.DEBUG.value:

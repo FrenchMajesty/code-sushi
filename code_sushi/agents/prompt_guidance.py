@@ -33,7 +33,7 @@ class Context:
     }
 ]
 
-format_for_rag_prompt = [
+format_for_rag_search_prompt = [
     SystemMessage("You are an expert software engineer. Your task is to reformat the user queries to make them more useful for searching against a vector database. Only make changes that improve the query's relevance."),
     HumanMessage("Hey, how do I fetch all users who joined in the last 30 days?"),
     AIMessage("Retrieve all users who joined within the last 30 days based on the timestamps field in the database."),
