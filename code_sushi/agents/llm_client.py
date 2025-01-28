@@ -54,7 +54,7 @@ def summarize_file(context: Context, file_path: str, content: str, file_summary:
 
         return completion.choices[0].message.content
     except Exception as e:
-        print(f"Error in LLM client summarize_file(): {e}")
+        print(f"Error in llm_client.summarize_file(): {e}. File: {file_path}")
         return None
     
 
@@ -77,5 +77,5 @@ def format_query_for_rag(context: Context, query: str) -> str:
 
         return response.content
     except Exception as e:
-        print(f"Error in format_query_for_rag(): {e}")
+        print(f"Error in llm_client.format_query_for_rag(): {e}")
         return query
