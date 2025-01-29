@@ -1,6 +1,6 @@
 from google.cloud import storage
 import os
-from typing import Optional
+from typing import Optional, List
 from concurrent.futures import ThreadPoolExecutor
 from code_sushi.context import Context, LogLevel
 from dotenv import load_dotenv
@@ -83,7 +83,7 @@ class GoogleCloudStorage:
         """
         try:
             blob = self.bucket.blob(blob_name)
-            return blob.download_as_string()
+            return str(blob.download_as_string())
         except Exception as e:
             print(f"Error reading file: {e}")
             raise e
@@ -105,3 +105,35 @@ class GoogleCloudStorage:
     def list_files(self):
         blobs = self.bucket.list_blobs()
         return [blob.name for blob in blobs]
+
+    def read_many_files(self, blob_names: List[str]) -> List[str]:
+        """
+        Read the contents of multiple files from the bucket into memory.
+        """
+        contents = []
+        start = time.time()
+        
+        try:
+            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+                print(f"Starting to read {len(blob_names)} files from storage into memory")
+
+            def read_blob(blob_name):
+                try:
+                    if not blob_name:
+                        return
+
+                    contents.append(self.read_file(blob_name))
+                except Exception as e:
+                    print(f"Error reading file {blob_name}: {e}")
+
+            with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                executor.map(read_blob, blob_names)
+            
+            if self.context.log_level.value >= LogLevel.DEBUG.value:
+                runtime = time.time() - start
+                print(f"{len(contents)} files successfully read in {runtime:.2f} seconds.")
+            
+            return contents
+        except Exception as e:
+            print(f"Error in gcp.read_many_files(): {e}")
+            return []

@@ -40,6 +40,7 @@ class VoyageEmbed:
                 return []
 
             res = self.vo.rerank(query, texts, "rerank-2-lite", top_k=5)
+            print(res)
             outcome = [text for text in res["reranked_texts"]]
             return outcome
         except Exception as e:

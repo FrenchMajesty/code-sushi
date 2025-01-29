@@ -1,6 +1,7 @@
 from code_sushi.vector import Pinecone, VoyageEmbed
 from code_sushi.context import Context, LogLevel
 from code_sushi.agents import format_query_for_rag
+from code_sushi.storage import  GoogleCloudStorage
 from typing import List
 import sys
 
@@ -40,12 +41,17 @@ class Chat:
         """
         try:
             if self.context.log_level.value >= LogLevel.VERBOSE.value:
-                print(f"Searching for on query: {query}...")
+                print(f"Searching for context on query: [{query}] ...")
 
-            #formatted_query = format_query_for_rag(self.context, query)
+            storage = GoogleCloudStorage(self.context)
+
+            #formatted_query = format_query_for_rag(self.context, query) TODO: Use a formatted query
             vector_query = self.voyage.embed([query])[0]
-            raw_results = self.pinecone.search(vector_query)
-            reranked_results = self.voyage.rerank(query, raw_results)
+            search_results = self.pinecone.search(vector_query)
+            base_storage_path = self.context.project_name + '/.llm/'
+            paths = [base_storage_path + hit['original_location'] + '.md' for hit in search_results]
+            relevant_files_content = storage.read_many_files(paths)
+            reranked_results = self.voyage.rerank(query, relevant_files_content)
             selected_context = [res["text"] for res in reranked_results]
             return selected_context
         except Exception as e:
