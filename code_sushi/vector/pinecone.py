@@ -69,7 +69,7 @@ class Pinecone:
 
             hits = []
             for match in response['matches']:
-                hits.append({ 'id': match['id'], 'score': match['score'] } + match['metadata'])
+                hits.append({ 'id': match['id'], 'score': match['score'] } | match['metadata'])
             
             print(hits)
             return hits
