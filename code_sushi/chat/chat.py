@@ -11,12 +11,12 @@ class Chat:
         self.pinecone = Pinecone(context)
         self.voyage = VoyageEmbed()
 
-        print("Sushi Chat - Ask your questions below. Press Ctrl+C to exit.")
-
     def start_session(self):
         """
         Start an interactive chat session.
         """
+        print("Sushi Chat - Ask your questions below. Press Ctrl+C to exit.")
+
         while True:
             try:
                 user_query = input("You: ")
@@ -39,6 +39,9 @@ class Chat:
         Find the most relevant context snippets for the query.
         """
         try:
+            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+                print(f"Searching for on query: {query}...")
+
             #formatted_query = format_query_for_rag(self.context, query)
             vector_query = self.voyage.embed([query])[0]
             raw_results = self.pinecone.search(vector_query)

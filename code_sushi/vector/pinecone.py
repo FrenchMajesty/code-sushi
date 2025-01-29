@@ -12,6 +12,7 @@ class Pinecone:
     """
     def __init__(self, context: Context, index_name: Optional[str] = None, pool_threads: int = 30):
         self.context = context 
+        self.namespace = context.project_name
 
         api_key = os.getenv("SUSHI_PINECONE_API_KEY")
         self.client = PineconeClient(api_key=api_key, pool_threads=pool_threads)
@@ -21,7 +22,7 @@ class Pinecone:
         
         self.index = self.client.Index(index_name, pool_threads=pool_threads)
     
-    def write_many(self, records: List[VectorRecord], chunk_size: int = 400, namespace: str ="anonymous"):
+    def write_many(self, records: List[VectorRecord], chunk_size: int = 400):
         """
         Write many records at once to the Pinecone index.
         """
@@ -34,24 +35,42 @@ class Pinecone:
                 "metadata": record.metadata
             })
 
-        if self.context.log_level >= LogLevel.VERBOSE:
-            print(f"Batch writing {len(items)} items to index, namespace {namespace}")
+        if self.context.log_level.value >= LogLevel.VERBOSE.value:
+            print(f"Batch writing {len(items)} items to index, namespace {self.namespace}")
 
         with self.index as index:
             # Send chunked requests in parallel
             async_results = [
-                index.upsert(vectors=ids_vectors_chunk, async_req=True, namespace=namespace)
+                index.upsert(vectors=ids_vectors_chunk, async_req=True, namespace=self.namespace)
                 for ids_vectors_chunk in chunks(items, chunk_size)
             ]
 
             # Wait for and retrieve responses (this raises in case of error)
             res = [async_result.get() for async_result in async_results]
             
-            if self.context >= LogLevel.VERBOSE:
+            if self.context.log_level.value >= LogLevel.VERBOSE.value:
                 runtime = time.time() - start
                 print(f"Batch write finished in {runtime:.2f} seconds")
 
             return len(res)
 
+    def search(self, query: List[float], top_k: int = 10, filters: Optional[dict] = None) -> List[str]:
+        """
+        Search the Pinecone index for similar vectors.
+        """
+        with self.index as index:
+            response = index.query(
+                vector=query, 
+                top_k=top_k, 
+                namespace=self.namespace, 
+                include_metadata=True,
+                filter=filters
+            )
 
+            hits = []
+            for match in response['matches']:
+                hits.append({ 'id': match['id'], 'score': match['score'] } + match['metadata'])
+            
+            print(hits)
+            return hits
     
