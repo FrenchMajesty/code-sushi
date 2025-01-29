@@ -45,6 +45,7 @@ class Chat:
                     "content": response
                 })
                 print(f"AI: {response}")
+                print("-" * 80)
             except KeyboardInterrupt:
                 print("\nExiting Sushi Chat. Goodbye!")
                 sys.exit(0)

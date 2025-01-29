@@ -71,6 +71,10 @@ class Pinecone:
             for match in response['matches']:
                 hits.append({ 'id': match['id'], 'score': match['score'] } | match['metadata'])
             
-            print(hits)
+            if self.context.is_log_level(LogLevel.VERBOSE):
+                low_score = min([hit['score'] for hit in hits])
+                high_score = max([hit['score'] for hit in hits])
+                print(f"RAG Search results: {len(hits)} hits from {low_score:.2f} to {high_score:.2f} scores")
+
             return hits
     

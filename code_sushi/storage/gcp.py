@@ -82,6 +82,13 @@ class GoogleCloudStorage:
         Read the contents of a file from the bucket into memory.
         """
         try:
+
+            if "@" in blob_name:
+                blob_name = blob_name.replace("@", ".functions/").rsplit('.', 1)[0]
+
+            if not blob_name.endswith(".md"):
+                blob_name += ".md"
+
             blob = self.bucket.blob(blob_name)
             return str(blob.download_as_string())
         except Exception as e:
@@ -125,7 +132,8 @@ class GoogleCloudStorage:
 
                     contents.append(self.read_file(blob_name))
                 except Exception as e:
-                    print(f"Error reading file {blob_name}: {e}")
+                    if self.context.is_log_level(LogLevel.DEBUG):
+                        print(f"Error reading file {blob_name}: {e}")
 
             with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
                 executor.map(read_blob, blob_names)

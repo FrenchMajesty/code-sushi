@@ -46,7 +46,7 @@ format_for_rag_search_prompt = [
 question_chat_prompt = [
     {
         "role": "system",
-        "content": "You are an expert software engineer. Your task is to answer the user's questions and provide guidance on software development topics about their project by using the provided context."
+        "content": "You are an expert software engineer. Your task is to answer the user's questions about their project by using the provided context or your understanding of the language and frameworks involved if necessary."
     },
     {
         "role": "assistant",

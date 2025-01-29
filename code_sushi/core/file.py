@@ -24,7 +24,7 @@ class File:
             self.line_count = sum(1 for _ in open(self.absolute_path))
             self.size = os.path.getsize(self.absolute_path)
         except Exception as e:
-            print(f"Error reading file: {self.absolute_path}. {e}")
+            print(f"Error reading file into memory: {self.absolute_path}. {e}")
             exit(1)
 
     def __str__(self):
