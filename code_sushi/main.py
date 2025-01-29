@@ -11,7 +11,7 @@ from .context import Context, LogLevel
 from .agents import AgentTeam, format_query_for_rag
 from .chat import Chat
 from .jobs import JobQueue
-from .vector import VoyageEmbed
+from .vector import Voyage
 from typing import Optional
 from .storage import GoogleCloudStorage
 import atexit

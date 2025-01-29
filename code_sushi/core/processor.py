@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from code_sushi.context import Context, LogLevel
 from .file import File
 import math
-from code_sushi.vector import VoyageEmbed, VectorRecord, Pinecone
+from code_sushi.vector import Voyage, VectorRecord, Pinecone
 from datetime import datetime, timezone
 from .utils import (
     print_details,
@@ -87,7 +87,7 @@ def embed_and_upload_the_summaries(context: Context):
     """
     Parses the summaries for every file and chunk written to disk to vectorize them.
     """
-    voyage_embed = VoyageEmbed(context)
+    voyage = Voyage(context)
     vector_db = Pinecone(context)
     files = context.get_files_in_output_dir()
 
@@ -112,7 +112,7 @@ def embed_and_upload_the_summaries(context: Context):
         if context.log_level.value >= LogLevel.VERBOSE.value:
             print(f"Send req. to embed {len(raw_contents)} text sections")
 
-        embeddings = voyage_embed.embed(raw_contents)
+        embeddings = voyage.embed(raw_contents)
         
         if context.log_level.value >= LogLevel.VERBOSE.value:
             print(f"Received {len(embeddings)} embeddings back")

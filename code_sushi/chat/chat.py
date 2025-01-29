@@ -1,4 +1,4 @@
-from code_sushi.vector import Pinecone, VoyageEmbed
+from code_sushi.vector import Pinecone, Voyage
 from code_sushi.context import Context, LogLevel
 from code_sushi.agents import format_query_for_rag
 from code_sushi.storage import  GoogleCloudStorage
@@ -11,7 +11,7 @@ class Chat:
         self.context = context
         self.history = []
         self.pinecone = Pinecone(context)
-        self.voyage = VoyageEmbed(context)
+        self.voyage = Voyage(context)
 
     def start_session(self):
         """

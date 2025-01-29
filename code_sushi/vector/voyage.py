@@ -6,7 +6,10 @@ import time
 
 load_dotenv()
 
-class VoyageEmbed:
+class Voyage:
+    """
+    Wrapper class for Voyager.ai which is used for embedding and reranking
+    """
     _instance = None
 
     def __init__(self, context: Context):
@@ -55,5 +58,5 @@ class VoyageEmbed:
                 print(f"Reranker ran in {runtime:.2f} seconds")
             return outcome
         except Exception as e:
-            print(f"Error in VoyageEmbed.rerank(): {e}")
+            print(f"Error in Voyage.rerank(): {e}")
             raise

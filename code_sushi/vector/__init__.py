@@ -1,6 +1,6 @@
-from .voyage_embed import VoyageEmbed
+from .voyage_embed import Voyage
 from .svector import SVector
 from .vector_record import VectorRecord
 from .pinecone import Pinecone
 
-__all__ = ["VoyageEmbed", "SVector", "VectorRecord", "Pinecone"]
+__all__ = ["Voyage", "SVector", "VectorRecord", "Pinecone"]
