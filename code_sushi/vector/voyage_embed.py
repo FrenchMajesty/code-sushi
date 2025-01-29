@@ -1,7 +1,8 @@
 import voyageai
 from dotenv import load_dotenv
 from typing import List
-from code_sushi.context import Context
+from code_sushi.context import Context, LogLevel
+import time
 
 load_dotenv()
 
@@ -41,10 +42,18 @@ class VoyageEmbed:
             if not texts:
                 return []
 
+            start = time.time()
+
+            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+                print("Starting to rerank docs...")
+
             res = self.vo.rerank(query, texts, "rerank-2-lite", top_k=5)
             outcome = [result.document for result in res.results]
 
+            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+                runtime = time.time() - start
+                print(f"Reranker ran in {runtime:.2f} seconds")
             return outcome
         except Exception as e:
-            print(f"Error reranking texts: {e}")
+            print(f"Error in VoyageEmbed.rerank(): {e}")
             raise
