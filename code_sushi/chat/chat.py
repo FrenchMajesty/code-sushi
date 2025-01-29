@@ -1,6 +1,8 @@
 from code_sushi.vector import Pinecone, Voyage
 from code_sushi.context import Context, LogLevel
 from code_sushi.agents import format_query_for_rag
+from code_sushi.agents.llm_client import send_completion_request
+from code_sushi.agents.prompt_guidance import question_chat_prompt
 from code_sushi.storage import  GoogleCloudStorage
 from typing import List
 import time
@@ -26,12 +28,23 @@ class Chat:
                     continue
                 
                 contexts = self.find_context(user_query)
+                self.history.append({
+                    "role": "user",
+                    "content": user_query
+                })
+
+                req = self.history + [{
+                    "role": "user",
+                    "content": "--CONTEXT--\n" + "\n".join(contexts)
+                }]
 
                 # Generate response
-                #response = chain.run({"question": user_query, "context": selected_context, "history": history})
-                #history.append({"question": user_query, "answer": response})
-
-                #print(f"AI: {response}")
+                response = send_completion_request(self.context, req)
+                self.history.append({
+                    "role": "assistant",
+                    "content": response
+                })
+                print(f"AI: {response}")
             except KeyboardInterrupt:
                 print("\nExiting Sushi Chat. Goodbye!")
                 sys.exit(0)

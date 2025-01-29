@@ -1,6 +1,7 @@
 from together import Together
 from dotenv import load_dotenv
 from code_sushi.context import Context, LogLevel
+from .prompt_guidance import question_chat_prompt
 from typing import Optional
 from langchain_together import ChatTogether
 from langchain.schema import HumanMessage
@@ -79,3 +80,26 @@ def format_query_for_rag(context: Context, query: str) -> str:
     except Exception as e:
         print(f"Error in llm_client.format_query_for_rag(): {e}")
         return query
+
+def send_completion_request(context: Context, history: list) -> str:
+    """
+    Send a request to the LLM API.
+    """
+    try:
+        start = time.time()
+        if context.log_level.value >= LogLevel.DEBUG.value:
+            print(f"Sending completion req to LLM")
+
+        completion = client.chat.completions.create(
+            model=primary_model,
+            messages= list(question_chat_prompt) + history
+        )
+
+        if context.log_level.value >= LogLevel.DEBUG.value:
+            runtime = time.time() - start
+            print(f"Received response from LLM in {runtime:.2f} seconds", completion.id)
+
+        return completion.choices[0].message.content
+    except Exception as e:
+        print(f"Error in llm_client.send_request(): {e}")
+        return "I'm sorry, I don't have an answer for that." #TODO: How to handle errors here?

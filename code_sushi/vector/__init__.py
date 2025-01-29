@@ -1,4 +1,4 @@
-from .voyage_embed import Voyage
+from .voyage import Voyage
 from .svector import SVector
 from .vector_record import VectorRecord
 from .pinecone import Pinecone

@@ -175,10 +175,7 @@ def chat(context: Context):
     Start the chatbot interface for Code Sushi.
     """
     chat = Chat(context)
-    query = "How often we fetch Plaid transactions for users?"
-    contexts = chat.find_context(query)
-    #chat.start_session()
-    print(contexts)
+    chat.start_session()
 
 def main():
     parser = argparse.ArgumentParser(description="Code Sushi: Slice and organize your code repo for LLMs.")
