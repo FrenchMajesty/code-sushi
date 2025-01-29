@@ -62,11 +62,11 @@ class Chat:
 
             #formatted_query = format_query_for_rag(self.context, query) TODO: Use a formatted query
             vector_query = self.voyage.embed([query])[0]
-            search_results = self.pinecone.search(vector_query)
+            search_results = self.pinecone.search(vector_query, top_k=6)
             base_storage_path = self.context.project_name + '/.llm/'
             paths = [base_storage_path + hit['original_location'] + '.md' for hit in search_results]
             relevant_files_content = storage.read_many_files(paths)
-            reranked = self.voyage.rerank(query, relevant_files_content)
+            reranked = self.voyage.rerank(query, relevant_files_content, top_k=3)
 
             if self.context.log_level.value >= LogLevel.DEBUG.value:
                 runtime = time.time() - start

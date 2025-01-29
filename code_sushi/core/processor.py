@@ -126,7 +126,7 @@ def embed_and_upload_the_summaries(context: Context):
             entries[i].embedding = embeddings[i]
 
         # Upload to vector DB
-        vector_db.write_many(entries, namespace=context.project_name)
+        vector_db.write_many(entries)
 
 def convert_files_to_vector_records(context: Context, files: List[str]) -> List[VectorRecord]:
     """

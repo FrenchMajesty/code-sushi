@@ -37,7 +37,7 @@ class Voyage:
             print(f"Error embedding texts: {e}")
             return []
     
-    def rerank(self, query: str, texts: List[str]) -> List[str]:
+    def rerank(self, query: str, texts: List[str], top_k = 5) -> List[str]:
         """
         Re-rank the search results to pick the most relevant context snippets for the query.
         """
@@ -50,7 +50,7 @@ class Voyage:
             if self.context.log_level.value >= LogLevel.VERBOSE.value:
                 print("Starting to rerank docs...")
 
-            res = self.vo.rerank(query, texts, "rerank-2-lite", top_k=5)
+            res = self.vo.rerank(query, texts, "rerank-2-lite", top_k=top_k)
             outcome = [result.document for result in res.results]
 
             if self.context.log_level.value >= LogLevel.VERBOSE.value:
