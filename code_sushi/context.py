@@ -26,3 +26,9 @@ class Context:
         Get all the files in the output directory.
         """
         return [os.path.join(dp, f) for dp, dn, filenames in os.walk(self.output_dir) for f in filenames]
+
+    def is_log_level(self, level: LogLevel):
+        """
+        Check if the current log level is greater or equal to the given level.
+        """
+        return self.log_level.value >= level.value

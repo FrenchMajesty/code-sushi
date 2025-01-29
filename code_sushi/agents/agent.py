@@ -12,7 +12,7 @@ class Agent:
         self.context = context
         self.tasks_completed = 0
 
-        if self.context.log_level.value >= LogLevel.DEBUG.value:
+        if self.context.is_log_level(LogLevel.DEBUG):
             print(f"Agent [{self.id}] was hired and is ready to work.")
 
     def perform(self, task: JobTask) -> List[JobTask]:
@@ -21,7 +21,7 @@ class Agent:
         """
         start_time = time.time()
 
-        if self.context.log_level.value >= LogLevel.DEBUG.value:
+        if self.context.is_log_level(LogLevel.DEBUG):
             print(f"Performing task {task.name}...", task.file.relative_path)
 
         try:
@@ -39,7 +39,7 @@ class Agent:
             self.busy = False
             self.tasks_completed += 1
 
-            if self.context.log_level.value >= LogLevel.DEBUG.value:
+            if self.context.is_log_level(LogLevel.DEBUG):
                 runtime = time.time() - start_time
                 print(f"Agent [{self.id}] Completed Job {task.name} in {runtime:.2f} seconds.")#
 
@@ -71,7 +71,7 @@ class Agent:
         """
         Convert a list of logical chunks into a list of JobTasks.
         """
-        if self.context.log_level.value >= LogLevel.VERBOSE.value:
+        if self.context.is_log_level(LogLevel.VERBOSE):
             print(f"Converting {len(chunks)} chunks into tasks...")
 
         tasks = []

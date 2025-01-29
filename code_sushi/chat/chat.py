@@ -55,7 +55,7 @@ class Chat:
         """
         try:
             start = time.time()
-            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+            if self.context.is_log_level(LogLevel.VERBOSE):
                 print(f"Searching for context on query: [{query}] ...")
 
             storage = GoogleCloudStorage(self.context)
@@ -68,11 +68,11 @@ class Chat:
             relevant_files_content = storage.read_many_files(paths)
             reranked = self.voyage.rerank(query, relevant_files_content, top_k=3)
 
-            if self.context.log_level.value >= LogLevel.DEBUG.value:
+            if self.context.is_log_level(LogLevel.DEBUG):
                 runtime = time.time() - start
                 print(f"Took {runtime:.2f} seconds to pick best {len(reranked)} documents")
                 
-                if self.context.log_level.value >= LogLevel.VERBOSE.value:
+                if self.context.is_log_level(LogLevel.VERBOSE):
                     print(reranked)
 
             return reranked

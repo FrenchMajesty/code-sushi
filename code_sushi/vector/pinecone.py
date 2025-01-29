@@ -35,7 +35,7 @@ class Pinecone:
                 "metadata": record.metadata
             })
 
-        if self.context.log_level.value >= LogLevel.VERBOSE.value:
+        if self.context.is_log_level(LogLevel.VERBOSE):
             print(f"Batch writing {len(items)} items to index, namespace {self.namespace}")
 
         with self.index as index:
@@ -48,7 +48,7 @@ class Pinecone:
             # Wait for and retrieve responses (this raises in case of error)
             res = [async_result.get() for async_result in async_results]
             
-            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+            if self.context.is_log_level(LogLevel.VERBOSE):
                 runtime = time.time() - start
                 print(f"Batch write finished in {runtime:.2f} seconds")
 

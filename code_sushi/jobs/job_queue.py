@@ -25,7 +25,7 @@ class JobQueue:
 
         self.prepare(files)
 
-        if self.context.log_level.value >= LogLevel.DEBUG.value:
+        if self.context.is_log_level(LogLevel.DEBUG):
             print("Job queue initialized.")
             print("Top priority job:", peek(self.queue))
     
@@ -47,7 +47,7 @@ class JobQueue:
             if file.size == 0:
                 continue
 
-            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+            if self.context.is_log_level(LogLevel.VERBOSE):
                 print(f"Adding {file.absolute_path} to queue with priority {priority}")
             self.push(priority, JobTask(self.context, file))
 
@@ -65,7 +65,7 @@ class JobQueue:
                 priority, job = self.queue.get()
                 self.state[job.name] = TaskStatus.IN_PROGRESS
                 self.save()
-                if self.context.log_level.value >= LogLevel.VERBOSE.value:
+                if self.context.is_log_level(LogLevel.VERBOSE):
                     print(f"Popped {job.name} from queue to begin work.")
                 return priority, job
         

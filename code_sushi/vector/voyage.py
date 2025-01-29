@@ -47,13 +47,13 @@ class Voyage:
 
             start = time.time()
 
-            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+            if self.context.is_log_level(LogLevel.VERBOSE):
                 print("Starting to rerank docs...")
 
             res = self.vo.rerank(query, texts, "rerank-2-lite", top_k=top_k)
             outcome = [result.document for result in res.results]
 
-            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+            if self.context.is_log_level(LogLevel.VERBOSE):
                 runtime = time.time() - start
                 print(f"Reranker ran in {runtime:.2f} seconds")
             return outcome

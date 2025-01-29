@@ -14,7 +14,7 @@ class AgentTeam:
         """
         Process the files in parallel using a team of agents.
         """
-        if self.context.log_level.value >= LogLevel.DEBUG.value:
+        if self.context.is_log_level(LogLevel.DEBUG):
             print(f"Starting Agent Team with {self.count} agents...")
 
         # Worker thread function

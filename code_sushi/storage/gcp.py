@@ -32,7 +32,7 @@ class GoogleCloudStorage:
             blob = self.bucket.blob(destination_path)
             blob.upload_from_filename(source_path)
             self.success_count += 1
-            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+            if self.context.is_log_level(LogLevel.VERBOSE):
                 print(f"File {source_path} uploaded to {destination_path}.")
         except Exception as e:
             self.failure_count += 1
@@ -44,7 +44,7 @@ class GoogleCloudStorage:
         Uploads all files from a directory to the bucket in parallel.
         """
         start = time.time()
-        if self.context.log_level.value >= LogLevel.DEBUG.value:
+        if self.context.is_log_level(LogLevel.DEBUG):
             print(f"Uploading files from {source_dir} with {self.max_workers} threads to GCP.")
 
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
@@ -56,8 +56,8 @@ class GoogleCloudStorage:
 
                     if os.path.isfile(file_path):
                         executor.submit(self.upload_file, file_path, dest_path)
-            
-        if self.context.log_level.value >= LogLevel.DEBUG.value:
+
+        if self.context.is_log_level(LogLevel.DEBUG):   
             runtime = time.time() - start
             print(f"All files uploaded in {runtime:.2f} seconds.")
         
@@ -71,7 +71,7 @@ class GoogleCloudStorage:
             blob = self.bucket.blob(source_path)
             blob.download_to_filename(destination)
 
-            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+            if self.context.is_log_level(LogLevel.VERBOSE):
                 print(f"Blob {source_path} downloaded to {destination}.")
         except Exception as e:
             print(f"Error downloading file: {e}")
@@ -85,7 +85,8 @@ class GoogleCloudStorage:
             blob = self.bucket.blob(blob_name)
             return str(blob.download_as_string())
         except Exception as e:
-            print(f"Error reading file: {e}")
+            if self.context.is_log_level(LogLevel.DEBUG):
+                print(f"Error reading file: {e}")
             raise e
 
     def delete_file(self, blob_name: str):
@@ -96,7 +97,7 @@ class GoogleCloudStorage:
             blob = self.bucket.blob(blob_name)
             blob.delete()
 
-            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+            if self.context.is_log_level(LogLevel.VERBOSE):
                 print(f"Blob {blob_name} deleted.")
         except Exception as e:
             print(f"Error deleting file: {e}")
@@ -114,7 +115,7 @@ class GoogleCloudStorage:
         start = time.time()
         
         try:
-            if self.context.log_level.value >= LogLevel.VERBOSE.value:
+            if self.context.is_log_level(LogLevel.VERBOSE):
                 print(f"Starting to read {len(blob_names)} files from storage into memory")
 
             def read_blob(blob_name):
@@ -129,7 +130,7 @@ class GoogleCloudStorage:
             with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
                 executor.map(read_blob, blob_names)
             
-            if self.context.log_level.value >= LogLevel.DEBUG.value:
+            if self.context.is_log_level(LogLevel.DEBUG):
                 runtime = time.time() - start
                 print(f"{len(contents)} files successfully read in {runtime:.2f} seconds.")
             

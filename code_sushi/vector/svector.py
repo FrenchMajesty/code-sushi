@@ -47,7 +47,7 @@ class SVector:
         retries = 3
         for attempt in range(retries):
             try:
-                if self.context.log_level.value >= LogLevel.DEBUG.value:
+                if self.context.is_log_level(LogLevel.DEBUG):
                     print(f"Writing to Vector DB: {record.key}")
                 
                 await self.throttler.run_with_throttle(self.client.set_item, SetItemInput(
