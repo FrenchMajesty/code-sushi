@@ -134,20 +134,26 @@ def convert_files_to_vector_records(context: Context, files: List[str]) -> List[
     """
     entries = []
     for i, file_path in enumerate(files):
-        file_meta = extract_metadata_from_output_file(file_path)
-        
-        # Prepare unique key for the vector DB
-        # TODO: Add unique user identifier
-        key = context.project_name + '/' + file_meta['file']
-        key = key.replace('//', '/')
-        vector_metadata = {
-            "summary": file_meta['summary'],
-            "original_location": file_meta['file'],
-            "last_updated": datetime.now(timezone.utc).isoformat() + 'Z',
-            "project_name": context.project_name,
-            "type": "function" if "@" in file_meta['file'] else "file"
-        }
-        entry = VectorRecord(key, file_meta['summary'], vector_metadata)
-        entries.append(entry)
+        try:
+            file_meta = extract_metadata_from_output_file(file_path)
+            # Prepare unique key for the vector DB
+            # TODO: Add unique user identifier
+
+            if not file_meta:
+                continue
+
+            key = context.project_name + '/' + file_meta['file']
+            key = key.replace('//', '/')
+            vector_metadata = {
+                "summary": file_meta['summary'],
+                "original_location": file_meta['file'],
+                "last_updated": datetime.now(timezone.utc).isoformat() + 'Z',
+                "project_name": context.project_name,
+                "type": "function" if "@" in file_meta['file'] else "file"
+            }
+            entry = VectorRecord(key, file_meta['summary'], vector_metadata)
+            entries.append(entry)
+        except Exception as e:
+            print(f"Failed to vectorize file at: {file_path}. Error: {e}")
     
     return entries

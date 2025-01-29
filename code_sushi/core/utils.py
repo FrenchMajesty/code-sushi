@@ -171,7 +171,7 @@ def get_code_insights(files: List[File], printing: bool = False) -> List[str]:
 
     return insights
 
-def extract_metadata_from_output_file(file: str) -> dict:
+def extract_metadata_from_output_file(file: str) -> Optional[dict]:
     """
     Extract metadata from a file which has already been through LLM summarization.
     """
@@ -187,7 +187,8 @@ def extract_metadata_from_output_file(file: str) -> dict:
                     metadata['file'] = line.split(':', 1)[1].strip()
                 elif line.startswith('## Summary:'):
                     metadata['summary'] = line.split(':', 1)[1].strip()
+        
+        return metadata
     except Exception as e:
         print(f"Error extracting metadata from file: {e}")
-
-    return metadata
+        return None
