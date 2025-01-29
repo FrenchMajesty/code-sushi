@@ -88,7 +88,7 @@ def embed_and_upload_the_summaries(context: Context):
     Parses the summaries for every file and chunk written to disk to vectorize them.
     """
     voyage_embed = VoyageEmbed()
-    vector_db = Pinecone()
+    vector_db = Pinecone(context)
     files = context.get_files_in_output_dir()
 
     if context.log_level.value >= LogLevel.INFO.value:
@@ -136,12 +136,11 @@ def convert_files_to_vector_records(context: Context, files: List[str]) -> List[
     for i, file_path in enumerate(files):
         try:
             file_meta = extract_metadata_from_output_file(file_path)
-            # Prepare unique key for the vector DB
-            # TODO: Add unique user identifier
-
             if not file_meta:
                 continue
 
+            # Prepare unique key for the vector DB
+            # TODO: Add unique user identifier
             key = context.project_name + '/' + file_meta['file']
             key = key.replace('//', '/')
             vector_metadata = {

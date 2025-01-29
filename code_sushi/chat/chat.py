@@ -8,7 +8,7 @@ class Chat:
     def __init__(self, context: Context):
         self.context = context
         self.history = []
-        self.pinecone = Pinecone()
+        self.pinecone = Pinecone(context)
         self.voyage = VoyageEmbed()
 
         print("Sushi Chat - Ask your questions below. Press Ctrl+C to exit.")
