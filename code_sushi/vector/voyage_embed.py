@@ -1,14 +1,16 @@
 import voyageai
 from dotenv import load_dotenv
 from typing import List
+from code_sushi.context import Context
 
 load_dotenv()
 
 class VoyageEmbed:
     _instance = None
 
-    def __init__(self):
+    def __init__(self, context: Context):
         self.vo = voyageai.Client()
+        self.context = context
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -40,8 +42,8 @@ class VoyageEmbed:
                 return []
 
             res = self.vo.rerank(query, texts, "rerank-2-lite", top_k=5)
-            print(res)
-            outcome = [text for text in res["reranked_texts"]]
+            outcome = [result.document for result in res.results]
+
             return outcome
         except Exception as e:
             print(f"Error reranking texts: {e}")

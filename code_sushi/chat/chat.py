@@ -3,6 +3,7 @@ from code_sushi.context import Context, LogLevel
 from code_sushi.agents import format_query_for_rag
 from code_sushi.storage import  GoogleCloudStorage
 from typing import List
+import time
 import sys
 
 class Chat:
@@ -10,7 +11,7 @@ class Chat:
         self.context = context
         self.history = []
         self.pinecone = Pinecone(context)
-        self.voyage = VoyageEmbed()
+        self.voyage = VoyageEmbed(context)
 
     def start_session(self):
         """
@@ -40,6 +41,7 @@ class Chat:
         Find the most relevant context snippets for the query.
         """
         try:
+            start = time.time()
             if self.context.log_level.value >= LogLevel.VERBOSE.value:
                 print(f"Searching for context on query: [{query}] ...")
 
@@ -51,9 +53,16 @@ class Chat:
             base_storage_path = self.context.project_name + '/.llm/'
             paths = [base_storage_path + hit['original_location'] + '.md' for hit in search_results]
             relevant_files_content = storage.read_many_files(paths)
-            reranked_results = self.voyage.rerank(query, relevant_files_content)
-            selected_context = [res["text"] for res in reranked_results]
-            return selected_context
+            reranked = self.voyage.rerank(query, relevant_files_content)
+
+            if self.context.log_level.value >= LogLevel.DEBUG.value:
+                runtime = time.time() - start
+                print(f"Took {runtime:.2f} seconds to pick best {len(reranked)} documents")
+                
+                if self.context.log_level.value >= LogLevel.VERBOSE.value:
+                    print(reranked)
+
+            return reranked
         except Exception as e:
             print(f"Error in Chat.find_context(): {e}")
             return []

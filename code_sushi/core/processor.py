@@ -87,7 +87,7 @@ def embed_and_upload_the_summaries(context: Context):
     """
     Parses the summaries for every file and chunk written to disk to vectorize them.
     """
-    voyage_embed = VoyageEmbed()
+    voyage_embed = VoyageEmbed(context)
     vector_db = Pinecone(context)
     files = context.get_files_in_output_dir()
 
