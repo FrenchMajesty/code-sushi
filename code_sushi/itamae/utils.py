@@ -41,7 +41,8 @@ def extract_functions(code: str, tree: Tree):
 
     # Traverse the syntax tree for function definitions
     def traverse(node):
-        if node.type in {"function_declaration", "method_definition"}:  # Function and methods
+        valid_types = set(["function_declaration", "method_definition", "method_declaration"])
+        if node.type in valid_types:  # Function and methods
             func_name_node = node.child_by_field_name("name")
             func_name = func_name_node.text.decode("utf8") if func_name_node else "anonymous"
             start_line, _ = node.start_point

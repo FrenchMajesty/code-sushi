@@ -29,7 +29,10 @@ class Itamae:
                 return []
 
             code, syntax_tree = self.parse_content(parser, file.absolute_path)
+
             functions = extract_functions(code, syntax_tree)
+            if context.log_level.value >= LogLevel.VERBOSE.value:
+                print(f"Extracted {len(functions)} functions/methods from {file.relative_path}")
 
             # Parse each function into a logical chunk object
             chunks = []
