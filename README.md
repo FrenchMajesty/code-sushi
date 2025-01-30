@@ -1,6 +1,10 @@
 # Code Sushi 🍣
 
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+[![PyPI version](https://badge.fury.io/py/code-sushi.svg)](https://badge.fury.io/py/code-sushi)
+[![GitHub stars](https://img.shields.io/github/stars/frenchmajesty/code-sushi?style=social.svg)](https://github.com/frenchmajesty/code-sushi)
+[![Downloads](https://pepy.tech/badge/code-sushi)](https://pepy.tech/project/code-sushi)
+
 
 **Code Sushi** is a tool to help developers take large repos and cut them down into bite-sized pieces that can be fed into an LLM for answering questions in a few minutes.
 
@@ -23,8 +27,7 @@
 
 ## 📦 Installation
 
-You just need to have Python `3.12` or higher installed.
-Using pip:
+You just need to have Python `3.12` or higher.
 ```sh
 pip install code-sushi
 ```
@@ -63,14 +66,16 @@ safeMode: true,
 
 ## 🔍 Inner Workings
 
-Code Sushi uses a combination of powerful AI services to understand and modify your code effectively:
+Code Sushi uses a combination of AI services for each part of its workflow to understand and classify your code effectively:
 
-- Uses [Together.ai](https://together.ai) to access Llama 3.3 70B for understanding the code and answering questions.
-- Uses [Voyage.ai](https://voyageai.com) for creating embeddings and reranking search results.
-- Uses [Pinecone](https://pinecone.io) to store the vector embeddings and search against them for RAG.
+- We use [Together.ai](https://together.ai) to access Llama 3.3 70B for understanding the code and answering questions.
+- We use [Voyage.ai](https://voyageai.com) for creating embeddings and reranking search results.
+- We use [Pinecone](https://pinecone.io) to store the vector embeddings and search against them for RAG.
 
 ### 🔄 Modular Architecture
-Each component is designed to be easily swappable. If you desire to do so, you can implement your own LLM provider, vector database, and more. I would kindly ask you to contribute your changes back to the project so that others can benefit from your work instead of a fork. 😇
+Each component is designed to be easily swappable. If you desire to do so, you can implement your own LLM provider, vector database, and more. 
+
+My only ask: I would kindly ask you to contribute your changes back to the project so that others can benefit from your work instead of a fork. 😇
 
 ## 📝 License
 
@@ -80,10 +85,6 @@ This project is licensed under the **MIT License** – see the [LICENSE](LICENSE
 - Thank you to [Romain](https://github.com/cyclotruc) for the initial inspiration with his [gitingest](https://github.com/cyclotruc/gitingest) project.
 
 ## 👥 Contributors
-
-<a href="https://github.com/code-sushi/code-sushi/graphs/contributors">
-<img src="https://contrib.rocks/image?repo=code-sushi/code-sushi" />
-</a>
 
 Want to be part of building Code Sushi? Check out our [Contributing Guidelines](CONTRIBUTING.md) to get started! We always welcome contributions to improve the tool for benefit of the community.
 
