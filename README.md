@@ -14,43 +14,32 @@
 ✅ **Version Control Friendly** – Git-compatible changes.  
 ✅ **IDE Integration** – Seamlessly works with popular IDEs and text editors.  
 
----
 
 ## 🚀 Getting Started
 
 ### **Prerequisites**
-- **Node.js 16.x or higher**  
-- **npm** or **yarn** package manager  
+- **Python 3.12 or higher**
 
----
 
 ## 🛠 Installation
 
-Using npm:
+Using pip:
 ```sh
-npm install code-sushi
+pip install code-sushi
 ```
 
-Using yarn:
-```sh
-yarn add code-sushi
-```
-
----
 
 ## ⚡ Quick Start
 
 ### Initialize Code Sushi in your project:
 ```sh
-code-sushi init
+sushi init
 ```
 
 ### Start making changes:
 ```sh
-code-sushi edit "Add a new function to calculate user scores"
+sushi run
 ```
-
----
 
 ## 📖 Usage
 
@@ -66,14 +55,12 @@ code-sushi undo                   # Undo the last change
 Create a `code-sushi.config.js` file in your project root:
 ```js
 module.exports = {
-  language: 'auto',
-  style: 'standard',
-  safeMode: true,
-  // Add more configuration options
+language: 'auto',
+style: 'standard',
+safeMode: true,
+// Add more configuration options
 };
 ```
-
----
 
 ## 🎯 Examples
 
@@ -92,34 +79,30 @@ code-sushi edit "Optimize the database query in users.service.ts"
 code-sushi edit "Add JSDoc comments to the authentication middleware"
 ```
 
----
-
 ## 🤝 Contributing
 
 We love contributions! Please follow these steps to contribute:
 
 1. **Fork** the repository  
 2. Create your feature branch:  
-   ```sh
-   git checkout -b feature/AmazingFeature
-   ```
+```sh
+git checkout -b feature/AmazingFeature
+```
 3. **Commit your changes**:  
-   ```sh
-   git commit -m "Add some AmazingFeature"
-   ```
+```sh
+git commit -m "Add some AmazingFeature"
+```
 4. **Push to the branch**:  
-   ```sh
-   git push origin feature/AmazingFeature
-   ```
+```sh
+git push origin feature/AmazingFeature
+```
 5. **Open a Pull Request** 🚀  
 
----
 
 ## 📝 License
 
 This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
 
----
 
 ## 🙏 Acknowledgments
 
@@ -127,7 +110,6 @@ This project is licensed under the **MIT License** – see the [LICENSE](LICENSE
 💡 Inspired by modern developer workflows.  
 ❤️ Built with passion for developers.  
 
----
 
 ## 📫 Support
 
@@ -136,11 +118,10 @@ This project is licensed under the **MIT License** – see the [LICENSE](LICENSE
 💬 **Discord**: [Join our community](#)  
 🐦 **Twitter**: [@CodeSushi](#)  
 
----
 ## 👥 Contributors
 
 <a href="https://github.com/code-sushi/code-sushi/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=code-sushi/code-sushi" />
+<img src="https://contrib.rocks/image?repo=code-sushi/code-sushi" />
 </a>
 
 Want to be part of building Code Sushi? Check out our [Contributing Guidelines](CONTRIBUTING.md) to get started!
