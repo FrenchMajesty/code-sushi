@@ -11,15 +11,13 @@ from .prompt_guidance import (
 )
 import time
 
-load_dotenv()
-
 """
 LLM Client for Code Sushi.
 
 This module provides functions to interact with the LLM API, including
 making requests and processing responses. Implement API-specific logic here.
 """
-client = Together()
+
 primary_model = "meta-llama/Llama-3.3-70B-Instruct-Turbo"
 small_model = "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo-128K"
 
@@ -42,6 +40,8 @@ def summarize_file(context: Context, file_path: str, content: str, file_summary:
         ]
         msg_parts = [part for part in msg_parts if part]
 
+        api_key = context.together_ai_config.get("api_key")
+        client = Together(api_key=api_key)
         completion = client.chat.completions.create(
         model=primary_model,
         messages= list(summarize_file_prompt) + [{
@@ -90,6 +90,8 @@ def send_completion_request(context: Context, history: list) -> str:
         if context.log_level.value >= LogLevel.DEBUG.value:
             print(f"Sending completion req to LLM")
 
+        api_key = context.together_ai_config.get("api_key")
+        client = Together(api_key=api_key)
         completion = client.chat.completions.create(
             model=primary_model,
             messages= list(question_chat_prompt) + history

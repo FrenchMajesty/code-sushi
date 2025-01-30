@@ -1,5 +1,3 @@
-import os
-
 from asyncio import sleep
 from code_sushi.context import Context, LogLevel
 from svectordb.client import DatabaseService
@@ -7,15 +5,8 @@ from svectordb.config import Config
 from svectordb.models import *
 from smithy_core.retries import SimpleRetryStrategy
 from smithy_http.aio.identity.apikey import ApiKeyIdentity, ApiKeyIdentityResolver
-from dotenv import load_dotenv
 from .vector_record import VectorRecord
 from code_sushi.multi_task import AsyncThrottler, run_async_in_background
-
-load_dotenv()
-
-region = os.getenv('SUSHI_SVECTOR_REGION')
-apiKey = os.getenv('SUSHI_SVECTOR_API_KEY')
-databaseId = os.getenv('SUSHI_SVECTOR_DATABASE_ID')
 
 class SVector:
     """
@@ -30,6 +21,10 @@ class SVector:
 
     def __init__(self, context: Context) -> None:
         self.context = context
+        region = context.svector_config.get("region")
+        apiKey = context.svector_config.get("api_key")
+        databaseId = context.svector_config.get("database_id")
+
         self.client = DatabaseService(Config(
             endpoint_uri=f"https://{region}.api.svectordb.com",
             api_key_identity_resolver=ApiKeyIdentityResolver(api_key=ApiKeyIdentity(api_key=apiKey)),

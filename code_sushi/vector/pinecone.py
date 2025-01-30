@@ -4,7 +4,6 @@ from .vector_record import VectorRecord
 from code_sushi.context import Context, LogLevel
 from .utils import chunks
 import time
-import os
 
 class Pinecone:
     """
@@ -14,11 +13,11 @@ class Pinecone:
         self.context = context 
         self.namespace = context.project_name
 
-        api_key = os.getenv("SUSHI_PINECONE_API_KEY")
+        api_key = context.pinecone_config.get("api_key")
         self.client = PineconeClient(api_key=api_key, pool_threads=pool_threads)
 
         if not index_name:
-            index_name = os.getenv("SUSHI_PINECONE_INDEX_NAME")
+            index_name = context.pinecone_config.get("index_name")
         
         self.index = self.client.Index(index_name, pool_threads=pool_threads)
     

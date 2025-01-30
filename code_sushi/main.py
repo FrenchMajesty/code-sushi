@@ -50,6 +50,10 @@ def init(log_level: int):
         if log_level >= LogLevel.DEBUG.value:
             print(f"Created sushi-config.json at {config_path}")
 
+    # Add the config file to the .gitignore file
+    with open(os.path.join(repo_root, ".gitignore"), 'a') as gitignore:
+        gitignore.write("\nsushi-config.json\n")
+
     print("Code Sushi environment ready.")
 
 def read_config_into_context(args: argparse.Namespace) -> Context:
@@ -77,6 +81,12 @@ def read_config_into_context(args: argparse.Namespace) -> Context:
     context.blob_storage_concurrent_limit = config_data.get("blob_storage_max_concurrent_requests", 25)
     context.max_agents = config_data.get("max_agents", 10)
     context.embedding_model_chunk_size = config_data.get("embedding_max_chunk_size", 128)
+    
+    # Add third party services configs
+    context.together_ai_config = config_data.get("together_ai", None)
+    context.voyage_ai_config = config_data.get("voyage_ai", None)
+    context.svector_config = config_data.get("svector", None)
+    context.pinecone_config = config_data.get("pinecone", None)
     
     # Handle user-provided arguments
     if "log" in args and args.log:

@@ -1,5 +1,6 @@
 from typing import Optional
 from enum import Enum
+from collections import defaultdict
 import os
 
 class LogLevel(Enum):
@@ -21,6 +22,11 @@ class Context:
         self.blob_storage_concurrent_limit: int = 25
         self.vector_db_concurrent_limit: int = 25
         self.embedding_model_chunk_size: int = 128
+
+        self.together_ai_config = defaultdict(str)
+        self.voyage_ai_config = defaultdict(str)
+        self.svector_config = defaultdict(str)
+        self.pinecone_config = defaultdict(str)
 
     def get_files_in_output_dir(self):
         """

@@ -1,10 +1,7 @@
 import voyageai
-from dotenv import load_dotenv
 from typing import List
 from code_sushi.context import Context, LogLevel
 import time
-
-load_dotenv()
 
 class Voyage:
     """
@@ -13,7 +10,8 @@ class Voyage:
     _instance = None
 
     def __init__(self, context: Context):
-        self.vo = voyageai.Client()
+        api_key = context.voyage_ai_config.get("api_key")
+        self.vo = voyageai.Client(api_key=api_key)
         self.context = context
 
     def __new__(cls, *args, **kwargs):
@@ -26,9 +24,10 @@ class Voyage:
         Embeds text using Voyage AI.
         """
         try:
+            embedding_model = self.context.voyage_ai_config.get("embedding_model")
             result = self.vo.embed(
                 texts=texts, 
-                model="voyage-code-3", 
+                model=embedding_model, 
                 input_type=input_type,
             )
             
@@ -50,7 +49,8 @@ class Voyage:
             if self.context.is_log_level(LogLevel.VERBOSE):
                 print("Starting to rerank docs...")
 
-            res = self.vo.rerank(query, texts, "rerank-2-lite", top_k=top_k)
+            rerank_model = self.context.voyage_ai_config.get("rerank_model")
+            res = self.vo.rerank(query, texts, rerank_model, top_k=top_k)
             outcome = [result.document for result in res.results]
 
             if self.context.is_log_level(LogLevel.VERBOSE):

@@ -61,7 +61,7 @@ sushi ask           # Will ask a single question to the LLM
 
 You can run the commands with the `-h` flag to get more information about the parameters each command accepts.
 
-### **Configuration** TODO:
+### **Configuration**
 The `sushi init` command automatically creates a `sushi-config.json` file in your project root:
 ```json
 {
@@ -71,6 +71,8 @@ The `sushi init` command automatically creates a `sushi-config.json` file in you
     "vector_db_max_concurrent_requests": 25
 }
 ```
+
+This is also where we read the API keys for the third party services from. You should make sure this file is not checked into your repo.
 
 ## 🔍 Inner Workings
 

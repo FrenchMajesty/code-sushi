@@ -2,5 +2,23 @@
     "max_agents": 10,
     "blog_storage_max_concurrent_requests": 25,
     "embedding_max_chunk_size": 128,
-    "vector_db_max_concurrent_requests": 25
+    "vector_db_max_concurrent_requests": 25,
+    "together_ai": {
+        "api_key": "YOUR_API_KEY",
+        "chat_model": "YOUR_CHAT_MODEL"
+    },
+    "voyage_ai": {
+        "api_key": "YOUR_API_KEY",
+        "embedding_model": "voyage-code-3",
+        "rerank_model": "rerank-2-lite"
+    },
+    "svector": {
+        "api_key": "YOUR_API_KEY",
+        "region": "YOUR_REGION",
+        "database_id": "YOUR_DATABASE_ID"
+    },
+    "pinecone": {
+        "api_key": "YOUR_API_KEY",
+        "index_name": "YOUR_INDEX_NAME"
+    }
 }
