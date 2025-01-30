@@ -5,12 +5,14 @@ from .foundation_model_layer import FoundationModelLayer, ModelSize
 class TogetherModel(FoundationModelLayer):
     """Implementation of FoundationModelLayer using Together AI's API"""
     
-    def __init__(self, api_key: str):
-        self.client = Together(api_key=api_key)
+    def __init__(self, config: dict):
+        self.client = Together(api_key=config["api_key"])
+        self.primary_model = config["primary_chat_model"]
+        self.secondary_model = config["secondary_chat_model"]
         self.models = {
-            ModelSize.SMALL: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo-128K",
-            ModelSize.MEDIUM: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
-            ModelSize.LARGE: "meta-llama/Llama-3.3-70B-Instruct-Turbo"
+            ModelSize.SMALL: self.secondary_model,
+            ModelSize.MEDIUM: self.primary_model,
+            ModelSize.LARGE: self.primary_model
         }
     
     def send_completion_request(self, history: List[dict], model_size: ModelSize) -> str:
