@@ -1,0 +1,8 @@
+# Package files
+package*.json
+composer*.json
+pnpm-*.*
+
+build/
+.llm/
+public/

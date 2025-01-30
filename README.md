@@ -46,21 +46,27 @@ Before the process starts, the tool will show a summary of the files detected an
 
 ### **Basic Commands**
 ```sh
-code-sushi edit "<instruction>"   # Make changes based on a natural language instruction
-code-sushi review                 # Review pending changes
-code-sushi apply                  # Apply suggested changes
-code-sushi undo                   # Undo the last change
+sushi init # Creates a .sushiignore file in your project root
+sushi slice # Will start the process of cutting down your repo into smaller pieces
+sushi upload # Will upload the files to a Blob Storage
+sushi vectorize # Will embed the summaries and vectorize them for every file and chunk in disk
+sushi clean # Will clean up the .llm/ folder where the summaries are stored
+
+sushi run # Will run the entire process to slice and vectorize your repo in one command
+
+sushi chat # Will start a chat with the LLM
+sushi ask # Will ask a single question to the LLM
 ```
 
-### **Configuration**
-Create a `code-sushi.config.js` file in your project root:
-```js
-module.exports = {
-language: 'auto',
-style: 'standard',
-safeMode: true,
-// Add more configuration options
-};
+### **Configuration** TODO:
+The `sushi init` command automatically creates a `sushi-config.json` file in your project root:
+```json
+{
+    "max_agents": 10,
+    "blog_storage_max_concurrent_requests": 25,
+    "embedding_max_chunk_size": 128,
+    "vector_db_max_concurrent_requests": 25
+}
 ```
 
 ## 🔍 Inner Workings

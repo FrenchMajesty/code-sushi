@@ -67,6 +67,7 @@ def read_config_into_context(args: argparse.Namespace) -> Context:
     try:
         with open(config_path, 'r') as config_file:
             config_data = json.load(config_file)
+            context.has_config_file = True
     except Exception as e:
         if args.log >= LogLevel.DEBUG.value:
             print(f"Error reading config file: {e}")
@@ -177,6 +178,14 @@ def chat(context: Context):
     chat = Chat(context)
     chat.start_session()
 
+def ask(context: Context, question: str):
+    """
+    Ask a single question about the codebase and get an answer.
+    """
+    chat = Chat(context)
+    question = " ".join(question)
+    chat.ask_question(question)
+
 def main():
     parser = argparse.ArgumentParser(description="Code Sushi: Slice and organize your code repo for LLMs.")
     subparsers = parser.add_subparsers(dest="command",required=True)
@@ -228,6 +237,12 @@ def main():
     chat_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
     chat_parser.set_defaults(func=chat)
 
+    # Add 'ask' command
+    ask_parser = subparsers.add_parser("ask", help="Ask a single question to the LLM.")
+    ask_parser.add_argument("question", nargs="+", help="The question to ask the LLM")
+    ask_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
+    ask_parser.set_defaults(func=ask)
+
     # Parse and execute the appropriate command
     args = parser.parse_args()
     context = read_config_into_context(args)
@@ -236,6 +251,8 @@ def main():
         args.func(args.log)
     elif args.command == "slice":
         args.func(context, args.limit)
+    elif args.command == "ask":
+        args.func(context, args.question)
     else:
         args.func(context)
 

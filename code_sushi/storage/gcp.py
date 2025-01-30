@@ -74,7 +74,7 @@ class GoogleCloudStorage:
             if self.context.is_log_level(LogLevel.VERBOSE):
                 print(f"Blob {source_path} downloaded to {destination}.")
         except Exception as e:
-            print(f"Error downloading file: {e}")
+            print(f"Error in GCP.download_file(): {e}")
             raise e
 
     def read_file(self, blob_name: str):
@@ -93,7 +93,7 @@ class GoogleCloudStorage:
             return str(blob.download_as_string())
         except Exception as e:
             if self.context.is_log_level(LogLevel.DEBUG):
-                print(f"Error reading file: {e}")
+                print(f"Error in GCP.read_file(): {e}")
             raise e
 
     def delete_file(self, blob_name: str):
@@ -107,7 +107,7 @@ class GoogleCloudStorage:
             if self.context.is_log_level(LogLevel.VERBOSE):
                 print(f"Blob {blob_name} deleted.")
         except Exception as e:
-            print(f"Error deleting file: {e}")
+            print(f"Error in GCP.delete_file(): {e}")
             raise e
 
     def list_files(self):

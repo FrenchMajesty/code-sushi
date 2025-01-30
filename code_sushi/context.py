@@ -15,6 +15,7 @@ class Context:
         self.log_level: LogLevel = LogLevel(log_level)
         self.output_dir: Optional[str] = None
         self.project_name: str = os.path.basename(repo_path)
+        self.has_config_file: bool = False
 
         self.max_agents: int = 10
         self.blob_storage_concurrent_limit: int = 25
