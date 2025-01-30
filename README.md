@@ -9,9 +9,9 @@
 
 ## 🌟 Features
   
-✅ **Multi-Language Support** – Can work with any programming language. (currently only Python, Typescript, and PHP is supported)
-✅ **Privacy-First** – All code processing happens locally in the CLI tool. Your code never leaves your machine.  
-✅ **Modular Components** – Easily swap out LLM, vector DB, and embedding providers with your preferred choices.
+- ✅ **Multi-Language Support**: Can work with any programming language. (currently only Python, Typescript, and PHP is supported)
+- ✅ **Privacy-First**: All code processing happens locally in the CLI tool. Your code never leaves your machine.  
+- ✅ **Modular Components**: Easily swap out LLM, vector DB, and embedding providers with your preferred choices.
 
 ## 🧑‍🤝‍🧑 Who is this for?
 
