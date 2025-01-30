@@ -12,6 +12,7 @@ class CodeFragment:
     end_line: int
     commit_hash: str
     last_modified: datetime
+    parent_file_summary: str
 
 class RepoReader(ABC):
     """Interface for reading code from repositories"""

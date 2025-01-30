@@ -19,7 +19,7 @@ class Itamae:
     def __init__(self, context: Context):
         self.context = context
 
-    def slice_chunks(self, file: File) -> List[CodeFragment]:
+    def slice(self, file: File) -> List[CodeFragment]:
         """
         Process the file to and extract every individual function.
         """
