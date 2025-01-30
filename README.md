@@ -18,10 +18,10 @@
 > If not, [Cursor](https://www.cursor.com) is an excellent choice with much more features.
 
 - You are dealing with a very large codebase (+50k lines of code) that cannot fit into the context window.
-> If not, I recommend [Gitingest](https://github.com/cyclotruc/gitingest) as an alternative.
+> If not, I recommend [Gitingest](https://github.com/cyclotruc/gitingest) as an alternative for smaller repos.
 
 - You just want question-answering capabilities for your codebases.
-> If you need much such as code completion, etc... there are no open-source IDEs that can do that yet. At least I haven't found any. If you do, please let me know and I'll update this section.
+> If you need much such as code completion, etc... there are no open-source IDEs that can do that yet. The best I've found are [Cursor](https://www.cursor.com) and [Trae](https://trae.ai/). If you find a good open-source alternative, please let me know and I'll update this section.
 
 ## 📦 Installation
 
