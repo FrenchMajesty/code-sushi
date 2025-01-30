@@ -32,7 +32,7 @@ class Agent:
             summary = self.summarize_content(task)
             if task.is_file():
                 # 2- Extract logical chunks from the file
-                chunks = Itamae().slice_chunks(self.context, task.file)
+                chunks = Itamae(self.context).slice_chunks(task.file)
                 tasks = self.chunks_to_tasks(chunks, summary)
 
             task.update_status(TaskStatus.COMPLETE)
