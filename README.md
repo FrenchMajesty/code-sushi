@@ -1,7 +1,7 @@
 # Code Sushi 🍣
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
-[![PyPI version](https://badge.fury.io/py/code-sushi.svg)](https://badge.fury.io/py/code-sushi)
+[![PyPI version](https://badge.fury.io/py/code-sushi.svg?icon=si%3Apython)](https://badge.fury.io/py/code-sushi)
 [![Stars](https://img.shields.io/github/stars/frenchmajesty/code-sushi?style=social.svg)](https://github.com/frenchmajesty/code-sushi)
 
 
