@@ -47,7 +47,7 @@ class TreeProcessor:
         """
         return self.parser is not None
 
-    def extract(self) -> List[LogicalChunk]:
+    def extract(self) -> List[CodeFragment]:
         """
         Parse the content of the file and return a list of LogicalChunks.
         """
@@ -55,7 +55,7 @@ class TreeProcessor:
         functions = self._extract_functions(code, syntax_tree)
         return functions
 
-    def _extract_functions(self, code: str, tree: Tree) -> List[Function]:
+    def _extract_functions(self, code: str, tree: Tree) -> List[CodeFragment]:
         """
         Extract all function/method definitions in the code.
         """
@@ -75,9 +75,14 @@ class TreeProcessor:
                     random_hash = hashlib.sha256(code.encode()).hexdigest()[:6]
                     func_name = f"anonymous_{random_hash}"
 
-                # Extract function code
-                func_code = "\n".join(code.splitlines()[start_line:end_line + 1])
-                functions.append({"name": func_name, "code": func_code})
+                fragment = CodeFragment(
+                    path=self.file.absolute_path,
+                    name=func_name,
+                    content=code,
+                    start_line=start_line,
+                    end_line=end_line,
+                )
+                functions.append(fragment)
             
             for child in node.children:
                 traverse(child)

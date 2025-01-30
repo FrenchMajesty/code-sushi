@@ -7,13 +7,12 @@ class File:
 
     def __init__(self, repo_root: str, path: str):
         self.absolute_path = os.path.abspath(path)
-        self.relative_path = ''
+        self.relative_path = self.sanitize_relative_path(repo_root)
         self.file_name = os.path.basename(self.relative_path)
         self.ext = os.path.splitext(path)[1]
         self.size = 0
         self.line_count = 0
 
-        self.sanitize_relative_path(repo_root)
         self.load_metadata()
 
     def load_metadata(self):
@@ -34,12 +33,14 @@ class File:
             self.relative_path
         ])
 
-    def sanitize_relative_path(self, root: str):
+    def sanitize_relative_path(self, root: str) -> str:
         """
         Sanitize the relative path of the file.
         """
         common = os.path.commonprefix([root, self.absolute_path])
-        self.relative_path = self.absolute_path.replace(common, "", 1)
+        relative = self.absolute_path.replace(common, "", 1)
 
-        if self.relative_path.startswith("/"):
-            self.relative_path = self.relative_path[1:]
+        if relative.startswith("/"):
+            relative = relative[1:]
+        
+        return relative
