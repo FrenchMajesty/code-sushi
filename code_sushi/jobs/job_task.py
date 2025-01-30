@@ -1,5 +1,5 @@
 from code_sushi.core import File
-from code_sushi.itamae import LogicalChunk
+from code_sushi.itamae import CodeFragment
 from code_sushi.context import Context, LogLevel
 from typing import Optional
 from enum import Enum
@@ -17,33 +17,33 @@ class JobTask:
     """
     Represents a task to be executed.
     """
-    def __init__(self, context: Context, file: Optional[File] = None, chunk: Optional[LogicalChunk] = None):
+    def __init__(self, context: Context, file: Optional[File] = None, fragment: Optional[CodeFragment] = None):
         self.file = file
-        self.chunk = chunk
+        self.fragment = fragment
         self.status = TaskStatus.PENDING
         self.context = context
         self.busy = False
 
-        if chunk:
-            self.name = chunk.name
+        if fragment:
+            self.name = fragment.name
         elif file:
             self.name = file.relative_path
         else:
-            raise ValueError("A JobTask must have a file or a chunk.")
+            raise ValueError("A JobTask must have a file or a code fragment.")
 
-    def relative_path(self):
-        return self.chunk.relative_path if self.chunk else self.file.relative_path
+    def relative_path(self) -> str:
+        return self.fragment.path if self.fragment else self.file.relative_path
 
-    def absolute_path(self):
-        return self.chunk.absolute_path if self.chunk else self.file.absolute_path
+    def absolute_path(self) -> str:
+        return self.fragment.path if self.fragment else self.file.absolute_path
 
     def update_status(self, status: TaskStatus):
         self.status = status
 
-    def is_chunk(self):
-        return self.chunk is not None
+    def is_fragment(self) -> bool:
+        return self.fragment is not None
     
-    def is_file(self):
+    def is_file(self) -> bool:
         return self.file is not None
 
     def __lt__(self, other: "JobTask"):

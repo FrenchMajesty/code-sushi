@@ -32,8 +32,8 @@ class Agent:
             summary = self.summarize_content(task)
             if task.is_file():
                 # 2- Extract logical chunks from the file
-                chunks = Itamae(self.context).slice_chunks(task.file)
-                tasks = self.chunks_to_tasks(chunks, summary)
+                fragments = Itamae(self.context).slice(task.file)
+                tasks = self.fragments_to_tasks(fragments, summary)
 
             task.update_status(TaskStatus.COMPLETE)
             self.busy = False
@@ -56,8 +56,13 @@ class Agent:
         """
         try:
             origin_file = task.absolute_path()
-            content = open(origin_file).read()
-            parent_summary = task.chunk.parent_summary if task.chunk else ""
+            content = ''
+            parent_summary = ''
+            if task.is_fragment():
+                content = task.fragment.content
+                parent_summary = task.fragment.parent_file_summary
+            else:
+                content = open(origin_file).read()
 
             summary = summarize_file(self.context, task.relative_path(), content, parent_summary)
             write_summary_to_file(self.context, task.file, summary)
@@ -67,26 +72,14 @@ class Agent:
             print(f"Error summarizing content: {e}")
             return ""
 
-    def chunks_to_tasks(self, chunks: List[LogicalChunk], summary: str) -> List[JobTask]:
+    def fragments_to_tasks(self, fragments: List[CodeFragment], summary: str) -> List[JobTask]:
         """
-        Convert a list of logical chunks into a list of JobTasks.
+        Convert a list of code fragments into a list of JobTasks.
         """
-        if self.context.is_log_level(LogLevel.VERBOSE):
-            print(f"Converting {len(chunks)} chunks into tasks...")
-
         tasks = []
-        for chunk in chunks:
-            temp_file = File(self.context.repo_path, chunk.absolute_path)
-            temp_file.absolute_path = chunk.absolute_path
-            temp_file.relative_path = chunk.relative_path
-
-            if ".llm/Users" in temp_file.relative_path:
-                print('BAD PATH! in chunks_to_tasks()')
-                exit(1)
-
-            chunk.parent_summary = summary
-
-            task = JobTask(self.context, chunk=chunk, file=temp_file)
+        for fragment in fragments:
+            fragment.parent_file_summary = summary
+            task = JobTask(self.context, fragment=fragment)
             tasks.append(task)
 
         return tasks
