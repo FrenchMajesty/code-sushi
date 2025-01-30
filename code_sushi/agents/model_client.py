@@ -22,6 +22,7 @@ class ModelClient:
         """
         Initialize the model client with configuration.
         """
+        self.context = context
         self.provider = context.ai_provider
         if self.provider not in self.SUPPORTED_PROVIDERS:
             raise ValueError(f"Unsupported provider: {self.provider}. Available providers: {list(self.SUPPORTED_PROVIDERS.keys())}")

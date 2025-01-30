@@ -52,9 +52,17 @@ class TreeProcessor:
         """
         Parse the content of the file and return a list of LogicalChunks.
         """
-        code, syntax_tree = self.parse_content(parser, file.absolute_path)
+        code, syntax_tree = self._parse_content(self.file.absolute_path)
         functions = self._extract_functions(code, syntax_tree)
         return functions
+
+    def _parse_content(self, path: str) -> tuple[str, Tree]:
+        """
+        Parse the content of the file and return a tuple with the code and the syntax tree.
+        """
+        code = open(path, "r", encoding="utf8").read()
+        syntax_tree = self.parser.parse(bytes(code, "utf8"))
+        return code, syntax_tree
 
     def _extract_functions(self, code: str, tree: Tree) -> List[CodeFragment]:
         """

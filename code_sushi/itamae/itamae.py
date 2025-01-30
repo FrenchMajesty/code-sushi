@@ -27,7 +27,7 @@ class Itamae:
             if self.context.is_log_level(LogLevel.VERBOSE):
                 print(f"Slicing chunks for file: {file.relative_path}")
 
-            parser = TreeProcessor(file)
+            parser = TreeProcessor(self.context, file)
             if not parser.is_supported():
                 return []
 
