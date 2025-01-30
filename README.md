@@ -8,21 +8,20 @@
 **Code Sushi** is a tool to help developers take large repos and cut them down into bite-sized pieces that can be fed into an LLM for answering questions in a few minutes.
 
 ## 🌟 Features
-  
-- ✅ **Multi-Language Support**: Can work with any programming language. (currently only Python, Typescript, and PHP is supported)
-- ✅ **Privacy-First**: All code processing happens locally in the CLI tool. Your code never leaves your machine.  
-- ✅ **Modular Components**: Easily swap out LLM, vector DB, and embedding providers with your preferred choices.
+- **Privacy-First**: All code processing happens locally in the CLI tool. Your code never leaves your machine.  
+- **Multi-Language Support**: Can work with any programming language. (currently only Python, Typescript, and PHP is supported)
+- **Modular Components**: Easily swap out LLM, vector DB, and embedding providers with your preferred choices.
 
 ## 🧑‍🤝‍🧑 Who is this for?
 
 - You work in a company that has very strict data privacy policies, operates in a regulated industry, or you are just paranoid about your code.
--> If not, [Cursor](https://www.cursor.com) is an excellent choice.
+> If not, [Cursor](https://www.cursor.com) is an excellent choice with much more features.
 
 - You are dealing with a very large codebase (+50k lines of code) that cannot fit into the context window.
--> If not, I recommend [Gitingest](https://github.com/cyclotruc/gitingest) as an alternative.
+> If not, I recommend [Gitingest](https://github.com/cyclotruc/gitingest) as an alternative.
 
 - You just want question-answering capabilities for your codebases.
--> If you need much such as code completion, etc... there are no open-source IDEs that can do that yet. At least I haven't found any. If you do, please let me know and I'll update this section.
+> If you need much such as code completion, etc... there are no open-source IDEs that can do that yet. At least I haven't found any. If you do, please let me know and I'll update this section.
 
 ## 📦 Installation
 
