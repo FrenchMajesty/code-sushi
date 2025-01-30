@@ -45,18 +45,21 @@ Before the process starts, the tool will show a summary of the files detected an
 ## 📖 Usage
 
 ### **Basic Commands**
+
 ```sh
-sushi init # Creates a .sushiignore file in your project root
-sushi slice # Will start the process of cutting down your repo into smaller pieces
-sushi upload # Will upload the files to a Blob Storage
-sushi vectorize # Will embed the summaries and vectorize them for every file and chunk in disk
-sushi clean # Will clean up the .llm/ folder where the summaries are stored
+sushi init          # Creates a .sushiignore file in your project root
+sushi slice         # Will start the process of cutting down your repo into smaller pieces
+sushi upload        # Will upload the files to a Blob Storage
+sushi vectorize     # Will embed the summaries and vectorize them for every file and chunk in disk
+sushi clean         # Will clean up the .llm/ folder where the summaries are stored
 
-sushi run # Will run the entire process to slice and vectorize your repo in one command
+sushi run           # Will run the entire process to slice and vectorize your repo in one command
 
-sushi chat # Will start a chat with the LLM
-sushi ask # Will ask a single question to the LLM
+sushi chat          # Will start a chat with the LLM
+sushi ask           # Will ask a single question to the LLM
 ```
+
+You can run the commands with the `-h` flag to get more information about the parameters each command accepts.
 
 ### **Configuration** TODO:
 The `sushi init` command automatically creates a `sushi-config.json` file in your project root:
