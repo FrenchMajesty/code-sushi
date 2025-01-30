@@ -36,8 +36,8 @@ pip install code-sushi
 Here is how you can use Code Sushi locally.
 
 ```sh
-sushi init # Will create a .sushiignore file in your project root
-sushi run # Will start the process of cutting down your repo.
+sushi init   # Will create a .sushiignore file in your project root
+sushi run    # Starts the process of cutting down your repo and vectorizing the chunks
 ```
 
 Before the process starts, the tool will show a summary of the files detected and ask you to confirm the process.
