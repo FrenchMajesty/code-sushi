@@ -1,5 +1,6 @@
 {
     "max_agents": 10,
+    "ai_provider": "together",
     "blog_storage_max_concurrent_requests": 25,
     "embedding_max_chunk_size": 128,
     "vector_db_max_concurrent_requests": 25,

@@ -18,6 +18,7 @@ class Context:
         self.project_name: str = os.path.basename(repo_path)
         self.has_config_file: bool = False
 
+        self.ai_provider: str = "together"
         self.max_agents: int = 10
         self.blob_storage_concurrent_limit: int = 25
         self.vector_db_concurrent_limit: int = 25

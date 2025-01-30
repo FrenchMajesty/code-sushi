@@ -83,6 +83,7 @@ def read_config_into_context(args: argparse.Namespace) -> Context:
     context.embedding_model_chunk_size = config_data.get("embedding_max_chunk_size", 128)
     
     # Add third party services configs
+    context.ai_provider = config_data.get("ai_provider", "together")
     context.together_ai_config = config_data.get("together_ai", None)
     context.voyage_ai_config = config_data.get("voyage_ai", None)
     context.svector_config = config_data.get("svector", None)
