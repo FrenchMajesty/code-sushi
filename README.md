@@ -2,8 +2,7 @@
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 [![PyPI version](https://badge.fury.io/py/code-sushi.svg)](https://badge.fury.io/py/code-sushi)
-[![GitHub stars](https://img.shields.io/github/stars/frenchmajesty/code-sushi?style=social.svg)](https://github.com/frenchmajesty/code-sushi)
-[![Downloads](https://pepy.tech/badge/code-sushi)](https://pepy.tech/project/code-sushi)
+[![Stars](https://img.shields.io/github/stars/frenchmajesty/code-sushi?style=social.svg)](https://github.com/frenchmajesty/code-sushi)
 
 
 **Code Sushi** is a tool to help developers take large repos and cut them down into bite-sized pieces that can be fed into an LLM for answering questions in a few minutes.
