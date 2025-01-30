@@ -73,7 +73,17 @@ class TreeProcessor:
 
         # Traverse the syntax tree for function definitions
         def traverse(node):
-            valid_types = set(["function_declaration", "method_definition", "method_declaration"])
+            valid_types = set([
+                "function_declaration",
+                "method_definition",
+                "method_declaration",
+                "function_definition",
+                "async_function_definition",
+                "async_function_declaration",
+                "async_method_definition",
+                "async_method_declaration"
+            ])
+
             if node.type in valid_types:
                 func_name_node = node.child_by_field_name("name")
                 func_name = func_name_node.text.decode("utf8") if func_name_node else "anonymous"

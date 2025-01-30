@@ -10,8 +10,8 @@ class CodeFragment:
     content: str
     start_line: int
     end_line: int
-    commit_hash: str
-    parent_file_summary: str
+    #commit_hash: str
+    parent_file_summary: Optional[str] = None
 
 class RepoReader(ABC):
     """Interface for reading code from repositories"""

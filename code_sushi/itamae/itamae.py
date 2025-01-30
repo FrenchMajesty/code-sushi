@@ -29,12 +29,14 @@ class Itamae:
 
             parser = TreeProcessor(self.context, file)
             if not parser.is_supported():
+                if self.context.is_log_level(LogLevel.VERBOSE):
+                    print(f"File {file.relative_path} is not supported by the parser")
                 return []
 
             functions = parser.extract()
 
-            if self.context.is_log_level(LogLevel.VERBOSE):
-                print(f"Extracted {len(functions)} functions/methods from {file.relative_path}")
+            if self.context.is_log_level(LogLevel.VERBOSE) and len(functions) > 0:
+                print(f"Functions extracted from {file.relative_path}: {len(functions)}")
 
             return functions
         except Exception as e:
