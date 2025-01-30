@@ -3,7 +3,7 @@ from code_sushi.context import Context, LogLevel
 from code_sushi.core import write_summary_to_file, File
 from code_sushi.jobs import JobTask, TaskStatus
 from code_sushi.itamae import Itamae, LogicalChunk
-from .llm_client import summarize_file
+from .model_client import ModelClient
 import time
 
 class Agent:
@@ -11,6 +11,7 @@ class Agent:
         self.id = id
         self.context = context
         self.tasks_completed = 0
+        self.model_client = ModelClient(context)
 
         if self.context.is_log_level(LogLevel.DEBUG):
             print(f"Agent [{self.id}] was hired and is ready to work.")
@@ -50,27 +51,27 @@ class Agent:
             print(f"Agent [{self.id}] Failed Job {task.name}. Error: {e}")
             return []
     
-    def summarize_content(self, task: JobTask) -> str:
+    def summarize_content(self, task: JobTask) -> Optional[str]:
         """
         Summarize the content of a file using LLM.
         """
         try:
             origin_file = task.absolute_path()
             content = ''
-            parent_summary = ''
+            parent_summary = None
             if task.is_fragment():
                 content = task.fragment.content
                 parent_summary = task.fragment.parent_file_summary
             else:
                 content = open(origin_file).read()
 
-            summary = summarize_file(self.context, task.relative_path(), content, parent_summary)
-            write_summary_to_file(self.context, task.file, summary)
+            if not content:
+                return None
 
-            return summary
+            return self.model_client.summarize(task.relative_path(), content, parent_summary)
         except Exception as e:
             print(f"Error summarizing content: {e}")
-            return ""
+            return None
 
     def fragments_to_tasks(self, fragments: List[CodeFragment], summary: str) -> List[JobTask]:
         """

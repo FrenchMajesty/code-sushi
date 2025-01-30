@@ -1,9 +1,6 @@
 from code_sushi.vector import Pinecone, Voyage
 from code_sushi.context import Context, LogLevel
-from code_sushi.agents import format_query_for_rag
-from code_sushi.agents.llm_client import send_completion_request
-from code_sushi.agents.prompt_guidance import question_chat_prompt
-from code_sushi.storage import  GoogleCloudStorage
+from code_sushi.agents import ModelClient
 from typing import List
 import time
 import sys
@@ -14,6 +11,7 @@ class Chat:
         self.history = []
         self.pinecone = Pinecone(context)
         self.voyage = Voyage(context)
+        self.model_client = ModelClient(context)
 
     def start_session(self):
         """
@@ -39,7 +37,7 @@ class Chat:
                 }]
 
                 # Generate response
-                response = send_completion_request(self.context, req)
+                response = self.model_client.send_completion_request(req)
                 self.history.append({
                     "role": "assistant",
                     "content": response

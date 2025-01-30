@@ -9,7 +9,6 @@ class LogLevel(Enum):
     DEBUG = 2
     VERBOSE = 3
 
-
 class Context:
     def __init__(self, repo_path: Optional[str] = None, log_level: int = 1):
         self.repo_path: Optional[str] = repo_path
@@ -24,11 +23,25 @@ class Context:
         self.vector_db_concurrent_limit: int = 25
         self.embedding_model_chunk_size: int = 128
 
+        # Foundation Models
         self.together_ai_config = defaultdict(str)
-        self.voyage_ai_config = defaultdict(str)
+        self.openai_config = defaultdict(str)
+        
+        # Vector Databases
         self.svector_config = defaultdict(str)
         self.pinecone_config = defaultdict(str)
 
+        # Embedding Models
+        self.voyage_ai_config = defaultdict(str)
+
+    def get_model_config(self):
+        if self.ai_provider == "together":
+            return self.together_ai_config
+        elif self.ai_provider == "openai":
+            return self.openai_config
+        else:
+            raise ValueError(f"Unsupported AI provider: {self.ai_provider}")
+    
     def get_files_in_output_dir(self):
         """
         Get all the files in the output directory.
