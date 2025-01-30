@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional
 from .foundation_model_layer import FoundationModelLayer, ModelSize
+from code_sushi.context import Context, LogLevel
 from .together_model import TogetherModel
 from .prompt_guidance import (
     summarize_file_prompt,

@@ -8,7 +8,7 @@ from .core import (
 )
 from .multi_task import start_background_loop, stop_background_loop
 from .context import Context, LogLevel
-from .agents import AgentTeam, format_query_for_rag
+from .agents import AgentTeam
 from .chat import Chat
 from .jobs import JobQueue
 from .vector import Voyage

@@ -11,7 +11,6 @@ class CodeFragment:
     start_line: int
     end_line: int
     commit_hash: str
-    last_modified: datetime
     parent_file_summary: str
 
 class RepoReader(ABC):
