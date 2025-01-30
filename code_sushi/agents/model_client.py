@@ -7,7 +7,6 @@ from .prompt_guidance import (
     format_for_rag_search_prompt,
     question_chat_prompt
 )
-import time
 
 class ModelClient:
     """
@@ -28,7 +27,7 @@ class ModelClient:
             raise ValueError(f"Unsupported provider: {self.provider}. Available providers: {list(self.SUPPORTED_PROVIDERS.keys())}")
         
         config = context.get_model_config()
-        self.model: FoundationModelLayer = self.SUPPORTED_PROVIDERS[self.provider](config)
+        self.model: FoundationModelLayer = self.SUPPORTED_PROVIDERS[self.provider](context, config)
     
     def summarize(self, file_path: str, content: str, file_summary: Optional[str] = None) -> Optional[str]:
         """
@@ -56,31 +55,17 @@ class ModelClient:
 
             response = self.model.send_completion_request(messages, ModelSize.MEDIUM)
 
-            if self.context.is_log_level(LogLevel.DEBUG):
-                print(f"Received response from LLM")
-
             return response
         except Exception as e:
             print(f"Error in ModelClient.summarize_file(): {e}. File: {file_path}")
             return None
-
     def send_completion_request(self, history: list) -> str:
         """
         Send a request to the LLM API.
         """
         try:
-            start = time.time()
-            if self.context.is_log_level(LogLevel.DEBUG):
-                print(f"Sending completion req to LLM")
-
             messages = list(question_chat_prompt) + history
-            response = self.model.send_completion_request(messages, ModelSize.MEDIUM)
-
-            if self.context.is_log_level(LogLevel.DEBUG):
-                runtime = time.time() - start
-                print(f"Received response from LLM in {runtime:.2f} seconds")
-
-            return response
+            return self.model.send_completion_request(messages, ModelSize.MEDIUM)
         except Exception as e:
             print(f"Error in ModelClient.send_completion_request(): {e}")
             return "I'm sorry, I failed to get an answer for that." #TODO: How to handle errors here?
@@ -90,21 +75,11 @@ class ModelClient:
         Use LLM to re-format the user query for better RAG hits, if necessary.
         """
         try:
-            start = time.time()
-            if self.context.is_log_level(LogLevel.DEBUG):
-                print(f"Sending req to LLM: {query}")
-
             request = list(format_for_rag_search_prompt) + [{
-                "role": "user",
+                "role": "user", 
                 "content": query
             }]
-            response = self.model.send_completion_request(request, ModelSize.SMALL)
-
-            if self.context.is_log_level(LogLevel.DEBUG):
-                runtime = time.time() - start
-                print(f"Received response from LLM in {runtime:.2f} seconds")
-
-            return response
+            return self.model.send_completion_request(request, ModelSize.SMALL)
         except Exception as e:
             print(f"Error in ModelClient.format_query_for_rag(): {e}")
             return query
