@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional, Iterator
 from code_sushi.core import File
+import os
 
 @dataclass
 class CodeFragment:
@@ -25,11 +26,13 @@ class CodeFragment:
         """
         start_line = 0
         end_line = 0
+        content = ""
         try:
-            with open(file.path, 'r') as f:
+            with open(file.absolute_path, 'r') as f:
                 end_line = sum(1 for _ in f)
+                content = f.read()
 
-            return CodeFragment(file.path, file.name, file.content, start_line, end_line)
+            return CodeFragment(file.relative_path, file.file_name, content, start_line, end_line)
         except Exception as e:
             print(f"Error in CodeFragment.from_file(): {e}")
             raise e

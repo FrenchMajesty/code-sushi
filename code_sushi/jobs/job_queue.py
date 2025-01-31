@@ -4,6 +4,7 @@ from code_sushi.core import File
 from code_sushi.context import Context, LogLevel
 from .utils import prioritize_files
 from .job_task import JobTask, TaskStatus
+from code_sushi.itamae import CodeFragment
 from queue import PriorityQueue
 import time
 
