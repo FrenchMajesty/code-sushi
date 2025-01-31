@@ -18,7 +18,6 @@ LANGUAGES = {
     # Add more languages here if needed
 }
 
-
 class TreeProcessor:
     def __init__(self, context: Context, file: File):
         self.context = context
@@ -89,6 +88,7 @@ class TreeProcessor:
                 func_name = func_name_node.text.decode("utf8") if func_name_node else "anonymous"
                 start_line, _ = node.start_point
                 end_line, _ = node.end_point
+                func_code = "\n".join(code.splitlines()[start_line:end_line + 1])
 
                 if func_name == "anonymous":
                     random_hash = hashlib.sha256(code.encode()).hexdigest()[:6]
@@ -97,7 +97,7 @@ class TreeProcessor:
                 fragment = CodeFragment(
                     path=self.file.relative_path,
                     name=func_name,
-                    content=code,
+                    content=func_code,
                     start_line=start_line,
                     end_line=end_line,
                 )

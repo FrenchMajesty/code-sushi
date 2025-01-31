@@ -60,7 +60,6 @@ class Agent:
         """
         try:
             content = task.fragment.content
-            parent_summary = task.fragment.parent_file_summary
 
             if not content and task.is_file():
                 content = open(task.absolute_path()).read()
@@ -68,7 +67,7 @@ class Agent:
             if not content:
                 return None
 
-            return self.model_client.summarize(task.relative_path(), content, parent_summary)
+            return self.model_client.summarize(task.relative_path(), content, task.fragment.parent_file_summary)
         except Exception as e:
             print(f"Error in Agent[{self.id}].summarize_content(): {e}")
             return None
