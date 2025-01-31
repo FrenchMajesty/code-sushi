@@ -9,6 +9,7 @@ class BackgroundLoop:
     def __init__(self):
         self.loop = asyncio.new_event_loop()
         self.shutdown_event = Event()
+        self.is_running = False
         self.thread = Thread(target=self._background_loop, daemon=True)
 
     def _background_loop(self):
@@ -24,6 +25,7 @@ class BackgroundLoop:
     def start(self):
         """Start the background event loop thread."""
         self.thread.start()
+        self.is_running = True
 
     def stop(self):
         """Stop the background event loop."""
@@ -35,7 +37,7 @@ class BackgroundLoop:
         """
         self.shutdown_event.set()
         self.loop.call_soon_threadsafe(self.loop.stop)
-
+        self.is_running = False
     def run_async(self, coro_func, *args, **kwargs):
         """
         Run an async function in the background without awaiting it.
