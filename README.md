@@ -8,7 +8,7 @@
 **Code Sushi** is a tool to help developers take large repos and cut them down into bite-sized pieces that can be fed into an LLM for answering questions in a few minutes.
 
 ## 🌟 Features
-- **Privacy-First**: All code processing happens locally in the CLI tool. Your code never leaves your machine.  
+- **Privacy-First**: All code processing happens locally in the CLI tool. Your code only leaves your machine for inference.  
 - **Multi-Language Support**: Can work with any programming language. (currently only Python, Typescript, and PHP is supported)
 - **Modular Components**: Easily swap out LLM, vector DB, and embedding providers with your preferred choices.
 
