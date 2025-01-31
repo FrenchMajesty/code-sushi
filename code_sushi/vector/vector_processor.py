@@ -1,6 +1,7 @@
 from typing import List
 from code_sushi.context import Context, LogLevel
 from code_sushi.vector import Voyage, VectorRecord, Pinecone
+from code_sushi.multi_task import background_loop
 from datetime import datetime, timezone
 from .utils import chunks
 import math
@@ -20,6 +21,8 @@ class VectorProcessor:
         """
         if not fragments:
             return
+
+        background_loop.start()
 
         if self.context.is_log_level(LogLevel.INFO):
             print(f"Preparing to embed {len(fragments)} fragments...")
@@ -44,6 +47,7 @@ class VectorProcessor:
             # Upload to vector DB
             self.vector_db.write_many(entries)
 
+        background_loop.stop()
 
     def embed_and_upload_the_summaries_from_disk(self):
         """

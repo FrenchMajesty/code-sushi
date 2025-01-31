@@ -141,9 +141,7 @@ def vectorize(context: Context):
     Embed the summaries and vectorize them for every file and chunk in disk.
     """
     print("Start vectorization process...")
-    start_background_loop()
     VectorProcessor(context).embed_and_upload_summaries()
-    atexit.register(stop_background_loop)
 
 def slice(context: Context, limit: Optional[int] = None) -> bool:
     """
