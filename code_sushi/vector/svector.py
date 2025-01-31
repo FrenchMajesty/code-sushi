@@ -6,7 +6,7 @@ from svectordb.models import *
 from smithy_core.retries import SimpleRetryStrategy
 from smithy_http.aio.identity.apikey import ApiKeyIdentity, ApiKeyIdentityResolver
 from .vector_record import VectorRecord
-from code_sushi.multi_task import AsyncThrottler, run_async_in_background
+from code_sushi.multi_task import AsyncThrottler, background_loop
 
 class SVector:
     """
@@ -33,7 +33,7 @@ class SVector:
         self.throttler = AsyncThrottler(max_concurrent=25)
 
     def write(self, record: VectorRecord) -> None:
-        run_async_in_background(self.__write_async, record)
+        background_loop.run_async(self.__write_async, record)
 
     async def __write_async(self, record: VectorRecord):
         """

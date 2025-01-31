@@ -1,5 +1,5 @@
 import threading
-from typing import List
+from typing import List, Optional
 from code_sushi.core import File
 from code_sushi.context import Context, LogLevel
 from .utils import prioritize_files

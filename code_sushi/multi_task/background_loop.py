@@ -38,6 +38,7 @@ class BackgroundLoop:
         self.shutdown_event.set()
         self.loop.call_soon_threadsafe(self.loop.stop)
         self.is_running = False
+
     def run_async(self, coro_func, *args, **kwargs):
         """
         Run an async function in the background without awaiting it.

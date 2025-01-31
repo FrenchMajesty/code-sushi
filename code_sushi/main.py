@@ -1,19 +1,14 @@
 
 import argparse
 from collections import defaultdict
-from .core import (
-    scan_repo, 
-    get_code_insights, 
-    embed_and_upload_the_summaries,
-)
-from .multi_task import start_background_loop, stop_background_loop
 from .context import Context, LogLevel
 from .agents import AgentTeam
+from .itamae import CodeFragment
 from .chat import Chat
 from .jobs import JobQueue
-from .vector import Voyage
-from typing import Optional
 from .storage import GoogleCloudStorage
+from .repo import RepoScanner, get_code_insights
+from typing import Optional, List
 import atexit
 import os
 import json
@@ -120,34 +115,19 @@ def run(context: Context):
     """
     Process the repository and upload the results.
     """
-    should_continue = slice(context)
-    if not should_continue:
+    fragments = slice(context)
+    if not fragments:
         return
 
-    vectorize(context)
+    VectorProcessor(context).embed_and_upload_summaries(fragments)
 
-def upload(context: Context):
-    """
-    Upload results of the processed repository to a blog storage and vector database.
-    """
-    print("Uploading processed repository chunks to Blob Storage...")
-    storage = GoogleCloudStorage(context)
-    destination_dir = f"{context.project_name}/.llm/"
-    storage.bulk_upload(context.output_dir, destination_dir)
-
-def vectorize(context: Context):
-    """
-    Embed the summaries and vectorize them for every file and chunk in disk.
-    """
-    print("Start vectorization process...")
-    VectorProcessor(context).embed_and_upload_summaries()
-
-def slice(context: Context, limit: Optional[int] = None) -> bool:
+def slice(context: Context, limit: Optional[int] = None) -> Optional[List[CodeFragment]]:
     """
     Slice the repository into chunks for processing.
     """
     print("Scanning the repository...")
-    files = scan_repo(context)
+    scanner = RepoScanner(context)
+    files = scanner.scan_repo()
 
     if limit:
         files = files[-int(limit):]
@@ -160,7 +140,7 @@ def slice(context: Context, limit: Optional[int] = None) -> bool:
     confirm = input("\n\nBased on this overview, do you want to proceed with slicing this repo? (y/n): ").strip().lower()
     if confirm != 'y':
         print("Aborting the slicing process.")
-        return False
+        return None
     
     # Get to work
     os.makedirs(context.output_dir, exist_ok=True)
@@ -168,7 +148,7 @@ def slice(context: Context, limit: Optional[int] = None) -> bool:
     team = AgentTeam(context)
     team.get_to_work(queue)
 
-    return True
+    return list(team.fragments_done.values())
 
 def clean(context: Context):
     """
@@ -213,13 +193,6 @@ def main():
     run_parser.add_argument("--embed-chunks", type=int, default=128, help="Number of items per batch for embedding requests.")
     run_parser.set_defaults(func=run)
 
-    # Add 'upload' command
-    upload_parser = subparsers.add_parser("upload", help="Process the repo and upload the results.")
-    upload_parser.add_argument("--path", help="Path to the repository to process.")
-    upload_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
-    upload_parser.add_argument("--blob-workers", type=int, default=25, help="Number of thread workers to use for parallel uploading.")
-    upload_parser.set_defaults(func=upload)
-
     # Add 'slice' command
     slice_parser = subparsers.add_parser("slice", help="Slice the repo into chunks for processing.")
     slice_parser.add_argument("--path", help="Path to the repository to process.")
@@ -227,13 +200,6 @@ def main():
     slice_parser.add_argument("--agents", type=int, default=10, help="Number of AI agents to use for summarizing files.")
     slice_parser.add_argument("--limit", help="Sets a limit to the number of files to process for testing purposes.")
     slice_parser.set_defaults(func=slice)
-
-    # Add 'vectorize' command
-    vectorize_parser = subparsers.add_parser("vectorize", help="Embed the summaries and vectorize them for every file and chunk in disk.")
-    vectorize_parser.add_argument("--path", help="Path to the repository to process.")
-    vectorize_parser.add_argument("--vector-workers", type=int, default=25, help="Number of thread workers to use for parallel vectorizing.")
-    vectorize_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
-    vectorize_parser.set_defaults(func=vectorize)
 
     # Add 'clean' command
     clean_parser = subparsers.add_parser("clean", help="Clean up the repo after processing.")

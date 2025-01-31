@@ -1,4 +1,6 @@
 from typing import List
+from code_sushi.itamae import CodeFragment
+from datetime import datetime, timezone
 
 class VectorRecord:
     """
@@ -11,7 +13,7 @@ class VectorRecord:
         self.embedding: List[float] = []
 
     @staticmethod
-    def from_fragments(fragments: List[CodeFragment], project_name: str) -> List[VectorRecord]:
+    def from_fragments(fragments: List[CodeFragment], project_name: str) -> List["VectorRecord"]:
         """
         Create vector records from code fragments.
         
@@ -37,12 +39,13 @@ class VectorRecord:
                 "end_line": fragment.end_line,
                 "parent_summary": fragment.parent_file_summary
             }
+
             entries.append(VectorRecord(key, fragment.content, metadata))
         return entries
 
     
     @staticmethod
-    def from_files(files: List[str], project_name: str) -> List[VectorRecord]:
+    def from_files(files: List[str], project_name: str) -> List["VectorRecord"]:
         """
         Create vector records from file paths.
         
