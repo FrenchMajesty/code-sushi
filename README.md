@@ -21,7 +21,7 @@
 > If not, I recommend [Gitingest](https://github.com/cyclotruc/gitingest) as an alternative for smaller repos.
 
 - You just want question-answering capabilities for your codebases.
-> If you need much such as code completion, etc... there are no open-source IDEs that can do that yet. The best I've found are [Cursor](https://www.cursor.com) and [Trae](https://trae.ai/). If you find a good open-source alternative, please let me know and I'll update this section.
+> If you need much such as code completion, etc... there are no open-source IDEs that can do that yet. [Continue](https://continue.dev/) is a good open-source VSCode extension.
 
 ## 📦 Installation
 
