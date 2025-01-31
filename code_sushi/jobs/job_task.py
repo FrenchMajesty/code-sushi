@@ -18,12 +18,13 @@ class JobTask:
     """
     Represents a task to be executed.
     """
-    def __init__(self, context: Context, fragment: CodeFragment):
+    def __init__(self, context: Context, fragment: CodeFragment, file: Optional[File] = None):
         self.fragment = fragment
         self.name = fragment.name
         self.status = TaskStatus.PENDING
         self.context = context
         self.busy = False
+        self.file = file
 
     def relative_path(self) -> str:
         return self.fragment.path
@@ -32,7 +33,7 @@ class JobTask:
         return self.fragment.absolute_path()
 
     def is_file(self) -> bool:
-        return self.fragment.parent_file_summary is None
+        return self.file is not None
 
     def is_function(self) -> bool:
         return self.fragment.parent_file_summary is not None
