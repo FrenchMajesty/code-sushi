@@ -40,6 +40,10 @@ class ModelClient:
             if self.context.is_log_level(LogLevel.DEBUG):
                 print(f"Sending req to LLM: {file_path}")
 
+            # Truncate content if longer than 2K chars
+            if len(content) > 2000:
+                content = content[:2000] + "..."
+
             msg_parts = [
                 f"# Path: {file_path}",
                 f"## Parent File Summary: {file_summary}" if file_summary else "",
