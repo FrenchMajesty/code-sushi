@@ -95,7 +95,7 @@ class TreeProcessor:
                     func_name = f"anonymous_{random_hash}"
 
                 fragment = CodeFragment(
-                    path=self.file.absolute_path,
+                    path=self.file.relative_path,
                     name=func_name,
                     content=code,
                     start_line=start_line,
