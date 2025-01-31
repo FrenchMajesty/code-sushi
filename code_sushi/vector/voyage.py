@@ -24,6 +24,9 @@ class Voyage:
         Embeds text using Voyage AI.
         """
         try:
+            if self.context.is_log_level(LogLevel.VERBOSE):
+                print(f"Send req. to embed {len(texts)} text sections")
+
             embedding_model = self.context.voyage_ai_config.get("embedding_model")
             result = self.vo.embed(
                 texts=texts, 
@@ -31,7 +34,12 @@ class Voyage:
                 input_type=input_type,
             )
             
-            return result.embeddings
+            embeddings = result.embeddings
+
+            if self.context.is_log_level(LogLevel.VERBOSE):
+                print(f"Received {len(embeddings)} embeddings back")
+            
+            return embeddings
         except Exception as e:
             print(f"Error embedding texts: {e}")
             return []

@@ -8,7 +8,6 @@ data, and managing outputs.
 from .processor import (
     scan_repo, 
     write_summary_to_file, 
-    embed_and_upload_the_summaries, 
 )
 from ..multi_task.async_throttler import AsyncThrottler
 from .utils import get_code_insights
@@ -20,5 +19,4 @@ __all__ = [
     "get_code_insights",
     "File",
     "write_summary_to_file",
-    "embed_and_upload_the_summaries",
 ]

@@ -15,8 +15,6 @@ from .utils import (
     extract_metadata_from_output_file
 )
 
-background_executor = ThreadPoolExecutor()
-
 """
 Processor module for Code Sushi.
 
@@ -82,77 +80,3 @@ def write_summary_to_file(context: Context, file: File, summary: str):
             f.write(template)
     except Exception as e:
         print(f"Error writing to file: {e}")
-
-def embed_and_upload_the_summaries(context: Context):
-    """
-    Parses the summaries for every file and chunk written to disk to vectorize them.
-    """
-    voyage = Voyage(context)
-    vector_db = Pinecone(context)
-    files = context.get_files_in_output_dir()
-
-    if context.log_level.value >= LogLevel.INFO.value:
-        print(f"Preparing to embed {len(files)} files...")
-
-    chunk_size = 128
-    chunk_idx = 0
-    total_chunks = math.ceil(len(files) / chunk_size)
-    for i in range(0, len(files), chunk_size):
-        chunk_idx += 1
-        chunk = files[i:i + chunk_size]
-        
-        if context.log_level.value >= LogLevel.INFO.value:
-            print(f"Processing chunk {chunk_idx} of {total_chunks}")
-
-        entries = convert_files_to_vector_records(context, chunk)
-
-        # Mass-embed the text from the entries
-        raw_contents = [entry.text for entry in entries]
-
-        if context.log_level.value >= LogLevel.VERBOSE.value:
-            print(f"Send req. to embed {len(raw_contents)} text sections")
-
-        embeddings = voyage.embed(raw_contents)
-        
-        if context.log_level.value >= LogLevel.VERBOSE.value:
-            print(f"Received {len(embeddings)} embeddings back")
-
-        if len(embeddings) != len(entries):
-            print(f"Error: Embeddings length {len(embeddings)} does not match entries length {len(entries)}")
-            continue
-        
-        # Assign the embeddings to the linked entries
-        for i in range(len(entries)):
-            entries[i].embedding = embeddings[i]
-
-        # Upload to vector DB
-        vector_db.write_many(entries)
-
-def convert_files_to_vector_records(context: Context, files: List[str]) -> List[VectorRecord]:
-    """
-    Parse the files into partial vector records.
-    """
-    entries = []
-    for i, file_path in enumerate(files):
-        try:
-            file_meta = extract_metadata_from_output_file(file_path)
-            if not file_meta:
-                continue
-
-            # Prepare unique key for the vector DB
-            # TODO: Add unique user identifier
-            key = context.project_name + '/' + file_meta['file']
-            key = key.replace('//', '/')
-            vector_metadata = {
-                "summary": file_meta['summary'],
-                "original_location": file_meta['file'],
-                "last_updated": datetime.now(timezone.utc).isoformat() + 'Z',
-                "project_name": context.project_name,
-                "type": "function" if "@" in file_meta['file'] else "file"
-            }
-            entry = VectorRecord(key, file_meta['summary'], vector_metadata)
-            entries.append(entry)
-        except Exception as e:
-            print(f"Failed to vectorize file at: {file_path}. Error: {e}")
-    
-    return entries

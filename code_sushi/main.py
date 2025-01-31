@@ -142,7 +142,7 @@ def vectorize(context: Context):
     """
     print("Start vectorization process...")
     start_background_loop()
-    embed_and_upload_the_summaries(context)
+    VectorProcessor(context).embed_and_upload_summaries()
     atexit.register(stop_background_loop)
 
 def slice(context: Context, limit: Optional[int] = None) -> bool:
