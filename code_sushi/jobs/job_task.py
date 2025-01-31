@@ -1,5 +1,5 @@
 from code_sushi.core import File
-from code_sushi.itamae import CodeFragment
+from code_sushi.repo import CodeFragment
 from code_sushi.context import Context, LogLevel
 from typing import Optional
 from enum import Enum

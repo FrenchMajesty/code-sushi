@@ -3,7 +3,6 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from code_sushi.context import Context, LogLevel
 from code_sushi.core import File
-from code_sushi.vector import VectorRecord
 from pathspec import PathSpec
 import pathspec
 from datetime import datetime, timezone
