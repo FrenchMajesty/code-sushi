@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional, Iterator
+from code_sushi.core import File
 
 @dataclass
 class CodeFragment:
@@ -16,6 +17,22 @@ class CodeFragment:
 
     def absolute_path(self) -> str:
         return os.path.abspath(self.path)
+    
+    @staticmethod
+    def from_file(file: File) -> "CodeFragment":
+        """
+        Create a CodeFragment from a File.
+        """
+        start_line = 0
+        end_line = 0
+        try:
+            with open(file.path, 'r') as f:
+                end_line = sum(1 for _ in f)
+
+            return CodeFragment(file.path, file.name, file.content, start_line, end_line)
+        except Exception as e:
+            print(f"Error in CodeFragment.from_file(): {e}")
+            raise e
 
 class RepoReader(ABC):
     """Interface for reading code from repositories"""

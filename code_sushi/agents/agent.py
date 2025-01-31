@@ -78,7 +78,7 @@ class Agent:
         tasks = []
         for fragment in fragments:
             fragment.parent_file_summary = parent_summary
-            task = JobTask(self.context, fragment=fragment)
+            task = JobTask(self.context, fragment)
             tasks.append(task)
 
         return tasks
