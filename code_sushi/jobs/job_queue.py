@@ -58,7 +58,7 @@ class JobQueue:
             self.state[job.name] = TaskStatus.IN_PROGRESS
             self.save()
 
-    def pop(self):
+    def pop(self) -> Optional[tuple[int, JobTask]]:
         with self.lock:
             if not self.queue.empty():
                 self.capacity -= 1
@@ -71,16 +71,16 @@ class JobQueue:
         
         return None, None
 
-    def empty(self):
+    def empty(self) -> bool:
         with self.lock:
             return self.queue.empty()
 
-    def mark_complete(self, job: JobTask):
+    def mark_complete(self, job: JobTask) -> None:
         with self.lock:
             self.state[job.name] = TaskStatus.COMPLETE
             self.save()
 
-    def save(self):
+    def save(self) -> None:
         def debounce_save():
             time.sleep(0.2)
             with self.lock:
@@ -92,7 +92,7 @@ class JobQueue:
 
         threading.Thread(target=debounce_save).start()
     
-    def print_status_update(self):
+    def print_status_update(self) -> None:
         """
         Print the current status of the job queue with a more visually pleasing format.
         """
@@ -125,7 +125,7 @@ class JobQueue:
 
         print("=" * 40)
 
-def peek(pq):
+def peek(pq: PriorityQueue) -> Optional[tuple[int, JobTask]]:
     """
     Peek at the highest-priority item in the queue.
     """

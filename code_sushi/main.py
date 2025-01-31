@@ -124,7 +124,6 @@ def run(context: Context):
     if not should_continue:
         return
 
-    upload(context)
     vectorize(context)
 
 def upload(context: Context):

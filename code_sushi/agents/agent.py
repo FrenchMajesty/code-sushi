@@ -31,10 +31,11 @@ class Agent:
             task.update_status(TaskStatus.IN_PROGRESS)
 
             summary = self.summarize_content(task)
+            task.fragment.summary = summary
+
             if task.is_file():
-                # 2- Extract logical chunks from the file
                 fragments = Itamae(self.context).slice(task.file)
-                tasks = self.fragments_to_tasks(fragments, summary)
+                tasks = self._fragments_to_tasks(fragments, summary)
 
             task.update_status(TaskStatus.COMPLETE)
             self.busy = False
@@ -53,33 +54,30 @@ class Agent:
     
     def summarize_content(self, task: JobTask) -> Optional[str]:
         """
-        Summarize the content of a file using LLM.
+        Summarize the content of a code fragment using LLM.
         """
         try:
-            origin_file = task.absolute_path()
-            content = ''
-            parent_summary = None
-            if task.is_fragment():
-                content = task.fragment.content
-                parent_summary = task.fragment.parent_file_summary
-            else:
-                content = open(origin_file).read()
+            content = task.fragment.content
+            parent_summary = task.fragment.parent_file_summary
+
+            if not content and task.is_file():
+                content = open(task.absolute_path()).read()
 
             if not content:
                 return None
 
             return self.model_client.summarize(task.relative_path(), content, parent_summary)
         except Exception as e:
-            print(f"Error summarizing content: {e}")
+            print(f"Error in Agent[{self.id}].summarize_content(): {e}")
             return None
 
-    def fragments_to_tasks(self, fragments: List[CodeFragment], summary: str) -> List[JobTask]:
+    def _fragments_to_tasks(self, fragments: List[CodeFragment], parent_summary: str) -> List[JobTask]:
         """
         Convert a list of code fragments into a list of JobTasks.
         """
         tasks = []
         for fragment in fragments:
-            fragment.parent_file_summary = summary
+            fragment.parent_file_summary = parent_summary
             task = JobTask(self.context, fragment=fragment)
             tasks.append(task)
 

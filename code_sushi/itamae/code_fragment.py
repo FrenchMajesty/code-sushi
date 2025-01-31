@@ -14,6 +14,9 @@ class CodeFragment:
     summary: Optional[str] = None
     parent_file_summary: Optional[str] = None
 
+    def absolute_path(self) -> str:
+        return os.path.abspath(self.path)
+
 class RepoReader(ABC):
     """Interface for reading code from repositories"""
     

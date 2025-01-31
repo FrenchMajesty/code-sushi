@@ -9,6 +9,7 @@ class AgentTeam:
     def __init__(self, context: Context):
         self.context = context
         self.count = context.max_agents
+        self.fragments_done = {}
 
     def get_to_work(self, pipeline: JobQueue):
         """
@@ -29,6 +30,7 @@ class AgentTeam:
                         queue.push(5, task)
 
                     queue.mark_complete(job)
+                    self.fragments_done[job.fragment.name] = job.fragment
                 else:
                     break
 
