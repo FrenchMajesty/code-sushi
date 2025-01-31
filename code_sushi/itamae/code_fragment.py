@@ -11,6 +11,7 @@ class CodeFragment:
     start_line: int
     end_line: int
     #commit_hash: str
+    summary: Optional[str] = None
     parent_file_summary: Optional[str] = None
 
 class RepoReader(ABC):
