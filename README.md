@@ -21,7 +21,7 @@
 > If not, I recommend [Gitingest](https://github.com/cyclotruc/gitingest) as an alternative for smaller repos.
 
 - You just want question-answering capabilities for your codebases.
-> If you need much such as code completion, etc... there are no open-source IDEs that can do that yet. [Continue](https://continue.dev/) is a good open-source VSCode extension.
+> If you need more like code completion, etc... there are no open-source IDEs that can do that yet. [Continue](https://continue.dev/) is a good open-source VSCode extension.
 
 ## 📦 Installation
 
