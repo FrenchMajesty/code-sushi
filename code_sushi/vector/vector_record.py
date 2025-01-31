@@ -1,5 +1,5 @@
 from typing import List
-from code_sushi.itamae import CodeFragment
+from code_sushi.repo import CodeFragment
 from datetime import datetime, timezone
 
 class VectorRecord:

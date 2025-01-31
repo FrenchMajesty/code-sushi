@@ -2,7 +2,8 @@ from typing import List, Optional
 from code_sushi.context import Context, LogLevel
 from code_sushi.core import write_summary_to_file, File
 from code_sushi.jobs import JobTask, TaskStatus
-from code_sushi.itamae import Itamae, CodeFragment
+from code_sushi.itamae import Itamae
+from code_sushi.repo import CodeFragment
 from .model_client import ModelClient
 import os
 import time

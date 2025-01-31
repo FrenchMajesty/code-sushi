@@ -1,4 +1,4 @@
-from .code_fragment import CodeFragment
+from code_sushi.repo import CodeFragment
 from .tree_processor import TreeProcessor
 from code_sushi.core import File
 from code_sushi.context import Context, LogLevel

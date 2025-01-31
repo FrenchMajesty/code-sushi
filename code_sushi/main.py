@@ -3,11 +3,10 @@ import argparse
 from collections import defaultdict
 from .context import Context, LogLevel
 from .agents import AgentTeam
-from .itamae import CodeFragment
 from .chat import Chat
 from .jobs import JobQueue
 from .storage import GoogleCloudStorage
-from .repo import RepoScanner, get_code_insights
+from .repo import RepoScanner, get_code_insights, CodeFragment
 from typing import Optional, List
 import atexit
 import os
