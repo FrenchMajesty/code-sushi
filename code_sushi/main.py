@@ -7,6 +7,7 @@ from .chat import Chat
 from .jobs import JobQueue
 from .storage import GoogleCloudStorage
 from .repo import RepoScanner, get_code_insights, CodeFragment
+from .vector import VectorProcessor
 from typing import Optional, List
 import atexit
 import os
@@ -110,11 +111,11 @@ def read_config_into_context(args: argparse.Namespace) -> Context:
 
     return context
     
-def run(context: Context):
+def run(context: Context, limit: Optional[int] = None):
     """
     Process the repository and upload the results.
     """
-    fragments = slice(context)
+    fragments = slice(context, limit)
     if not fragments:
         return
 
@@ -186,6 +187,7 @@ def main():
     run_parser = subparsers.add_parser("run", help="Process the repo and upload the results.")
     run_parser.add_argument("--path", default="./", help="Path to the repository to process.")
     run_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
+    run_parser.add_argument("--limit", help="Sets a limit to the number of files to process for testing purposes.")
     run_parser.add_argument("--blob-workers", type=int, default=25, help="Number of thread workers to use for parallel uploading.")
     run_parser.add_argument("--agents", type=int, default=10, help="Number of AI agents to use for summarizing files.")
     run_parser.add_argument("--vector-workers", type=int, default=25, help="Number of thread workers to use for parallel vectorizing.")
@@ -223,6 +225,8 @@ def main():
     if args.command == "init":
         args.func(args.log)
     elif args.command == "slice":
+        args.func(context, args.limit)
+    elif args.command == "run":
         args.func(context, args.limit)
     elif args.command == "ask":
         args.func(context, args.question)

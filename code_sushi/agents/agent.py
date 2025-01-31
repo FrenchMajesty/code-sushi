@@ -25,7 +25,7 @@ class Agent:
         start_time = time.time()
 
         if self.context.is_log_level(LogLevel.DEBUG):
-            print(f"Performing task {task.name}...", task.relative_path())
+            print(f"Performing task [{task.name}] at {task.relative_path()}")
 
         try:
             tasks = []

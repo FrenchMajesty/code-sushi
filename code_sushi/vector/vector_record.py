@@ -39,8 +39,10 @@ class VectorRecord:
                 "end_line": fragment.end_line,
                 "parent_summary": fragment.parent_file_summary
             }
+            # Strip metadata that are null
+            metadata = {k: v for k, v in metadata.items() if v is not None}
 
-            entries.append(VectorRecord(key, fragment.content, metadata))
+            entries.append(VectorRecord(key, fragment.summary, metadata))
         return entries
 
     
@@ -73,7 +75,9 @@ class VectorRecord:
                     "project_name": project_name,
                     "type": "function" if "@" in file_meta['file'] else "file"
                 }
-                
+                # Strip metadata that are null
+                metadata = {k: v for k, v in metadata.items() if v is not None}
+
                 entries.append(VectorRecord(key, file_meta['summary'], metadata))
                 
             except Exception as e:
