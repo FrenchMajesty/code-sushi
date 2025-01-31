@@ -40,5 +40,5 @@ class Itamae:
 
             return functions
         except Exception as e:
-            print(f"Error slicing chunks: {e}")
+            print(f"Error in Itamae.slice(): {e}")
             return []
