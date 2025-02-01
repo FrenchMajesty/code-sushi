@@ -26,14 +26,17 @@ class VectorRecord:
         """
         entries = []
         for fragment in fragments:
-            key = f"{project_name}/{fragment.path}@{fragment.name}".replace('//', '/')
+            key = f"{project_name}/{fragment.path}".replace('//', '/')
+            if fragment.type() == "function":
+                key = f"{key}@{fragment.name}".replace('//', '/')
+
             last_updated = datetime.now(timezone.utc).isoformat() + 'Z'
             metadata = {
                 "summary": fragment.summary,
                 "original_location": fragment.path,
                 "last_updated": last_updated,
                 "project_name": project_name,
-                "type": "function",
+                "type": fragment.type(),
                 "name": fragment.name,
                 "start_line": fragment.start_line,
                 "end_line": fragment.end_line,

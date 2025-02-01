@@ -19,6 +19,9 @@ class CodeFragment:
     def absolute_path(self) -> str:
         return os.path.abspath(self.path)
     
+    def type(self) -> str:
+        return "function" if self.parent_file_summary else "file"
+    
     @staticmethod
     def from_file(file: File) -> "CodeFragment":
         """
