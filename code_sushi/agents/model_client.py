@@ -47,7 +47,7 @@ class ModelClient:
             msg_parts = [
                 f"# Path: {file_path}",
                 f"## Parent File Summary: {file_summary}" if file_summary else "",
-                "--",
+                "---",
                 content
             ]
             msg_parts = [part for part in msg_parts if part]

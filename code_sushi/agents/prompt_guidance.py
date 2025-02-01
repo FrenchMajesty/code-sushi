@@ -8,8 +8,8 @@ summarize_file_prompt = [
     {
         "role": "user",
         "content": """
-path: code_sushi/context.py
---
+# path: code_sushi/context.py
+---
 from typing import Optional
 from enum import Enum
 
@@ -30,6 +30,29 @@ class Context:
     {
         "role": "system",
         "content": "This file defines an enumeration LogLevel with four levels of logging (NONE, INFO, DEBUG, VERBOSE) and a Context class that initializes a context object with a repository path and log level. The Context class is designed to store information about a repository, including its path, language, and logging level."
+    },
+    {
+        "role": "user",
+        "content": '''
+        # path: code_sushi/repo/repo_scanner.py
+        # Parent File Summary: code_sushi/repo/repo_scanner.py
+        ---
+        def get_root_files(self) -> List[str]:
+        """
+        Get the root files in the repository.
+        """
+        files = [
+            os.path.abspath(os.path.join(self.context.repo_path, f))
+            for f in os.listdir(self.context.repo_path)
+            if os.path.isfile(os.path.join(self.context.repo_path, f))
+        ]
+        
+        return files
+        '''
+    },
+    {
+        "role": "system",
+        "content": "The get_root_files() method in repo_scanner.py retrieves the absolute file paths of all files (excluding directories) located directly in the repository's root directory by listing entries, filtering for files, and converting their paths to absolute formats.",
     }
 ]
 
