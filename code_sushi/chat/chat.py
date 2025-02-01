@@ -1,4 +1,5 @@
-from code_sushi.vector import Pinecone, Voyage
+from code_sushi.vector import VectorClient
+from code_sushi.embedding import Voyage
 from code_sushi.context import Context, LogLevel
 from code_sushi.agents import ModelClient
 from code_sushi.repo import CodeFragment, RepoScanner
@@ -10,7 +11,7 @@ class Chat:
     def __init__(self, context: Context):
         self.context = context
         self.history = []
-        self.pinecone = Pinecone(context)
+        self.vector_client = VectorClient(context)
         self.voyage = Voyage(context)
         self.model_client = ModelClient(context)
         self.repo_scanner = RepoScanner(context)
@@ -88,7 +89,7 @@ class Chat:
 
             #formatted_query = format_query_for_rag(self.context, query) TODO: Use a formatted query
             vector_query = self.voyage.embed([query])[0]
-            search_results = self.pinecone.search(vector_query, top_k=6)
+            search_results = self.vector_client.search(vector_query, top_k=6)
             fragments = [CodeFragment.from_rag_search(hit) for hit in search_results]
             contents = [self.repo_scanner.read_fragment_content(f) for f in fragments]
             reranked = self.voyage.rerank(query, contents, top_k=3)

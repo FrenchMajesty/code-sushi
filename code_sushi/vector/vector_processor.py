@@ -1,11 +1,11 @@
 from typing import List
 from code_sushi.context import Context, LogLevel
-from code_sushi.vector import Voyage, VectorRecord, Pinecone
+from .vector_record import VectorRecord
+from code_sushi.embedding import Voyage
+from .vector_client import VectorClient
 from code_sushi.multi_task import background_loop
 from code_sushi.repo import CodeFragment
-from datetime import datetime, timezone
 from .utils import chunks
-import math
 
 class VectorProcessor:
     """
@@ -14,7 +14,7 @@ class VectorProcessor:
     def __init__(self, context: Context):
         self.context = context
         self.voyage = Voyage(context)
-        self.vector_db = Pinecone(context)
+        self.vector_client = VectorClient(context)
     
     def embed_and_upload_summaries(self, fragments: List[CodeFragment]) -> None:
         """
@@ -33,7 +33,7 @@ class VectorProcessor:
             if not chunk:
                 continue
             
-            entries = VectorRecord.from_fragments(chunk, self.context.project_name)
+            entries = [fragment.to_vector_record(self.context.project_name) for fragment in chunk]
             raw_contents = [entry.text for entry in entries]
             embeddings = self.voyage.embed(raw_contents)
             
@@ -46,6 +46,6 @@ class VectorProcessor:
                 entries[i].embedding = embeddings[i]
 
             # Upload to vector DB
-            self.vector_db.write_many(entries)
+            self.vector_client.write_many(entries)
 
         background_loop.stop()

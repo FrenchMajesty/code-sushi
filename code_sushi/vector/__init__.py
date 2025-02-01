@@ -1,7 +1,6 @@
-from .voyage import Voyage
 from .svector import SVector
 from .vector_record import VectorRecord
-from .pinecone import Pinecone
 from .vector_processor import VectorProcessor
+from .vector_client import VectorClient
 
-__all__ = ["Voyage", "SVector", "VectorRecord", "Pinecone", "VectorProcessor"]
+__all__ = ["SVector", "VectorRecord", "VectorProcessor", "VectorClient"]

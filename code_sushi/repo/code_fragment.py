@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional, Iterator
 from code_sushi.core import File
+from code_sushi.vector import VectorRecord
 import os
 
 @dataclass
@@ -22,6 +23,39 @@ class CodeFragment:
     def type(self) -> str:
         return "function" if self.parent_file_summary else "file"
     
+    def to_vector_record(self, project_name: str) -> VectorRecord:
+        """
+        Create a VectorRecord from this CodeFragment.
+        
+        Args:
+            project_name: Name of the project
+        
+        Returns:
+            VectorRecord object representing this fragment
+        """
+        from datetime import datetime, timezone
+
+        key = f"{project_name}/{self.path}".replace('//', '/')
+        if self.type() == "function":
+            key = f"{key}@{self.name}".replace('//', '/')
+
+        last_updated = datetime.now(timezone.utc).isoformat() + 'Z'
+        metadata = {
+            "summary": self.summary,
+            "original_location": self.path,
+            "last_updated": last_updated,
+            "project_name": project_name,
+            "type": self.type(),
+            "name": self.name,
+            "start_line": self.start_line,
+            "end_line": self.end_line,
+            "parent_summary": self.parent_file_summary
+        }
+        # Strip metadata that are null
+        metadata = {k: v for k, v in metadata.items() if v is not None}
+
+        return VectorRecord(key, self.summary, metadata)
+
     @staticmethod
     def from_file(file: File) -> "CodeFragment":
         """
@@ -41,15 +75,16 @@ class CodeFragment:
             raise e
     
     @staticmethod
-    def from_rag_search(metadata: dict) -> "CodeFragment":
+    def from_rag_search(record: VectorRecord) -> "CodeFragment":
         """
         Create a CodeFragment from a RAG search result.
         """
         try:
+            metadata = record.metadata
             return CodeFragment(
                 path=metadata['original_location'],
                 name=metadata['name'],
-                content=metadata.get('content', ''),
+                content=record.text,
                 start_line=int(metadata.get('start_line', 0)),
                 end_line=int(metadata.get('end_line', 0)),
                 summary=metadata.get('summary'),
@@ -58,7 +93,6 @@ class CodeFragment:
         except Exception as e:
             print(f"Error in CodeFragment.from_rag_search(): {e}")
             raise e
-
 class RepoReader(ABC):
     """Interface for reading code from repositories"""
     

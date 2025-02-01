@@ -1,53 +1,16 @@
 from typing import List
-from code_sushi.repo import CodeFragment
 from datetime import datetime, timezone
 
 class VectorRecord:
     """
     Represents a record already stored or to-be stored in our Vector DB.
     """
-    def __init__(self, key: str, text: str, metadata: dict = {}):
+    def __init__(self, key: str, text: str, metadata: dict = {}, embedding: List[float] = []):
         self.key: str = key
         self.text: str = text
         self.metadata: dict = metadata
-        self.embedding: List[float] = []
-
-    @staticmethod
-    def from_fragments(fragments: List[CodeFragment], project_name: str) -> List["VectorRecord"]:
-        """
-        Create vector records from code fragments.
-        
-        Args:
-            fragments: List of CodeFragment objects to convert
-            project_name: Name of the project
-        
-        Returns:
-            List of VectorRecord objects
-        """
-        entries = []
-        for fragment in fragments:
-            key = f"{project_name}/{fragment.path}".replace('//', '/')
-            if fragment.type() == "function":
-                key = f"{key}@{fragment.name}".replace('//', '/')
-
-            last_updated = datetime.now(timezone.utc).isoformat() + 'Z'
-            metadata = {
-                "summary": fragment.summary,
-                "original_location": fragment.path,
-                "last_updated": last_updated,
-                "project_name": project_name,
-                "type": fragment.type(),
-                "name": fragment.name,
-                "start_line": fragment.start_line,
-                "end_line": fragment.end_line,
-                "parent_summary": fragment.parent_file_summary
-            }
-            # Strip metadata that are null
-            metadata = {k: v for k, v in metadata.items() if v is not None}
-
-            entries.append(VectorRecord(key, fragment.summary, metadata))
-        return entries
-
+        self.embedding: List[float] = embedding
+        self.score: float = 0.0
     
     @staticmethod
     def from_files(files: List[str], project_name: str) -> List["VectorRecord"]:

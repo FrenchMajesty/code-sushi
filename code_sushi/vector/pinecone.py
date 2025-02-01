@@ -2,6 +2,7 @@ from pinecone import Pinecone as PineconeClient
 from typing import Optional, List
 from .vector_record import VectorRecord
 from code_sushi.context import Context, LogLevel
+from .vector_database_layer import VectorDatabaseLayer
 from .utils import chunks
 import time
 
@@ -86,6 +87,7 @@ class Pinecone(VectorDatabaseLayer):
                 metadata = match['metadata']
                 metadata['id'] = match['id']
                 metadata['score'] = match['score']
+                
                 hits.append(VectorRecord(
                     key=match['id'],
                     text=metadata.get('summary', ''),

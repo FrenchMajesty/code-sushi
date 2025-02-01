@@ -79,6 +79,8 @@ def read_config_into_context(args: argparse.Namespace) -> Context:
     
     # Add third party services configs
     context.ai_provider = config_data.get("ai_provider", "together")
+    context.vector_db_provider = config_data.get("vector_db_provider", "pinecone")
+    context.embedding_provider = config_data.get("embedding_provider", "voyage")
     context.together_ai_config = config_data.get("together_ai", None)
     context.voyage_ai_config = config_data.get("voyage_ai", None)
     context.svector_config = config_data.get("svector", None)
