@@ -1,5 +1,5 @@
 from typing import List, Optional
-from code_sushi.core.file import File
+from code_sushi.types.file import File
 import os
 import mimetypes
 from code_sushi.context import Context, LogLevel

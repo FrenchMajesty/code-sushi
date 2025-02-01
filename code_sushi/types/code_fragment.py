@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional, Iterator
-from code_sushi.core import File
-from code_sushi.vector import VectorRecord
+from .file import File
+from .vector_record import VectorRecord
 import os
 
 @dataclass
@@ -93,6 +93,7 @@ class CodeFragment:
         except Exception as e:
             print(f"Error in CodeFragment.from_rag_search(): {e}")
             raise e
+'''
 class RepoReader(ABC):
     """Interface for reading code from repositories"""
     
@@ -128,3 +129,4 @@ class GitReader(RepoReader):
             return self.repo.git.show(f'{ref}:{path}')
         except git.exc.GitCommandError:
             raise FileNotFoundError(f"File {path} not found at ref {ref}")
+'''

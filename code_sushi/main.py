@@ -6,7 +6,8 @@ from .agents import AgentTeam
 from .chat import Chat
 from .jobs import JobQueue
 from .storage import GoogleCloudStorage
-from .repo import RepoScanner, get_code_insights, CodeFragment
+from .types import CodeFragment
+from .repo import RepoScanner, get_code_insights
 from .vector import VectorProcessor
 from typing import Optional, List
 import atexit

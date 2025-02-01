@@ -1,10 +1,9 @@
 from typing import List
-from code_sushi.context import Context, LogLevel
-from .vector_record import VectorRecord
-from code_sushi.embedding import Voyage
+from code_sushi.types import CodeFragment
 from .vector_client import VectorClient
+from code_sushi.embedding import Voyage
+from code_sushi.context import Context, LogLevel
 from code_sushi.multi_task import background_loop
-from code_sushi.repo import CodeFragment
 from .utils import chunks
 
 class VectorProcessor:
@@ -16,7 +15,7 @@ class VectorProcessor:
         self.voyage = Voyage(context)
         self.vector_client = VectorClient(context)
     
-    def embed_and_upload_summaries(self, fragments: List[CodeFragment]) -> None:
+    def embed_and_upload_summaries(self, fragments: List["CodeFragment"]) -> None:
         """
         Embeds and uploads summaries from a list of code fragments to the vector database.
         """

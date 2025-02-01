@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from .vector_record import VectorRecord
+from code_sushi.types import VectorRecord
 
 class VectorDatabaseLayer(ABC):
     """

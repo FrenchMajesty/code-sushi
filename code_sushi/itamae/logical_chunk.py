@@ -1,4 +1,4 @@
-from code_sushi.core import File
+from code_sushi.types import File
 from code_sushi.context import Context
 import os
 class LogicalChunk:

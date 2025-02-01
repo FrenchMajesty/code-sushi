@@ -2,11 +2,10 @@ from typing import List, Optional
 import os
 from concurrent.futures import ThreadPoolExecutor
 from code_sushi.context import Context, LogLevel
-from code_sushi.core import File
+from code_sushi.types import File, CodeFragment
 from pathspec import PathSpec
 import pathspec
 from datetime import datetime, timezone
-from .code_fragment import CodeFragment
 from .is_code_file_filter import is_code_file
 from code_sushi.multi_task import AsyncThrottler
 from .utils import (

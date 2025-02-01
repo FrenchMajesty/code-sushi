@@ -6,7 +6,7 @@ from svectordb.models import *
 from smithy_core.retries import SimpleRetryStrategy
 from smithy_http.aio.identity.apikey import ApiKeyIdentity, ApiKeyIdentityResolver
 from typing import Optional, List
-from .vector_record import VectorRecord
+from code_sushi.types import VectorRecord
 from code_sushi.multi_task import AsyncThrottler, background_loop
 from .vector_database_layer import VectorDatabaseLayer
 

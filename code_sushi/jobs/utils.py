@@ -1,5 +1,5 @@
 from typing import List
-from code_sushi.core import File
+from code_sushi.types import File
 
 # Define weights for different signals
 PATH_WEIGHTS = {

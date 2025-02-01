@@ -1,7 +1,6 @@
-from code_sushi.core import File
+from code_sushi.types import File, CodeFragment
 from code_sushi.context import Context, LogLevel
 from typing import List, Optional
-from code_sushi.repo import CodeFragment
 from tree_sitter import Parser, Language, Tree
 import tree_sitter_typescript as tstypescript
 import tree_sitter_javascript as tsjavascript

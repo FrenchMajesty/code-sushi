@@ -2,7 +2,8 @@ from code_sushi.vector import VectorClient
 from code_sushi.embedding import Voyage
 from code_sushi.context import Context, LogLevel
 from code_sushi.agents import ModelClient
-from code_sushi.repo import CodeFragment, RepoScanner
+from code_sushi.repo import RepoScanner
+from code_sushi.types import CodeFragment
 from typing import List
 import time
 import sys

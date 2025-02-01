@@ -1,6 +1,7 @@
 from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor
-from code_sushi.jobs import JobQueue, JobTask
+from code_sushi.jobs import JobQueue
+from code_sushi.types import JobTask
 from code_sushi.context import Context, LogLevel
 from .agent import Agent
 import time

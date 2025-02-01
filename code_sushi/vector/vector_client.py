@@ -1,6 +1,6 @@
 from typing import List, Optional
 from code_sushi.context import Context, LogLevel
-from .vector_record import VectorRecord
+from code_sushi.types import VectorRecord
 from .vector_database_layer import VectorDatabaseLayer
 from .pinecone import Pinecone
 from .svector import SVector
