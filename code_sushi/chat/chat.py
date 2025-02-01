@@ -1,10 +1,6 @@
-from code_sushi.vector import VectorClient
-from code_sushi.embedding import Voyage
 from code_sushi.context import Context, LogLevel
 from code_sushi.agents import ModelClient
-from code_sushi.repo import RepoScanner
-from code_sushi.types import CodeFragment
-from typing import List
+from code_sushi.repo import CodeSearcher
 import time
 import sys
 
@@ -12,10 +8,8 @@ class Chat:
     def __init__(self, context: Context):
         self.context = context
         self.history = []
-        self.vector_client = VectorClient(context)
-        self.voyage = Voyage(context)
+        self.code_searcher = CodeSearcher(context)
         self.model_client = ModelClient(context)
-        self.repo_scanner = RepoScanner(context)
 
     def start_session(self):
         """
@@ -29,7 +23,7 @@ class Chat:
                 if not user_query.strip():
                     continue
                 
-                contexts = self.find_context(user_query)
+                contexts = self.code_searcher.search(user_query)
                 self.history.append({
                     "role": "user",
                     "content": user_query
@@ -59,7 +53,7 @@ class Chat:
         try:
             start = time.time()
             print(f"User aked: {question}")
-            contexts = self.find_context(question)
+            contexts = self.code_searcher.search(question)
             
             messages = [{
                 "role": "user", 
@@ -78,31 +72,3 @@ class Chat:
 
         except Exception as e:
             print(f"Error in Chat.ask_question(): {e}")
-
-    def find_context(self, query: str) -> List[str]:
-        """
-        Find the most relevant context snippets for the query.
-        """
-        try:
-            start = time.time()
-            if self.context.is_log_level(LogLevel.VERBOSE):
-                print(f"Searching for context on query: [{query}] ...")
-
-            #formatted_query = format_query_for_rag(self.context, query) TODO: Use a formatted query
-            vector_query = self.voyage.embed([query])[0]
-            search_results = self.vector_client.search(vector_query, top_k=6)
-            fragments = [CodeFragment.from_rag_search(hit) for hit in search_results]
-            contents = [self.repo_scanner.read_fragment_content(f) for f in fragments]
-            reranked = self.voyage.rerank(query, contents, top_k=3)
-
-            if self.context.is_log_level(LogLevel.DEBUG):
-                runtime = time.time() - start
-                print(f"Took {runtime:.2f} seconds to pick best {len(reranked)} documents")
-                
-                if self.context.is_log_level(LogLevel.VERBOSE):
-                    print(reranked)
-
-            return reranked
-        except Exception as e:
-            print(f"Error in Chat.find_context(): {e}")
-            return []
