@@ -53,23 +53,7 @@ class RepoScanner:
             print_details(files)
         
         return files
-
-    async def read_fragments(self, fragments: List[CodeFragment]) -> List[str]:
-        """
-        Read multiple code fragments in parallel using AsyncThrottler.
-        """
-        throttler = AsyncThrottler()
-        contents = []
-
-        async def read_fragment(fragment: CodeFragment):
-            content = self.read_fragment_content(fragment)
-            contents.append(content)
-
-        tasks = [throttler.run_with_throttle(read_fragment, f) for f in fragments]
-        await asyncio.gather(*tasks)
-
-        return contents
-        
+    
     def read_fragment_content(self, fragment: CodeFragment) -> str:
         """
         Read the content of a code fragment into memory. Truncates content if it's too long.
