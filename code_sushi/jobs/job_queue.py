@@ -2,7 +2,7 @@ import threading
 from typing import List, Optional
 from code_sushi.context import Context, LogLevel
 from .utils import prioritize_files
-from code_sushi.types import File, JobTask, TaskStatus
+from code_sushi.types import File, JobTask, TaskStatus, CodeFragment
 from queue import PriorityQueue
 import time
 
