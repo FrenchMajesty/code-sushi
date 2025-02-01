@@ -94,6 +94,9 @@ class TreeProcessor:
                     random_hash = hashlib.sha256(code.encode()).hexdigest()[:6]
                     func_name = f"anonymous_{random_hash}"
 
+                if end_line - start_line < 3:
+                    continue
+
                 fragment = CodeFragment(
                     path=self.file.relative_path,
                     name=func_name,
