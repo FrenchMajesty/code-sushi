@@ -1,4 +1,5 @@
 import asyncio
+from concurrent.futures import Future
 from threading import Thread, Event
 import atexit
 
@@ -39,14 +40,19 @@ class BackgroundLoop:
         self.loop.call_soon_threadsafe(self.loop.stop)
         self.is_running = False
 
-    def run_async(self, coro_func, *args, **kwargs):
+    def run_async(self, coro_func, *args, **kwargs) -> Future:
         """
         Run an async function in the background without awaiting it.
         Suitable for fire-and-forget tasks from synchronous code.
+        Returns the created Task object for tracking completion.
         """
         if not self.loop.is_running():
             raise RuntimeError("Background event loop is not running.")
-        self.loop.call_soon_threadsafe(asyncio.create_task, coro_func(*args, **kwargs))
+        
+        # Create the coroutine
+        coro = coro_func(*args, **kwargs)
+        # Create and return a Task instead of just scheduling it
+        return asyncio.run_coroutine_threadsafe(coro, self.loop)
 
 # Create singleton instance
 background_loop = BackgroundLoop()
