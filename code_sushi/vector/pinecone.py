@@ -5,7 +5,7 @@ from code_sushi.context import Context, LogLevel
 from .utils import chunks
 import time
 
-class Pinecone:
+class Pinecone(VectorDatabaseLayer):
     """
     Responsible for interacting with the Pinecone API for managing indexes and vector DB entries.
     """
@@ -21,7 +21,21 @@ class Pinecone:
         
         self.index = self.client.Index(index_name, pool_threads=pool_threads)
     
-    def write_many(self, records: List[VectorRecord], chunk_size: int = 400):
+    def write(self, record: VectorRecord) -> None:
+        """
+        Write a single vector record to the database.
+        """
+        with self.index as index:
+            index.upsert(
+                vectors=[{
+                    "id": record.key,
+                    "values": record.embedding,
+                    "metadata": record.metadata
+                }],
+                namespace=self.namespace
+            )
+
+    def write_many(self, records: List[VectorRecord], chunk_size: int = 400) -> int:
         """
         Write many records at once to the Pinecone index.
         """
@@ -53,7 +67,7 @@ class Pinecone:
 
             return len(res)
 
-    def search(self, query: List[float], top_k: int = 10, filters: Optional[dict] = None) -> List[str]:
+    def search(self, query: List[float], top_k: int = 10, filters: Optional[dict] = None) -> List[VectorRecord]:
         """
         Search the Pinecone index for similar vectors.
         """
@@ -67,13 +81,21 @@ class Pinecone:
             )
 
             hits = []
+            # Convert the response to a list of VectorRecords
             for match in response['matches']:
-                hits.append({ 'id': match['id'], 'score': match['score'] } | match['metadata'])
+                metadata = match['metadata']
+                metadata['id'] = match['id']
+                metadata['score'] = match['score']
+                hits.append(VectorRecord(
+                    key=match['id'],
+                    text=metadata.get('summary', ''),
+                    embedding=match.get('values', []),
+                    metadata=metadata
+                ))
             
             if self.context.is_log_level(LogLevel.VERBOSE):
-                low_score = min([hit['score'] for hit in hits])
-                high_score = max([hit['score'] for hit in hits])
+                low_score = min([hit.metadata['score'] for hit in hits])
+                high_score = max([hit.metadata['score'] for hit in hits])
                 print(f"RAG Search results: {len(hits)} hits from {low_score:.2f} to {high_score:.2f} scores")
 
             return hits
-    
