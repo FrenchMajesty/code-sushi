@@ -18,6 +18,9 @@ LANGUAGES = {
 }
 
 class TreeProcessor:
+    """
+    The TreeProcessor is responsible for parsing the file and extracting the code fragments.
+    """
     def __init__(self, context: Context, file: File):
         self.context = context
         self.file = file
@@ -48,7 +51,7 @@ class TreeProcessor:
 
     def extract(self) -> List[CodeFragment]:
         """
-        Parse the content of the file and return a list of LogicalChunks.
+        Parse the content of the file and return a list of CodeFragment.
         """
         code, syntax_tree = self._parse_content(self.file.absolute_path)
         functions = self._extract_functions(code, syntax_tree)

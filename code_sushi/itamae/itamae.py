@@ -5,7 +5,7 @@ from typing import List
 
 class Itamae:
     """
-    The Itamae is the module responsible for precisely slicing the code into logical chunks.
+    The Itamae is the module responsible for precisely slicing the code into logical blocks of code (primarily functions).
     """
     _instance = None
     context: Context
