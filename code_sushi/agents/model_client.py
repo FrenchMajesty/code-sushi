@@ -57,19 +57,20 @@ class ModelClient:
                 "content": '\n'.join(msg_parts)
             }]
 
-            response = self.model.send_completion_request(messages, ModelSize.MEDIUM)
+            response = self.model.send_completion_request(messages, ModelSize.SMALL)
 
             return response
         except Exception as e:
             print(f"Error in ModelClient.summarize_file(): {e}. File: {file_path}")
             return None
+
     def send_completion_request(self, history: list) -> str:
         """
         Send a request to the LLM API.
         """
         try:
             messages = list(question_chat_prompt) + history
-            return self.model.send_completion_request(messages, ModelSize.MEDIUM)
+            return self.model.send_completion_request(messages, ModelSize.LARGE)
         except Exception as e:
             print(f"Error in ModelClient.send_completion_request(): {e}")
             return "I'm sorry, I failed to get an answer for that." #TODO: How to handle errors here?
@@ -83,7 +84,7 @@ class ModelClient:
                 "role": "user", 
                 "content": query
             }]
-            return self.model.send_completion_request(request, ModelSize.SMALL)
+            return self.model.send_completion_request(request, ModelSize.MEDIUM)
         except Exception as e:
             print(f"Error in ModelClient.format_query_for_rag(): {e}")
             return query

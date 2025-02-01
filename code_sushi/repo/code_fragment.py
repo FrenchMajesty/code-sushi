@@ -39,6 +39,25 @@ class CodeFragment:
         except Exception as e:
             print(f"Error in CodeFragment.from_file(): {e}")
             raise e
+    
+    @staticmethod
+    def from_rag_search(metadata: dict) -> "CodeFragment":
+        """
+        Create a CodeFragment from a RAG search result.
+        """
+        try:
+            return CodeFragment(
+                path=metadata['original_location'],
+                name=metadata['name'],
+                content=metadata.get('content', ''),
+                start_line=int(metadata.get('start_line', 0)),
+                end_line=int(metadata.get('end_line', 0)),
+                summary=metadata.get('summary'),
+                parent_file_summary=metadata.get('parent_summary'),
+            )
+        except Exception as e:
+            print(f"Error in CodeFragment.from_rag_search(): {e}")
+            raise e
 
 class RepoReader(ABC):
     """Interface for reading code from repositories"""

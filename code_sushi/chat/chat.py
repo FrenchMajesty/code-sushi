@@ -1,6 +1,7 @@
 from code_sushi.vector import Pinecone, Voyage
 from code_sushi.context import Context, LogLevel
 from code_sushi.agents import ModelClient
+from code_sushi.repo import CodeFragment, RepoScanner
 from typing import List
 import time
 import sys
@@ -12,6 +13,7 @@ class Chat:
         self.pinecone = Pinecone(context)
         self.voyage = Voyage(context)
         self.model_client = ModelClient(context)
+        self.repo_scanner = RepoScanner(context)
 
     def start_session(self):
         """
@@ -65,7 +67,7 @@ class Chat:
                 "content": f"--PROJECT {self.context.project_name} CONTEXT--\n" + "\n".join(contexts)
             }]
 
-            response = send_completion_request(self.context, messages)
+            response = self.model_client.send_completion_request(messages)
             print(f"AI: {response}")
 
             if self.context.is_log_level(LogLevel.DEBUG):
@@ -84,15 +86,12 @@ class Chat:
             if self.context.is_log_level(LogLevel.VERBOSE):
                 print(f"Searching for context on query: [{query}] ...")
 
-            storage = GoogleCloudStorage(self.context)
-
             #formatted_query = format_query_for_rag(self.context, query) TODO: Use a formatted query
             vector_query = self.voyage.embed([query])[0]
             search_results = self.pinecone.search(vector_query, top_k=6)
-            base_storage_path = self.context.project_name + '/.llm/'
-            paths = [base_storage_path + hit['original_location'] + '.md' for hit in search_results]
-            relevant_files_content = storage.read_many_files(paths)
-            reranked = self.voyage.rerank(query, relevant_files_content, top_k=3)
+            fragments = [CodeFragment.from_rag_search(hit) for hit in search_results]
+            contents = [self.repo_scanner.read_fragment_content(f) for f in fragments]
+            reranked = self.voyage.rerank(query, contents, top_k=3)
 
             if self.context.is_log_level(LogLevel.DEBUG):
                 runtime = time.time() - start

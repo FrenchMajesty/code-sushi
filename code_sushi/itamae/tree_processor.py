@@ -95,7 +95,7 @@ class TreeProcessor:
                     func_name = f"anonymous_{random_hash}"
 
                 if end_line - start_line < 3:
-                    continue
+                    return
 
                 fragment = CodeFragment(
                     path=self.file.relative_path,
