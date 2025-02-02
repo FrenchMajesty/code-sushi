@@ -37,6 +37,9 @@ Here is how you can use Code Sushi locally.
 ```sh
 sushi init   # Will create a .sushiignore file in your project root
 sushi run    # Starts the process of cutting down your repo and vectorizing the chunks
+
+# After the process is done, you can ask questions to the LLM
+sushi ask "How long are payment links valid for unverified users?"
 ```
 
 Before the process starts, the tool will show a summary of the files detected and ask you to confirm the process.
