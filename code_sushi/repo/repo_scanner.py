@@ -27,6 +27,9 @@ class RepoScanner:
     """
     def __init__(self, context: Context):
         self.context = context
+        
+        # Cache of gitignore patterns by directory
+        self.gitignore_patterns = {}
 
     def scan_repo(self) -> List[File]:
         """
@@ -98,24 +101,66 @@ class RepoScanner:
         
         return files
 
-    def _load_ignore_patterns(self, name: str) -> Optional[PathSpec]:
+    def _load_ignore_patterns(self, name: str, directory: str = None) -> Optional[PathSpec]:
         """
         Loads patterns from a .gitignore-type file to know which files/folders to skip.
+        If directory is provided, looks for the ignore file in that directory.
         """
-        path = os.path.join(self.context.repo_path, name)
+        if directory is None:
+            directory = self.context.repo_path
+
+        path = os.path.join(directory, name)
         found = False
         try:
-            with open(path, "r") as gitignore_file:
+            with open(path, "r") as ignore_file:
                 found = True
-                gitignore_patterns = gitignore_file.read()
-            spec = pathspec.PathSpec.from_lines("gitwildmatch", gitignore_patterns.splitlines())
+                ignore_patterns = ignore_file.read()
+            spec = pathspec.PathSpec.from_lines("gitwildmatch", ignore_patterns.splitlines())
         except FileNotFoundError:
             spec = None
 
         if self.context.is_log_level(LogLevel.VERBOSE):
-            print(f"Found {name} file? {found}")
+            print(f"Found {name} file in {directory}? {found}")
         
         return spec
+
+    def _get_gitignore_patterns(self, directory: str) -> Optional[PathSpec]:
+        """
+        Get combined gitignore patterns that apply to a directory by walking up the tree.
+        Uses caching to avoid re-reading files.
+        """
+        # Convert relative path to absolute path
+        abs_directory = os.path.abspath(os.path.join(self.context.repo_path, directory))
+
+        if abs_directory in self.gitignore_patterns:
+            return self.gitignore_patterns[abs_directory]
+
+        patterns = []
+        current_dir = abs_directory
+        while current_dir and current_dir.startswith(self.context.repo_path):
+            gitignore = self._load_ignore_patterns(".gitignore", current_dir)
+            if gitignore:
+                # Make paths relative to where the .gitignore file was found
+                rel_path = os.path.relpath(abs_directory, current_dir)
+                for pattern in gitignore.patterns:
+                    # If we're in a subdirectory of where the .gitignore was found,
+                    # we need to check if the pattern matches our subdirectory path
+                    if rel_path == '.':
+                        patterns.append(pattern)
+                    else:
+                        # Only include patterns that could match our subdirectory
+                        if pattern.include:
+                            patterns.append(pattern)
+                        else:
+                            # For negative patterns (those starting with !), we need to preserve them
+                            patterns.append(pattern)
+            current_dir = os.path.dirname(current_dir)
+
+        if patterns:
+            combined = pathspec.PathSpec(patterns)
+            self.gitignore_patterns[abs_directory] = combined
+            return combined
+        return None
 
     def _filter_out_bad_dirs(self, dirs: List[str]) -> List[str]:
         """
@@ -126,8 +171,8 @@ class RepoScanner:
         if show_debug:
             print(f"\n--> Filtering out bad directories. Starting at {len(dirs)}")
 
-        # Filter out paths that match regex lines in .gitignore
-        gitignore = self._load_ignore_patterns(".gitignore")
+        # Filter out paths that match gitignore patterns
+        gitignore = self._get_gitignore_patterns(self.context.repo_path)
         if gitignore:
             dirs = [dir for dir in dirs if not gitignore.match_file(dir + '/')]
 
@@ -158,13 +203,28 @@ class RepoScanner:
         if show_debug:
             print(f"\n --> Filtering out bad files. Starting at {len(files)}")
 
-        # Apply .gitignore and .sushiignore filters
-        for ignore_file in [".gitignore", ".sushiignore"]:
-            ignore_patterns = self._load_ignore_patterns(ignore_file)
-            if ignore_patterns:
-                files = list(ignore_patterns.match_files(files, negate=True))
-                if show_debug:
-                    print(f"After {ignore_file}: {len(files)}")
+        filtered_files = []
+        # Apply .gitignore patterns from all parent directories
+        for file in files:
+            directory = os.path.dirname(file)
+            gitignore = self._get_gitignore_patterns(directory)
+
+            # Get the path relative to the directory containing the .gitignore
+            rel_path = os.path.relpath(file, directory)
+            if not gitignore or not gitignore.match_file(rel_path):
+                filtered_files.append(file)
+
+        files = filtered_files
+
+        if show_debug:
+            print(f"After .gitignore: {len(files)}")
+
+        # Apply .sushiignore filter
+        sushiignore = self._load_ignore_patterns(".sushiignore")
+        if sushiignore:
+            files = list(sushiignore.match_files(files, negate=True))
+            if show_debug:
+                print(f"After .sushiignore: {len(files)}")
 
         # Filter to only code files
         files = [f for f in files if is_code_file(f)]
