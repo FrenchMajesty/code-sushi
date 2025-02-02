@@ -24,6 +24,7 @@ class Chat:
                     continue
                 
                 print("-" * 80)
+                print("Searching the codebase...")
                 contexts, fragments = self.code_searcher.search(user_query)
                 self.history.append({
                     "role": "user",
@@ -36,6 +37,7 @@ class Chat:
                 }]
 
                 # Generate response
+                print("Thinking...")
                 response = self.model_client.send_completion_request(req)
                 self.history.append({
                     "role": "assistant",
@@ -60,6 +62,64 @@ class Chat:
             except KeyboardInterrupt:
                 print("\nExiting Sushi Chat. Goodbye!")
                 sys.exit(0)
+  
+    async def start_session_stream(self):
+        """
+        Start an interactive chat session.
+        """
+        print("Sushi Chat - Ask your questions below. Press Ctrl+C to exit.")
+
+        while True:
+            try:
+                user_query = input("You: ")
+                if not user_query.strip():
+                    continue
+                
+                print("-" * 80)
+                print("Searching the codebase...")
+                contexts, fragments = self.code_searcher.search(user_query)
+                self.history.append({
+                    "role": "user",
+                    "content": user_query
+                })
+
+                req = self.history + [{
+                    "role": "user",
+                    "content": "--CONTEXT--\n" + "\n".join(contexts)
+                }]
+
+                # Generate streaming response
+                print("Thinking...")
+                print("AI: ", end="", flush=True)
+                response_text = ""
+                async for chunk in self.model_client.stream_completion_request(req):
+                    print(chunk, end="", flush=True)
+                    response_text += chunk
+                print()
+
+                self.history.append({
+                    "role": "assistant", 
+                    "content": response_text
+                })
+
+                # Show context sources
+                sources = []
+                for fragment in fragments:
+                    source_str = ""
+                    if fragment.type() == "function":
+                        source_str = f"{fragment.path}@{fragment.name} -> L:{fragment.start_line}:{fragment.end_line}"
+                    else:
+                        source_str = f"{fragment.path} -> L:{fragment.start_line}:{fragment.end_line}"
+                    sources.append(source_str)
+
+                print("-" * 80)
+                print("Context sources:", sources)
+                print("-" * 80)
+
+            except KeyboardInterrupt:
+                print("\nExiting Sushi Chat. Goodbye!")
+                sys.exit(0)
+
     def ask_question(self, question: str):
         """
         Ask a single question and get a response.
@@ -102,3 +162,49 @@ class Chat:
 
         except Exception as e:
             print(f"Error in Chat.ask_question(): {e}")
+
+    async def ask_question_stream(self, question: str):
+        """
+        Ask a single question and get a streaming response.
+        """
+        try:
+            start = time.time()
+            print('-' * 12)
+            print(f"User aked: {question}")
+            print("Searching the codebase...")
+            contexts, fragments = self.code_searcher.search(question)
+            
+            messages = [{
+                "role": "user", 
+                "content": question
+            }, {
+                "role": "user",
+                "content": f"--PROJECT {self.context.project_name} CONTEXT--\n" + "\n".join(contexts)
+            }]
+            print("Thinking...")
+            print('-' * 12)
+            print("AI: ", end="", flush=True)
+            async for chunk in self.model_client.stream_completion_request(messages):
+                print(chunk, end="", flush=True)
+            print()
+
+            # Format context
+            sources = []
+            for fragment in fragments:
+                source_str = ""
+                if fragment.type() == "function":
+                    source_str = f"{fragment.path}@{fragment.name} -> L:{fragment.start_line}:{fragment.end_line}"
+                else:
+                    source_str = f"{fragment.path} -> L:{fragment.start_line}:{fragment.end_line}"
+
+                sources.append(source_str)
+            print('-' * 12)
+            print("Context sources:", sources)
+            print('-' * 12)
+
+            if self.context.is_log_level(LogLevel.DEBUG):
+                runtime = time.time() - start
+                print(f"Took {runtime:.2f} sec to answer question.")
+
+        except Exception as e:
+            print(f"Error in Chat.ask_question_stream(): {e}")

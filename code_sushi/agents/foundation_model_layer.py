@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List
+from typing import Optional, List, AsyncIterator
 from enum import Enum
 from code_sushi.context import Context
 import time
@@ -16,6 +16,13 @@ class FoundationModelLayer(ABC):
     def send_completion_request(self, history: List[dict], model_size: ModelSize) -> str:
         """
         Send a completion request to the language model API.
+        """
+        pass
+    
+    @abstractmethod
+    async def stream_completion_request(self, history: List[dict], model_size: ModelSize) -> AsyncIterator[str]:
+        """
+        Send a streaming completion request to the language model API.
         """
         pass
 

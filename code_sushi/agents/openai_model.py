@@ -1,5 +1,5 @@
 from openai import OpenAI
-from typing import List
+from typing import List, AsyncIterator
 from code_sushi.context import Context, LogLevel
 from .foundation_model_layer import FoundationModelLayer, ModelSize
 
@@ -33,3 +33,23 @@ class OpenAIModel(FoundationModelLayer):
 
         self.track_end(show_logs, start)
         return completion.choices[0].message.content
+
+    async def stream_completion_request(self, history: List[dict], model_size: ModelSize) -> AsyncIterator[str]:
+        """
+        Send a streaming completion request to OpenAI's API.
+        """
+        model = self.models[model_size]
+        show_logs = self.context.is_log_level(LogLevel.DEBUG)
+        start = self.track_start(show_logs)
+
+        completion = self.client.chat.completions.create(
+            model=model,
+            messages=history,
+            stream=True
+        )
+
+        for chunk in completion:
+            if chunk.choices[0].delta.content is not None:
+                yield chunk.choices[0].delta.content
+
+        self.track_end(show_logs, start)

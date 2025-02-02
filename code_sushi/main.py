@@ -1,5 +1,6 @@
 
 import argparse
+import asyncio
 from collections import defaultdict
 from .context import Context, LogLevel
 from .agents import AgentTeam
@@ -102,6 +103,9 @@ def read_config_into_context(args: argparse.Namespace) -> Context:
     if "embed_chunks" in args and args.embed_chunks:
         context.embedding_model_chunk_size = args.embed_chunks
     
+    if "stream" in args and args.stream:
+        context.stream_chat_response = True
+    
     output_dir = os.path.abspath(f"{context.repo_path}/.llm/")
     context.output_dir = output_dir
     
@@ -163,7 +167,10 @@ def chat(context: Context):
     Start the chatbot interface for Code Sushi.
     """
     chat = Chat(context)
-    chat.start_session()
+    if context.stream_chat_response:
+        asyncio.run(chat.start_session_stream())
+    else:
+        chat.start_session()
 
 def ask(context: Context, question: str):
     """
@@ -171,7 +178,11 @@ def ask(context: Context, question: str):
     """
     chat = Chat(context)
     question = " ".join(question)
-    chat.ask_question(question)
+
+    if context.stream_chat_response:
+        asyncio.run(chat.ask_question_stream(question))
+    else:
+        chat.ask_question(question)
 
 def main():
     parser = argparse.ArgumentParser(description="Code Sushi: Slice and organize your code repo for LLMs.")
@@ -209,12 +220,14 @@ def main():
     chat_parser = subparsers.add_parser("chat", help="Start the chatbot interface for Code Sushi.")
     chat_parser.add_argument("--path", help="Path to the repository to process.")
     chat_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
+    chat_parser.add_argument("--stream", default=True, help="Stream the response from the LLM.")
     chat_parser.set_defaults(func=chat)
 
     # Add 'ask' command
     ask_parser = subparsers.add_parser("ask", help="Ask a single question to the LLM.")
     ask_parser.add_argument("question", nargs="+", help="The question to ask the LLM")
     ask_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
+    ask_parser.add_argument("--stream", default=True, help="Stream the response from the LLM.")
     ask_parser.set_defaults(func=ask)
 
     # Parse and execute the appropriate command

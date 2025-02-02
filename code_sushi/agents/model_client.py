@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, AsyncIterator
 from .foundation_model_layer import FoundationModelLayer, ModelSize
 from code_sushi.context import Context, LogLevel
 from .together_model import TogetherModel
@@ -66,6 +66,19 @@ class ModelClient:
             print(f"Error in ModelClient.summarize_file(): {e}. File: {file_path}")
             return None
 
+    async def stream_completion_request(self, history: list) -> AsyncIterator[str]:
+        """
+        Send a streaming request to the LLM API.
+        Returns an async iterator that yields response chunks.
+        """
+        try:
+            messages = list(question_chat_prompt) + history
+            async for chunk in self.model.stream_completion_request(messages, ModelSize.LARGE):
+                yield chunk
+        except Exception as e:
+            print(f"Error in ModelClient.stream_completion_request(): {e}")
+            yield "I'm sorry, I failed to get an answer for that."
+
     def send_completion_request(self, history: list) -> str:
         """
         Send a request to the LLM API.
@@ -75,7 +88,7 @@ class ModelClient:
             return self.model.send_completion_request(messages, ModelSize.LARGE)
         except Exception as e:
             print(f"Error in ModelClient.send_completion_request(): {e}")
-            return "I'm sorry, I failed to get an answer for that." #TODO: How to handle errors here?
+            return "I'm sorry, I failed to get an answer for that."
 
     def format_query_for_rag(self, query: str) -> str:
         """

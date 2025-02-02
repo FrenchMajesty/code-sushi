@@ -22,6 +22,7 @@ class Context:
         self.max_agents: int = 10
         self.vector_db_concurrent_limit: int = 25
         self.embedding_model_chunk_size: int = 128
+        self.stream_chat_response: bool = True
 
         # Foundation Models
         self.together_ai_config = defaultdict(str)
