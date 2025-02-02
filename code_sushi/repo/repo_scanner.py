@@ -1,6 +1,5 @@
 from typing import List, Optional
 import os
-from concurrent.futures import ThreadPoolExecutor
 from code_sushi.context import Context, LogLevel
 from code_sushi.types import File, CodeFragment
 from pathspec import PathSpec
