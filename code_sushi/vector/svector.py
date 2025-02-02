@@ -1,5 +1,3 @@
-from asyncio import sleep
-from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from code_sushi.context import Context, LogLevel
 from svectordb.client import DatabaseService
 from svectordb.config import Config
@@ -50,7 +48,7 @@ class SVector(VectorDatabaseLayer):
         
         return len(records)
 
-    def search(self, query: List[float], top_k: int = 10, filters: Optional[dict] = None) -> List[VectorRecord]:
+    def search(self, query: List[float], top_k: int = 10, filters: dict = {}) -> List[VectorRecord]:
         """
         Search for similar vectors.
         """
@@ -59,7 +57,8 @@ class SVector(VectorDatabaseLayer):
                 print(f"Searching Vector DB with top_k={top_k}")
 
             # Create query input
-            filter = self._metadata_to_filter_string(filters) if filters else None
+            filters = filters | { 'project_name': self.context.project_name }
+            filter = self._metadata_to_filter_string(filters)
             input_obj = QueryInput(
                 database_id=self.database_id,
                 query=QueryTypeVector(query),
@@ -101,12 +100,13 @@ class SVector(VectorDatabaseLayer):
                 print(f"Writing to Vector DB: {record.key}")
             
             # Create the input object
+            metadata = self._hashmap_to_svector_format(record.metadata)
             input_obj = SetItemInput(
                 database_id=self.database_id,
                 key=record.key,
                 value=record.text.encode('utf-8'),
                 vector=record.embedding,
-                metadata=self._hashmap_to_svector_format(record.metadata)
+                metadata=metadata
             )
             
             # Run the async operation in the background loop
