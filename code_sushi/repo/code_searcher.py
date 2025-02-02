@@ -4,6 +4,7 @@ from code_sushi.types import CodeFragment
 from code_sushi.repo.repo_scanner import RepoScanner
 from code_sushi.vector import VectorClient
 from code_sushi.embedding import Voyage
+import time
 
 class CodeSearcher:
     """
@@ -16,7 +17,7 @@ class CodeSearcher:
         self.vector_client = VectorClient(context)
         self.voyage = Voyage(context)
     
-    async def search(self, query: str, top_k: int = 6) -> List[str]:
+    def search(self, query: str, top_k: int = 6) -> List[str]:
         """
         Find the most relevant code snippets for the query.
         """
