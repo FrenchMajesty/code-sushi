@@ -56,6 +56,37 @@ class Context:
     }
 ]
 
+format_for_rag_search_prompt = [
+    {
+        "role": "system",
+        "content": "You are an expert software engineer. Your task is to reformat the user queries to make them more useful for searching against a vector database. Only make changes that improve the query's relevance."
+    },
+    {
+        "role": "user", 
+        "content": "Hey, how do I fetch all users who joined in the last 30 days?"
+    },
+    {
+        "role": "assistant",
+        "content": "Retrieve all users who joined within the last 30 days based on the timestamps field in the database."
+    },
+    {
+        "role": "user",
+        "content": "Where do we store the user's profile picture?"
+    },
+    {
+        "role": "assistant", 
+        "content": "Locate the storage mechanism for user profile pictures, including database fields and file storage paths."
+    },
+    {
+        "role": "user",
+        "content": "How do identify users based on their JWT?"
+    },
+    {
+        "role": "assistant",
+        "content": "Search for logic related to user roles identification using JWT payload claims, including roles and permissions."
+    }
+]
+
 question_chat_prompt = [
     {
         "role": "system",
