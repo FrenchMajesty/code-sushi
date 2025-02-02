@@ -7,6 +7,10 @@
 
 **Code Sushi** is a tool to help developers take large repos and cut them down into bite-sized pieces that can be fed into an LLM for answering questions in a few minutes.
 
+## Demo
+
+![CodeSushi-Demo-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/f5ae51a3-d848-45d3-acba-f972c0ac3430)
+
 ## 🌟 Features
 - **Privacy-First**: All code processing happens locally in the CLI tool. Your code only leaves your machine for inference.  
 - **Multi-Language Support**: Can work with any programming language. (currently only Python, Typescript, and PHP is supported)
