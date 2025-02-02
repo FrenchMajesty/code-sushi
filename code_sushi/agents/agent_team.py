@@ -1,8 +1,8 @@
 from typing import List, Optional
-from concurrent.futures import ThreadPoolExecutor
 from code_sushi.jobs import JobQueue
 from code_sushi.types import JobTask
 from code_sushi.context import Context, LogLevel
+from code_sushi.multi_task import WorkerPool
 from .agent import Agent
 import time
 
@@ -19,38 +19,48 @@ class AgentTeam:
         if self.context.is_log_level(LogLevel.DEBUG):
             print(f"Starting Agent Team with {self.count} agents...")
 
-        # Worker thread function
-        def init_agent_worker(context: Context, queue: JobQueue, id: int):
-            agent = Agent(context, id)
-            while not queue.empty():
-                _, job = queue.pop()
-                if job:
-                    chunk_tasks = agent.perform(job)
 
-                    for task in chunk_tasks:
-                        queue.push(5, task)
+        # Use WorkerPool to manage workers
+        worker_pool = WorkerPool(self.count + 1)  # +1 for monitor thread
+        
+        # Start worker threads
+        for i in range(self.count):
+            worker_pool.submit(self._init_agent_worker, self.context, pipeline, i)
 
-                    queue.mark_complete(job)
-                    self.fragments_done[job.fragment.name] = job.fragment
-                else:
-                    break
+        # Start monitor thread
+        worker_pool.submit(self._monitor_queue, pipeline)
+        
+        # Wait for all work to complete
+        worker_pool.wait_all()
 
-        def monitor_queue(queue: JobQueue):
-            queue.track_start()
+    def _init_agent_worker(self, context: Context, queue: JobQueue, id: int):
+        """
+        Initialize an agent worker.
+        """
+        agent = Agent(context, id)
+        while not queue.empty():
+            _, job = queue.pop()
+            if job:
+                chunk_tasks = agent.perform(job)
 
-            while not queue.empty():
-                queue.print_status_update()
-                time.sleep(3)
-            
-            queue.track_end()
+                for task in chunk_tasks:
+                    queue.push(5, task)
+
+                queue.mark_complete(job)
+                self.fragments_done[job.fragment.name] = job.fragment
+            else:
+                break
+
+    def _monitor_queue(self, queue: JobQueue):
+        """
+        Monitor the queue for progress.
+        """
+        queue.track_start()
+
+        while not queue.empty():
             queue.print_status_update()
-            print("Queue is empty. Monitoring stopped.")
-
-        # Manage workers using ThreadPoolExecutor
-        workers = self.count
-        with ThreadPoolExecutor(max_workers=workers + 1) as executor:
-            for i in range(workers):
-                executor.submit(init_agent_worker, self.context, pipeline, i)
-
-            # Monitor the queue
-            executor.submit(monitor_queue, pipeline)
+            time.sleep(3)
+        
+        queue.track_end()
+        queue.print_status_update()
+        print("Queue is empty. Monitoring stopped.")
