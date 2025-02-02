@@ -198,7 +198,6 @@ def main():
     run_parser.add_argument("--path", default="./", help="Path to the repository to process.")
     run_parser.add_argument("--log", type=int, default=1, help="Log level (0-3).")
     run_parser.add_argument("--limit", help="Sets a limit to the number of files to process for testing purposes.")
-    run_parser.add_argument("--blob-workers", type=int, default=25, help="Number of thread workers to use for parallel uploading.")
     run_parser.add_argument("--agents", type=int, default=10, help="Number of AI agents to use for summarizing files.")
     run_parser.add_argument("--vector-workers", type=int, default=25, help="Number of thread workers to use for parallel vectorizing.")
     run_parser.add_argument("--embed-chunks", type=int, default=128, help="Number of items per batch for embedding requests.")
