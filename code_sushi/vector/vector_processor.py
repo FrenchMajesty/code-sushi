@@ -47,4 +47,7 @@ class VectorProcessor:
             # Upload to vector DB
             self.vector_client.write_many(entries)
 
+        if self.context.is_log_level(LogLevel.INFO):
+            print("Finished embedding and uploading summaries")
+
         background_loop.stop()
