@@ -81,9 +81,10 @@ class CodeFragment:
         """
         try:
             metadata = record.metadata
+            name = metadata.get('name') or record.key
             return CodeFragment(
                 path=metadata['original_location'],
-                name=metadata['name'],
+                name=name,
                 content=record.text,
                 start_line=int(metadata.get('start_line', 0)),
                 end_line=int(metadata.get('end_line', 0)),

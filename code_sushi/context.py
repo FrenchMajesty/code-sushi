@@ -54,3 +54,21 @@ class Context:
         Check if the current log level is greater or equal to the given level.
         """
         return self.log_level.value >= level.value
+
+    def overview(self):
+        """
+        Return a dictionary containing an overview of non-config context properties.
+        """
+        return {
+            "repo_path": self.repo_path,
+            "log_level": self.log_level,
+            "output_dir": self.output_dir,
+            "project_name": self.project_name,
+            "has_config_file": self.has_config_file,
+            "ai_provider": self.ai_provider,
+            "vector_db_provider": self.vector_db_provider,
+            "max_agents": self.max_agents,
+            "vector_db_concurrent_limit": self.vector_db_concurrent_limit,
+            "embedding_model_chunk_size": self.embedding_model_chunk_size,
+            "stream_chat_response": self.stream_chat_response
+        }

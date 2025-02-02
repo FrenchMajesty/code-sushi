@@ -109,8 +109,8 @@ def read_config_into_context(args: argparse.Namespace) -> Context:
     output_dir = os.path.abspath(f"{context.repo_path}/.llm/")
     context.output_dir = output_dir
     
-    if context.log_level.value >= LogLevel.DEBUG.value:
-        print(f"Context ready: {context.__dict__}")   
+    if context.is_log_level(LogLevel.DEBUG):
+        print(f"Context ready: {context.overview()}")   
 
     return context
     
@@ -151,8 +151,9 @@ def slice(context: Context, limit: Optional[int] = None) -> Optional[List[CodeFr
     team = AgentTeam(context)
     team.get_to_work(queue)
 
-    return list(team.fragments_done.values())
-
+    final = [f for f in team.fragments_done.values() if f.summary]
+    return final
+    
 def clean(context: Context):
     """
     Clean up the local output directory after processing.
@@ -160,7 +161,6 @@ def clean(context: Context):
     print("Cleaning up output directory...")
     os.system(f"rm -rf {context.output_dir}")
     print("Directory cleaned up.")
-    # TODO: Prompt to ask if we should delete cloud-based resources as well
 
 def chat(context: Context):
     """

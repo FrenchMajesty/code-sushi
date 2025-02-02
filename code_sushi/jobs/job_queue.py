@@ -48,8 +48,9 @@ class JobQueue:
 
             if self.context.is_log_level(LogLevel.VERBOSE):
                 print(f"Adding {file.absolute_path} to queue with priority {priority}")
-                fragment = CodeFragment.from_file(file)
-                self.push(priority, JobTask(self.context, fragment, file))
+            
+            fragment = CodeFragment.from_file(file)
+            self.push(priority, JobTask(self.context, fragment, file))
 
     def push(self, priority: int, job: JobTask):
         with self.lock:
@@ -74,6 +75,10 @@ class JobQueue:
     def empty(self) -> bool:
         with self.lock:
             return self.queue.empty()
+
+    def size(self) -> int:
+        with self.lock:
+            return self.queue.qsize()
 
     def mark_complete(self, job: JobTask) -> None:
         with self.lock:
