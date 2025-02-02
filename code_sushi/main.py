@@ -5,7 +5,6 @@ from .context import Context, LogLevel
 from .agents import AgentTeam
 from .chat import Chat
 from .jobs import JobQueue
-from .storage import GoogleCloudStorage
 from .types import CodeFragment
 from .repo import RepoScanner, get_code_insights
 from .vector import VectorProcessor
@@ -74,7 +73,6 @@ def read_config_into_context(args: argparse.Namespace) -> Context:
 
     context = Context(curr_dir)
     context.vector_db_concurrent_limit = config_data.get("vector_db_max_concurrent_requests", 25)
-    context.blob_storage_concurrent_limit = config_data.get("blob_storage_max_concurrent_requests", 25)
     context.max_agents = config_data.get("max_agents", 10)
     context.embedding_model_chunk_size = config_data.get("embedding_max_chunk_size", 128)
     
@@ -96,9 +94,6 @@ def read_config_into_context(args: argparse.Namespace) -> Context:
     
     if "agents" in args and args.agents:
         context.max_agents = args.agents
-
-    if "blob_workers" in args and args.blob_workers:
-        context.blob_storage_concurrent_limit = args.blob_workers
 
     if "vector_workers" in args and args.vector_workers:
         context.vector_db_concurrent_limit = args.vector_workers

@@ -20,7 +20,6 @@ class Context:
         self.ai_provider: str = "together"
         self.vector_db_provider: str = "pinecone"
         self.max_agents: int = 10
-        self.blob_storage_concurrent_limit: int = 25
         self.vector_db_concurrent_limit: int = 25
         self.embedding_model_chunk_size: int = 128
 
