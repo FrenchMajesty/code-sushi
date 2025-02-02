@@ -48,7 +48,7 @@ class SVector(VectorDatabaseLayer):
         
         return len(records)
 
-    def search(self, query: List[float], top_k: int = 10, filters: dict = {}) -> List[VectorRecord]:
+    def search(self, query: List[float], top_k: int = 10, filters: Optional[dict] = None) -> List[VectorRecord]:
         """
         Search for similar vectors.
         """
@@ -57,6 +57,9 @@ class SVector(VectorDatabaseLayer):
                 print(f"Searching Vector DB with top_k={top_k}")
 
             # Create query input
+            if not filters:
+                filters = {}
+
             filters = filters | { 'project_name': self.context.project_name }
             filter = self._metadata_to_filter_string(filters)
             input_obj = QueryInput(
@@ -89,7 +92,7 @@ class SVector(VectorDatabaseLayer):
             return records
 
         except Exception as e:
-            print(f"Error searching Vector DB: {e}")
+            print(f"Error in SVector.search(): {e}")
             raise
     def _write_sync(self, record: VectorRecord):
         """
@@ -118,7 +121,7 @@ class SVector(VectorDatabaseLayer):
             
             return result
         except Exception as e:
-            print(f"Error writing to Vector DB for key {record.key}: {e}")
+            print(f"Error in SVector._write_sync(): {e}")
             raise
 
     def _hashmap_to_svector_format(self, hashmap: dict) -> dict:

@@ -82,6 +82,7 @@ def read_config_into_context(args: argparse.Namespace) -> Context:
     context.embedding_provider = config_data.get("embedding_provider", "voyage")
     context.together_ai_config = config_data.get("together_ai", None)
     context.voyage_ai_config = config_data.get("voyage_ai", None)
+    context.openai_config = config_data.get("openai", None)
     context.svector_config = config_data.get("svector", None)
     context.pinecone_config = config_data.get("pinecone", None)
     

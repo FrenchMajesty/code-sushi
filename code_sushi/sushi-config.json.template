@@ -10,6 +10,11 @@
         "primary_chat_model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
         "secondary_chat_model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo-128K"
     },
+    "openai": {
+        "api_key": "YOUR_API_KEY",
+        "primary_chat_model": "o3-mini",
+        "secondary_chat_model": "gpt-4o-mini"
+    },
     "voyage_ai": {
         "api_key": "YOUR_API_KEY",
         "embedding_model": "voyage-code-3",

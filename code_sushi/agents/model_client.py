@@ -2,6 +2,7 @@ from typing import Dict, List, Optional
 from .foundation_model_layer import FoundationModelLayer, ModelSize
 from code_sushi.context import Context, LogLevel
 from .together_model import TogetherModel
+from .openai_model import OpenAIModel
 from .prompt_guidance import (
     summarize_file_prompt,
     format_for_rag_search_prompt,
@@ -14,6 +15,7 @@ class ModelClient:
     """
     SUPPORTED_PROVIDERS = {
         "together": TogetherModel,
+        "openai": OpenAIModel
     }
     provider: str
     
