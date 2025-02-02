@@ -17,7 +17,7 @@ class CodeSearcher:
         self.vector_client = VectorClient(context)
         self.voyage = Voyage(context)
     
-    def search(self, query: str, top_k: int = 6) -> List[str]:
+    def search(self, query: str, top_k: int = 6) -> tuple[List[str], List[CodeFragment]]:
         """
         Find the most relevant code snippets for the query.
         """
@@ -44,7 +44,25 @@ class CodeSearcher:
                 if self.context.is_log_level(LogLevel.VERBOSE):
                     print(reranked)
 
-            return reranked
+            # Match up with original fragments
+            matched_fragments = self._match_reranked_content(reranked, contents, fragments)
+
+            return reranked, matched_fragments
         except Exception as e:
             print(f"Error in CodeSearcher.search(): {e}")
             return []
+        
+    def _match_reranked_content(self, reranked: List[str], contents: List[str], fragments: List[CodeFragment]) -> List[CodeFragment]:
+        """
+        Match reranked content back to original fragments.
+        """
+        matched = []
+        for reranked_content in reranked:
+            # Find index of this content in original contents list
+            try:
+                idx = contents.index(reranked_content)
+                matched.append(fragments[idx])
+            except ValueError:
+                # Content not found in original list, skip it
+                continue
+        return matched

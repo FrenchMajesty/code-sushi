@@ -23,7 +23,8 @@ class Chat:
                 if not user_query.strip():
                     continue
                 
-                contexts = self.code_searcher.search(user_query)
+                print("-" * 80)
+                contexts, fragments = self.code_searcher.search(user_query)
                 self.history.append({
                     "role": "user",
                     "content": user_query
@@ -41,19 +42,33 @@ class Chat:
                     "content": response
                 })
                 print(f"AI: {response}")
+
+                # Show context sources
+                sources = []
+                for fragment in fragments:
+                    source_str = ""
+                    if fragment.type() == "function":
+                        source_str = f"{fragment.path}@{fragment.name} -> L:{fragment.start_line}:{fragment.end_line}"
+                    else:
+                        source_str = f"{fragment.path} -> L:{fragment.start_line}:{fragment.end_line}"
+                    sources.append(source_str)
+
                 print("-" * 80)
+                print("Context sources:", sources)
+                print("-" * 80)
+
             except KeyboardInterrupt:
                 print("\nExiting Sushi Chat. Goodbye!")
                 sys.exit(0)
-    
     def ask_question(self, question: str):
         """
         Ask a single question and get a response.
         """
         try:
             start = time.time()
+            print('-' * 12)
             print(f"User aked: {question}")
-            contexts = self.code_searcher.search(question)
+            contexts, fragments = self.code_searcher.search(question)
             
             messages = [{
                 "role": "user", 
@@ -64,7 +79,22 @@ class Chat:
             }]
 
             response = self.model_client.send_completion_request(messages)
+            print('-' * 12)
             print(f"AI: {response}")
+
+            # Format context
+            sources = []
+            for fragment in fragments:
+                source_str = ""
+                if fragment.type() == "function":
+                    source_str = f"{fragment.path}@{fragment.name} -> L:{fragment.start_line}:{fragment.end_line}"
+                else:
+                    source_str = f"{fragment.path} -> L:{fragment.start_line}:{fragment.end_line}"
+
+                sources.append(source_str)
+            print('-' * 12)
+            print("Context sources:", sources)
+            print('-' * 12)
 
             if self.context.is_log_level(LogLevel.DEBUG):
                 runtime = time.time() - start
